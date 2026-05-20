@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #c22a22;      /* Vermelho Vivo Unicesusc */
+  --color-brand: #5c2235;        /* Vinho/Bordô Unicesusc */
+  --color-bg-app: #FAF7F8;       /* Fundo Warm Gray Ultra-Leve */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom smooth styling transitions for premium interface experience */
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Micro-interação customizada para input focados */
+.input-focus-ring:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(194, 42, 34, 0.15);
+}
