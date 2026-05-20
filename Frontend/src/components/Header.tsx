@@ -1,4 +1,4 @@
-import { GraduationCap, Bell, User } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
 
 export default function Header() {
   return (
@@ -36,20 +36,7 @@ export default function Header() {
               className="relative p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
               aria-label="Notificações"
             >
-              <Bell className="h-5.5 w-5.5" />
-              <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-primary border-2 border-brand animate-pulse"></span>
             </button>
-
-            {/* User Profile Info */}
-            <div className="flex items-center space-x-3 pl-3 border-l border-white/20">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold leading-none">Prof. Leonardo</p>
-                <p className="text-[11px] text-white/60 mt-1">Coordenação Geral</p>
-              </div>
-              <div className="h-10 w-10 rounded-xl bg-primary border border-white/20 flex items-center justify-center text-white font-bold text-sm tracking-wide shadow-inner cursor-pointer hover:bg-primary/95 hover:shadow-md transition-all duration-200">
-                <User className="h-5 w-5 text-white" />
-              </div>
-            </div>
           </div>
 
         </div>
