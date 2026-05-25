@@ -51,6 +51,7 @@ export const TI_EQUIPMENT_OPTIONS: OptionItem[] = [
   { id: 'projetor_grande', label: 'Projetor Grande', hasInfo: true },
   { id: 'notebook', label: 'Notebook' },
   { id: 'passador_slides', label: 'Passador de slides' },
+  { id: 'nao_se_aplica', label: 'Não se aplica' },
 ];
 
 export const FURNITURE_SUPPORT_OPTIONS: OptionItem[] = [

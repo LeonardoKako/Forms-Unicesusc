@@ -4,14 +4,27 @@ export const eventFormSchema = z.object({
   // Dados do Solicitante
   requesterName: z
     .string()
-    .min(3, "O nome do solicitante deve conter pelo menos 3 caracteres"),
+    .min(3, "O nome do responsável deve conter pelo menos 3 caracteres"),
   requesterEmail: z
     .string()
-    .email("Insira um endereço de e-mail válido institucional"),
+    .email("Insira um endereço de e-mail válido"),
+  requesterPhone: z
+    .string()
+    .min(10, "Insira um telefone/celular válido"),
   requesterDepartment: z
     .string()
-    .min(2, "Informe o setor, coordenação ou instituição externa"),
-  requesterType: z.enum(["interno", "externo"]),
+    .optional(),
+  requesterType: z.enum(["interno", "locacao"]),
+
+  // Locação
+  adminApprovalFile: z.any().optional(),
+
+  // Evento Parceiro (Comunidade Interna)
+  isPartnerEvent: z.boolean().optional(),
+  partnerName: z.string().optional(),
+  partnerEmail: z.string().optional(),
+  partnerPhone: z.string().optional(),
+  partnerInstitution: z.string().optional(),
 
   // Detalhes Gerais do Evento
   eventTitle: z
@@ -100,6 +113,59 @@ export const eventFormSchema = z.object({
         message: 'O envio do Aval da Juliana Vital é obrigatório',
         path: ['budgetApprovalFile'],
       });
+    }
+  }
+
+  // Validação de Locação
+  if (data.requesterType === 'locacao') {
+    if (!data.adminApprovalFile || data.adminApprovalFile.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'O envio da confirmação do administrativo é obrigatório',
+        path: ['adminApprovalFile'],
+      });
+    }
+  }
+
+  // Validação Comunidade Interna
+  if (data.requesterType === 'interno') {
+    if (!data.requesterDepartment || data.requesterDepartment.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Informe o setor, coordenação ou curso',
+        path: ['requesterDepartment'],
+      });
+    }
+
+    if (data.isPartnerEvent) {
+      if (!data.partnerName || data.partnerName.trim().length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Informe o nome do responsável parceiro',
+          path: ['partnerName'],
+        });
+      }
+      if (!data.partnerEmail || !/^\S+@\S+\.\S+$/.test(data.partnerEmail)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Insira um e-mail válido para o parceiro',
+          path: ['partnerEmail'],
+        });
+      }
+      if (!data.partnerPhone || data.partnerPhone.trim().length < 10) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Insira um telefone válido para o parceiro',
+          path: ['partnerPhone'],
+        });
+      }
+      if (!data.partnerInstitution || data.partnerInstitution.trim().length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Informe a empresa/instituição parceira',
+          path: ['partnerInstitution'],
+        });
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, ChevronRight } from "lucide-react";
@@ -30,6 +30,14 @@ export default function EventForm() {
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       requesterType: "interno",
+      requesterPhone: "",
+      requesterDepartment: "",
+      isPartnerEvent: false,
+      partnerName: "",
+      partnerEmail: "",
+      partnerPhone: "",
+      partnerInstitution: "",
+      adminApprovalFile: undefined,
       acceptTerms: false,
       needsBudget: undefined,
       budgetApprovalFile: undefined,
@@ -38,7 +46,7 @@ export default function EventForm() {
       coffeeBreak: [],
       tiEquipment: [],
       furnitureSupport: [],
-      supportTeams: ["marketing"],
+      supportTeams: ["marketing", "administrativo"],
       presentationMaterials: [],
       needsArtwork: false,
       artworkDescription: "",
@@ -51,6 +59,38 @@ export default function EventForm() {
     reset,
     formState: { errors },
   } = methods;
+
+  // Sincronização reativa entre Equipamentos de TI e Equipes de Apoio (TI)
+  const tiEquipment = methods.watch("tiEquipment") || [];
+  const supportTeams = methods.watch("supportTeams") || [];
+
+  const prevTiEquipmentRef = useRef<string[]>([]);
+  const prevSupportTeamsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    const prevTiEquipment = prevTiEquipmentRef.current;
+    const prevSupportTeams = prevSupportTeamsRef.current;
+
+    const hasActiveTiEquipment = tiEquipment.some(id => id !== "nao_se_aplica" && id !== "");
+    const hasTiSupport = supportTeams.includes("ti");
+
+    const tiEquipmentChanged = JSON.stringify(prevTiEquipment) !== JSON.stringify(tiEquipment);
+    const supportTeamsChanged = JSON.stringify(prevSupportTeams) !== JSON.stringify(supportTeams);
+
+    if (tiEquipmentChanged) {
+      if (hasActiveTiEquipment && !hasTiSupport) {
+        methods.setValue("supportTeams", [...supportTeams, "ti"], { shouldValidate: true, shouldDirty: true });
+      }
+    } else if (supportTeamsChanged) {
+      const prevHadTiSupport = prevSupportTeams.includes("ti");
+      if (prevHadTiSupport && !hasTiSupport && hasActiveTiEquipment) {
+        methods.setValue("tiEquipment", ["nao_se_aplica"], { shouldValidate: true, shouldDirty: true });
+      }
+    }
+
+    prevTiEquipmentRef.current = tiEquipment;
+    prevSupportTeamsRef.current = supportTeams;
+  }, [tiEquipment, supportTeams, methods]);
 
   // Simulated request submit logic
   const onSubmit = (data: EventFormData) => {

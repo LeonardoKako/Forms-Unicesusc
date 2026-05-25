@@ -1,5 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form";
-import { Calendar, MapPin, Clock, DollarSign, Mail, Info } from "lucide-react";
+import { Calendar, MapPin, Clock, DollarSign, Info } from "lucide-react";
 import InputField from "../../../components/InputField";
 import ToggleGroup from "../../../components/ToggleGroup";
 import { ROOM_OPTIONS } from "../mockData";
@@ -96,24 +96,37 @@ export default function DateLocationCard() {
             </div>
 
             {/* Aval da Juliana Vital (File Upload) */}
-            <div className="flex flex-col space-y-2">
-              <label className="text-[13px] font-extrabold uppercase tracking-wide text-brand">
-                Anexar Aval da Juliana Vital <span className="text-primary">*</span>
+            <div className='flex flex-col space-y-2'>
+              <label className='text-[13px] font-extrabold uppercase tracking-wide text-brand'>
+                Anexar Aval da Juliana Vital{" "}
+                <span className='text-primary'>*</span>
               </label>
-              <div className="flex items-center justify-center w-full">
-                <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.budgetApprovalFile ? 'border-red-300 bg-red-50/50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'}`}>
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <DollarSign className="w-8 h-8 mb-3 text-gray-400" />
-                    <p className="mb-2 text-sm text-gray-500">
-                      <span className="font-semibold">Clique para anexar o documento</span> ou arraste e solte
+              <div className='flex items-center justify-center w-full'>
+                <label
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.budgetApprovalFile ? "border-red-300 bg-red-50/50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}
+                >
+                  <div className='flex flex-col items-center justify-center pt-5 pb-6'>
+                    <DollarSign className='w-8 h-8 mb-3 text-gray-400' />
+                    <p className='mb-2 text-sm text-gray-500'>
+                      <span className='font-semibold'>
+                        Clique para anexar o documento
+                      </span>{" "}
+                      ou arraste e solte
                     </p>
-                    <p className="text-xs text-gray-500">PDF, JPG, PNG (MAX. 10MB)</p>
+                    <p className='text-xs text-gray-500'>
+                      PDF, JPG, PNG (MAX. 10MB)
+                    </p>
                   </div>
-                  <input type="file" className="hidden" accept=".pdf,image/*" {...register("budgetApprovalFile")} />
+                  <input
+                    type='file'
+                    className='hidden'
+                    accept='.pdf,image/*'
+                    {...register("budgetApprovalFile")}
+                  />
                 </label>
               </div>
               {errors.budgetApprovalFile && (
-                <p className="text-xs text-red-600 font-medium animate-fadeIn">
+                <p className='text-xs text-red-600 font-medium animate-fadeIn'>
                   {errors.budgetApprovalFile.message as string}
                 </p>
               )}
@@ -154,11 +167,13 @@ export default function DateLocationCard() {
         ) : (
           <div className='text-[10px] text-gray-400 leading-normal italic mt-[-8px] animate-fadeIn space-y-1'>
             <p>
-              * Prazo mínimo: <strong>{needsBudget ? "15 dias" : "7 dias"}</strong> de
+              * Prazo mínimo:{" "}
+              <strong>{needsBudget ? "15 dias" : "7 dias"}</strong> de
               antecedência ({needsBudget ? "exige fomento" : "sem orçamento"}).
             </p>
-            <p className="text-amber-600 font-medium">
-              * Atenção: Finais de semana só podem ser agendados com mais de 15 dias de antecedência.
+            <p className='text-amber-600 font-medium'>
+              * Atenção: Finais de semana só podem ser agendados com mais de 15
+              dias de antecedência.
             </p>
           </div>
         )}
