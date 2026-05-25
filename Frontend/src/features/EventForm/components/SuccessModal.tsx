@@ -1,5 +1,14 @@
 import { CheckCircle2 } from "lucide-react";
-import { ROOM_OPTIONS, TI_EQUIPMENT_OPTIONS } from "../mockData";
+import {
+  ROOM_OPTIONS,
+  TI_EQUIPMENT_OPTIONS,
+  TARGET_AUDIENCE_OPTIONS,
+  COPA_OPTIONS,
+  COFFEE_BREAK_OPTIONS,
+  FURNITURE_SUPPORT_OPTIONS,
+  SUPPORT_TEAMS_OPTIONS,
+  PRESENTATION_MATERIAL_OPTIONS,
+} from "../mockData";
 import { EventFormData } from "../schema";
 
 interface SuccessModalProps {
@@ -24,156 +33,381 @@ export default function SuccessModal({
     return `${day}/${month}/${year}`;
   };
 
+  // Helper to translate array IDs to comma separated text
+  const getLabels = (
+    ids: string[] | undefined,
+    options: { id: string; label: string }[],
+  ) => {
+    if (!ids || ids.length === 0) return "Nenhum";
+    if (ids.includes("nao_se_aplica")) return "Não se aplica";
+    return ids
+      .map((id) => options.find((opt) => opt.id === id)?.label || id)
+      .join(", ");
+  };
+
   // Find dynamic descriptive room string
   const roomLabel =
     ROOM_OPTIONS.find((r) => r.value === data.selectedRoom)?.label ||
     data.selectedRoom;
 
   return (
-    <div className='fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn'>
-      <div className='relative bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100 animate-scaleUp'>
+    <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn'>
+      <div
+        className='relative bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 animate-scaleUp overflow-hidden'
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Decorative Top Accent Bar */}
         <div className='h-2 bg-brand w-full'></div>
 
-        {/* Modal Body */}
-        <div className='p-8 text-center'>
-          {/* Green Check Icon with Ring effect */}
-          <div className='mx-auto h-16 w-16 rounded-full bg-green-50 flex items-center justify-center text-green-500 mb-5 shadow-inner'>
-            <CheckCircle2 className='h-10 w-10' />
-          </div>
-
-          <h3 className='text-2xl font-extrabold text-brand uppercase tracking-wide'>
-            Solicitação Recebida!
-          </h3>
-          <p className='text-sm text-gray-500 mt-2 max-w-sm mx-auto leading-relaxed'>
-            O formulário de agendamento de espaço foi processado e validado com
-            sucesso pelo front-end!
-          </p>
-
-          {/* Aggregated Info Card Box */}
-          <div className='bg-gray-50/80 rounded-2xl p-5 text-left text-xs text-gray-600 mt-6 space-y-3.5 border border-gray-100'>
-            {/* Header: Control code */}
-            <div className='flex justify-between items-center pb-2 border-b border-gray-200/50'>
-              <span className='font-semibold text-gray-400'>
-                Código de Controle
-              </span>
-              <span className='font-extrabold text-brand tracking-wider uppercase'>
-                #{Math.floor(100000 + Math.random() * 900000)}
-              </span>
+        {/* Modal Header */}
+        <div className='flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50/50'>
+          <div className='flex items-center space-x-3'>
+            <div className='h-10 w-10 rounded-full bg-green-50 flex items-center justify-center text-green-500 shadow-inner'>
+              <CheckCircle2 className='h-6 w-6' />
             </div>
-
-            {/* Row 1: Event Title */}
             <div>
-              <span className='font-semibold text-gray-400 block mb-0.5'>
-                Evento
-              </span>
-              <span className='font-extrabold text-gray-800 text-sm leading-tight block'>
-                {data.eventTitle}
-              </span>
-            </div>
-
-            {/* Row 2: Requester Name & Type */}
-            <div className='grid grid-cols-2 gap-4'>
-              <div>
-                <span className='font-semibold text-gray-400 block mb-0.5'>
-                  Responsável
+              <h3 className='text-lg font-extrabold text-brand uppercase tracking-wide'>
+                Solicitação Recebida!
+              </h3>
+              <p className='text-xs text-gray-500'>
+                Código de Controle:{" "}
+                <span className='font-bold text-gray-700'>
+                  #{Math.floor(100000 + Math.random() * 900000)}
                 </span>
-                <span className='font-bold text-gray-700 block truncate'>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Body with Custom Scroll */}
+        <div className='p-6 overflow-y-auto space-y-6 max-h-[60vh] bg-gray-50/30'>
+          {/* SECÃO 1: SOLICITANTE */}
+          <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
+            <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2 flex items-center'>
+              👤 Dados do Solicitante
+            </h4>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-xs'>
+              <div>
+                <span className='font-semibold text-gray-400 block'>Nome</span>
+                <span className='font-bold text-gray-800 text-sm'>
                   {data.requesterName}
                 </span>
               </div>
               <div>
-                <span className='font-semibold text-gray-400 block mb-0.5'>
+                <span className='font-semibold text-gray-400 block'>
                   Vínculo
                 </span>
-                <span className='font-bold text-primary uppercase block tracking-wider'>
-                  {data.requesterType}
+                <span className='font-bold text-gray-800 text-sm uppercase tracking-wide'>
+                  {data.requesterType === "interno"
+                    ? "Comunidade Interna"
+                    : "Locação"}
+                </span>
+              </div>
+              <div>
+                <span className='font-semibold text-gray-400 block'>
+                  E-mail
+                </span>
+                <span className='font-medium text-gray-700'>
+                  {data.requesterEmail}
+                </span>
+              </div>
+              <div>
+                <span className='font-semibold text-gray-400 block'>
+                  Telefone/Celular
+                </span>
+                <span className='font-medium text-gray-700'>
+                  {data.requesterPhone}
+                </span>
+              </div>
+              {data.requesterType === "interno" && data.requesterDepartment && (
+                <div className='col-span-1 md:col-span-2'>
+                  <span className='font-semibold text-gray-400 block'>
+                    Setor/Curso/Coordenação
+                  </span>
+                  <span className='font-semibold text-gray-700'>
+                    {data.requesterDepartment}
+                  </span>
+                </div>
+              )}
+              {data.requesterType === "locacao" && (
+                <div className='col-span-1 md:col-span-2 bg-brand/5 p-3 rounded-xl border border-brand/10'>
+                  <span className='font-semibold text-brand block'>
+                    Confirmação do Administrativo
+                  </span>
+                  <span className='font-bold text-green-600 flex items-center mt-1'>
+                    ✓ Arquivo Anexado
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Evento Parceiro */}
+            {data.requesterType === "interno" && data.isPartnerEvent && (
+              <div className='mt-3 bg-amber-50/50 p-4 rounded-xl border border-amber-100 space-y-2 text-xs'>
+                <span className='font-bold text-amber-800 block'>
+                  🤝 Detalhes do Evento Parceiro
+                </span>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                  <div>
+                    <span className='font-semibold text-gray-500 block'>
+                      Responsável Parceiro
+                    </span>
+                    <span className='font-bold text-gray-800'>
+                      {data.partnerName}
+                    </span>
+                  </div>
+                  <div>
+                    <span className='font-semibold text-gray-500 block'>
+                      Empresa/Instituição
+                    </span>
+                    <span className='font-bold text-gray-800'>
+                      {data.partnerInstitution}
+                    </span>
+                  </div>
+                  <div>
+                    <span className='font-semibold text-gray-500 block'>
+                      E-mail Parceiro
+                    </span>
+                    <span className='font-medium text-gray-700'>
+                      {data.partnerEmail}
+                    </span>
+                  </div>
+                  <div>
+                    <span className='font-semibold text-gray-500 block'>
+                      Telefone Parceiro
+                    </span>
+                    <span className='font-medium text-gray-700'>
+                      {data.partnerPhone}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SEÇÃO 2: DETALHES DO EVENTO */}
+          <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
+            <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
+              📝 Detalhes do Evento
+            </h4>
+            <div className='space-y-3 text-xs'>
+              <div>
+                <span className='font-semibold text-gray-400 block'>
+                  Título do Evento
+                </span>
+                <span className='font-extrabold text-gray-800 text-sm'>
+                  {data.eventTitle}
+                </span>
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <span className='font-semibold text-gray-400 block'>
+                    Tipo do Evento
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {data.eventType}
+                  </span>
+                </div>
+                <div>
+                  <span className='font-semibold text-gray-400 block'>
+                    Público Estimado
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {data.estimatedPublic} pessoas
+                  </span>
+                </div>
+              </div>
+              <div>
+                <span className='font-semibold text-gray-400 block'>
+                  Resumo e Finalidade
+                </span>
+                <p className='text-gray-700 leading-relaxed font-medium mt-1 whitespace-pre-wrap bg-gray-50 p-3 rounded-xl border border-gray-100'>
+                  {data.eventDescription}
+                </p>
+              </div>
+              <div>
+                <span className='font-semibold text-gray-400 block'>
+                  Público Alvo
+                </span>
+                <span className='font-bold text-gray-700'>
+                  {getLabels(data.targetAudience, TARGET_AUDIENCE_OPTIONS)}
                 </span>
               </div>
             </div>
+          </div>
 
-            {/* Row 3: Date & Hours */}
-            <div className='grid grid-cols-2 gap-4 pt-2 border-t border-gray-200/50'>
+          {/* SEÇÃO 3: DATA, LOCAL E ALIMENTAÇÃO */}
+          <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
+            <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
+              📅 Data, Local & Alimentação
+            </h4>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-xs'>
               <div>
-                <span className='font-semibold text-gray-400 block mb-0.5'>
+                <span className='font-semibold text-gray-400 block'>
                   Data da Reserva
                 </span>
-                <span className='font-bold text-gray-700 block'>
+                <span className='font-bold text-gray-800 text-sm'>
                   {formatDate(data.eventDate)}
                 </span>
               </div>
               <div>
-                <span className='font-semibold text-gray-400 block mb-0.5'>
+                <span className='font-semibold text-gray-400 block'>
                   Horário
                 </span>
-                <span className='font-bold text-gray-700 block'>
+                <span className='font-bold text-gray-800 text-sm'>
                   {data.startTime} às {data.endTime}
                 </span>
               </div>
-            </div>
-
-            {/* Row 4: Room Location */}
-            <div className='pt-2 border-t border-gray-200/50'>
-              <span className='font-semibold text-gray-400 block mb-0.5'>
-                Local
-              </span>
-              <span className='font-bold text-gray-800 block'>{roomLabel}</span>
-            </div>
-
-            {/* Row 5: Budget Requirements (Condicional) */}
-            {data.needsBudget && (
-              <div className='pt-2 border-t border-gray-200/50 space-y-1 bg-red-50/10 p-2.5 rounded-lg border border-primary/10'>
-                <div className="flex justify-between items-center text-[9px]">
-                  <span className='font-bold text-primary uppercase tracking-wider'>
-                    Orçamento Solicitado
-                  </span>
-                  <span className='font-semibold text-gray-500'>
-                    Notificado: {data.budgetEmail || "financeiro@unicesusc.edu.br"}
+              <div className='col-span-1 md:col-span-2'>
+                <span className='font-semibold text-gray-400 block'>
+                  Espaço Solicitado
+                </span>
+                <span className='font-bold text-gray-800 text-sm'>
+                  {roomLabel}
+                </span>
+              </div>
+              <div>
+                <span className='font-semibold text-gray-400 block'>
+                  Necessita de Orçamento?
+                </span>
+                <span className='font-bold text-gray-700'>
+                  {data.needsBudget ? "Sim, necessita" : "Não necessita"}
+                </span>
+              </div>
+              {data.needsBudget && (
+                <div className='col-span-1 md:col-span-2 bg-red-50/20 p-3 rounded-xl border border-red-100/50 flex justify-between items-center'>
+                  <div>
+                    <span className='font-semibold text-red-800 block'>
+                      Confirmação da Reitoria
+                    </span>
+                    <span className='text-[10px] text-red-600 font-medium'>
+                      Aprovação financeira integrada
+                    </span>
+                  </div>
+                  <span className='font-bold text-green-600 flex items-center text-[11px]'>
+                    ✓ Anexado
                   </span>
                 </div>
-                <p className='font-semibold text-gray-700 mt-0.5 leading-relaxed'>
-                  {data.budgetDescription}
-                </p>
+              )}
+              <div className='col-span-1 md:col-span-2 border-t border-gray-100 pt-3 grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <span className='font-semibold text-gray-400 block'>
+                    Itens de Copa
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {getLabels(data.copa, COPA_OPTIONS)}
+                  </span>
+                </div>
+                <div>
+                  <span className='font-semibold text-gray-400 block'>
+                    Itens de Coffee Break
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {getLabels(data.coffeeBreak, COFFEE_BREAK_OPTIONS)}
+                  </span>
+                </div>
               </div>
-            )}
+            </div>
+          </div>
 
-            {/* Row 6: IT Equipment resources badges */}
-            {data.tiEquipment && data.tiEquipment.length > 0 && !data.tiEquipment.includes('nao_se_aplica') && (
-              <div className='pt-2 border-t border-gray-200/50'>
-                <span className='font-semibold text-gray-400 block mb-1'>
-                  Equipamentos Solicitados
+          {/* SEÇÃO 4: LOGÍSTICA E APOIO */}
+          <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
+            <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
+              🛠️ Logística, T.I. & Apoio
+            </h4>
+            <div className='space-y-4 text-xs'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <span className='font-semibold text-gray-400 block mb-1'>
+                    Equipamentos de T.I.
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {getLabels(data.tiEquipment, TI_EQUIPMENT_OPTIONS)}
+                  </span>
+                </div>
+                <div>
+                  <span className='font-semibold text-gray-400 block mb-1'>
+                    Móveis e Apoio
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {getLabels(
+                      data.furnitureSupport,
+                      FURNITURE_SUPPORT_OPTIONS,
+                    )}
+                  </span>
+                </div>
+              </div>
+              <div className='border-t border-gray-100 pt-3'>
+                <span className='font-semibold text-gray-400 block mb-1.5'>
+                  Equipes de Apoio Acionadas
                 </span>
                 <div className='flex flex-wrap gap-1.5'>
-                  {data.tiEquipment.map((id: string) => (
-                    <span
-                      key={id}
-                      className='bg-brand/5 border border-brand/10 text-brand text-[10px] font-bold px-2 py-0.5 rounded-md'
-                    >
-                      {TI_EQUIPMENT_OPTIONS.find((opt) => opt.id === id)?.label || id}
-                    </span>
-                  ))}
+                  {data.supportTeams && data.supportTeams.length > 0 ? (
+                    data.supportTeams.map((teamId) => (
+                      <span
+                        key={teamId}
+                        className='bg-brand/5 border border-brand/10 text-brand text-[10px] font-bold px-2 py-0.5 rounded-md'
+                      >
+                        {SUPPORT_TEAMS_OPTIONS.find((t) => t.id === teamId)
+                          ?.label || teamId}
+                      </span>
+                    ))
+                  ) : (
+                    <span className='text-gray-500 font-medium'>Nenhuma</span>
+                  )}
                 </div>
               </div>
-            )}
+              <div className='border-t border-gray-100 pt-3 grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <span className='font-semibold text-gray-400 block'>
+                    Apresentação de Slides/Vídeo
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {getLabels(
+                      data.presentationMaterials,
+                      PRESENTATION_MATERIAL_OPTIONS,
+                    )}
+                  </span>
+                </div>
+                <div>
+                  <span className='font-semibold text-gray-400 block'>
+                    Necessita de Arte do Marketing?
+                  </span>
+                  <span className='font-bold text-gray-700'>
+                    {data.needsArtwork ? "Sim" : "Não"}
+                  </span>
+                </div>
+                {data.needsArtwork && data.artworkDescription && (
+                  <div className='col-span-1 md:col-span-2 bg-brand/5 p-3 rounded-xl border border-brand/10'>
+                    <span className='font-semibold text-brand block mb-1'>
+                      Descrição da Arte Solicitada
+                    </span>
+                    <p className='text-gray-700 leading-normal'>
+                      {data.artworkDescription}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
+        </div>
 
-          {/* Modal Footer Buttons */}
-          <div className='mt-8 flex flex-col sm:flex-row gap-3 justify-center'>
-            <button
-              type='button'
-              onClick={onReset}
-              className='w-full sm:w-auto px-6 h-12 bg-primary text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md hover:bg-primary/95 active:scale-[0.98] transition-all'
-            >
-              Nova Solicitação
-            </button>
-            <button
-              type='button'
-              onClick={onClose}
-              className='w-full sm:w-auto px-6 h-12 border-2 border-gray-200 text-gray-600 font-bold text-xs tracking-wider uppercase rounded-xl hover:border-gray-300 transition-all'
-            >
-              Fechar
-            </button>
-          </div>
+        {/* Modal Footer Buttons */}
+        <div className='p-6 border-t border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row gap-3 justify-end'>
+          <button
+            type='button'
+            onClick={onReset}
+            className='w-full sm:w-auto px-6 h-12 bg-primary text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md hover:bg-primary/95 active:scale-[0.98] transition-all'
+          >
+            Nova Solicitação
+          </button>
+          <button
+            type='button'
+            onClick={onClose}
+            className='w-full sm:w-auto px-6 h-12 border-2 border-gray-200 text-gray-600 font-bold text-xs tracking-wider uppercase rounded-xl hover:border-gray-300 active:scale-[0.98] transition-all'
+          >
+            Fechar
+          </button>
         </div>
       </div>
     </div>

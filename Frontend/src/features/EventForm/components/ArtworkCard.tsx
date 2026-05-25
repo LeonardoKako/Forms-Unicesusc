@@ -4,7 +4,7 @@ import ToggleGroup from "../../../components/ToggleGroup";
 import InputField from "../../../components/InputField";
 
 export default function ArtworkCard() {
-  const { watch, setValue, formState: { errors } } = useFormContext();
+  const { register, watch, setValue, formState: { errors } } = useFormContext();
   const needsArtwork = watch("needsArtwork");
 
   return (
@@ -44,11 +44,12 @@ export default function ArtworkCard() {
         {needsArtwork && (
           <div className="animate-fadeIn">
             <InputField
+              {...register("artworkDescription")}
               label="Descrição da Arte"
-              name="artworkDescription"
-              type="textarea"
+              as="textarea"
               placeholder="Ex: Story para Instagram, Publicação no Feed, Banner 2x1m..."
               required
+              error={errors.artworkDescription?.message as string}
             />
           </div>
         )}

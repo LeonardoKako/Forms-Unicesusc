@@ -10,6 +10,7 @@ export default function DateLocationCard() {
     register,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useFormContext<EventFormData>();
 
@@ -153,6 +154,37 @@ export default function DateLocationCard() {
             min={isDateDisabled ? undefined : minDateStr}
             icon={<Calendar className='h-4 w-4' />}
             className={isDateDisabled ? "bg-gray-50/50 border-dashed" : ""}
+            onClick={(e) => {
+              try {
+                const target = e.currentTarget as any;
+                if (target && typeof target.showPicker === "function") {
+                  target.showPicker();
+                }
+              } catch (err) {
+                console.error("showPicker not supported or failed", err);
+              }
+            }}
+            onChange={(e) => {
+              const selectedDateStr = e.target.value;
+              if (selectedDateStr) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const selectedDate = new Date(selectedDateStr + "T00:00:00");
+
+                const diffTime = selectedDate.getTime() - today.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
+
+                if (diffDays <= 15) {
+                  const dayOfWeek = selectedDate.getDay(); // 0 = Domingo, 6 = Sábado
+                  if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    alert("Atenção: Finais de semana só podem ser agendados com mais de 15 dias de antecedência.");
+                    setValue("eventDate", "", { shouldValidate: true });
+                    return;
+                  }
+                }
+              }
+              register("eventDate").onChange(e);
+            }}
           />
         </div>
 
