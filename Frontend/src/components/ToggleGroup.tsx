@@ -1,4 +1,3 @@
-import React from 'react'
 
 export interface ToggleOption {
   value: string
@@ -17,7 +16,7 @@ interface ToggleGroupProps {
 export default function ToggleGroup({ label, value, onChange, options, required, error }: ToggleGroupProps) {
   return (
     <div className="w-full flex flex-col space-y-1.5">
-      
+
       {/* Label */}
       <label className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 flex items-center">
         <span>{label}</span>
@@ -35,8 +34,8 @@ export default function ToggleGroup({ label, value, onChange, options, required,
               onClick={() => onChange(opt.value)}
               className={`
                 h-[46px] rounded-xl px-4 text-sm font-semibold tracking-wide border-2 transition-all duration-200 outline-none
-                ${isSelected 
-                  ? 'bg-red-50/50 border-primary text-primary shadow-sm ring-4 ring-primary/5' 
+                ${isSelected
+                  ? 'bg-red-50/50 border-primary text-primary shadow-sm ring-4 ring-primary/5'
                   : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-800'
                 }
                 ${error && !isSelected ? 'border-red-500/80 text-red-500' : ''}

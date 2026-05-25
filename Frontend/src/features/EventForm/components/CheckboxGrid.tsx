@@ -1,4 +1,5 @@
 import { useFormContext } from "react-hook-form";
+import { Eye } from "lucide-react";
 import { OptionItem } from "../mockData";
 
 interface CheckboxGridProps {
@@ -8,6 +9,8 @@ interface CheckboxGridProps {
   columns?: 2 | 3;
   withCardWrapper?: boolean;
   children?: React.ReactNode;
+  disabledOptions?: string[];
+  onInfoClick?: (optionId: string) => void;
 }
 
 export default function CheckboxGrid({
@@ -17,6 +20,8 @@ export default function CheckboxGrid({
   columns = 2,
   withCardWrapper = true,
   children,
+  disabledOptions = [],
+  onInfoClick,
 }: CheckboxGridProps) {
   const { watch, setValue, formState: { errors } } = useFormContext();
   const selectedValues: string[] = watch(name) || [];
@@ -65,17 +70,34 @@ export default function CheckboxGrid({
                 type="checkbox"
                 value={option.id}
                 checked={isChecked}
+                disabled={disabledOptions.includes(option.id)}
                 onChange={(e) => handleCheckboxChange(option.id, e.target.checked)}
-                className="h-4.5 w-4.5 rounded border-gray-300 text-primary focus:ring-primary/20 accent-primary transition-all cursor-pointer"
+                className={`h-4.5 w-4.5 rounded border-gray-300 focus:ring-primary/20 accent-primary transition-all cursor-pointer ${
+                  disabledOptions.includes(option.id) ? "opacity-50 cursor-not-allowed" : "text-primary"
+                }`}
               />
               <span
-                className={`text-sm transition-colors ${
+                className={`text-sm transition-colors flex items-center ${
                   isChecked
                     ? "text-brand font-medium"
                     : "text-gray-600 group-hover:text-gray-900"
                 }`}
               >
                 {option.label}
+                {option.hasInfo && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onInfoClick) onInfoClick(option.id);
+                    }}
+                    className="ml-2 text-gray-400 hover:text-brand transition-colors focus:outline-none"
+                    title="Ver mais informações"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                )}
               </span>
             </label>
           );

@@ -11,11 +11,14 @@ import CoffeeBreakCard from "./components/CoffeeBreakCard";
 import TIEquipmentCard from "./components/TIEquipmentCard";
 import FurnitureSupportCard from "./components/FurnitureSupportCard";
 import SupportTeamsCard from "./components/SupportTeamsCard";
+import PresentationMaterialCard from "./components/PresentationMaterialCard";
 import SuccessModal from "./components/SuccessModal";
+import InfoModal from "@/components/InfoModal";
 
 export default function EventForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [submittedData, setSubmittedData] = useState<EventFormData | null>(
     null,
   );
@@ -33,7 +36,8 @@ export default function EventForm() {
       coffeeBreak: [],
       tiEquipment: [],
       furnitureSupport: [],
-      supportTeams: [],
+      supportTeams: ["marketing"],
+      presentationMaterials: [],
     },
   });
 
@@ -70,6 +74,7 @@ export default function EventForm() {
             <div className='lg:col-span-7 space-y-6'>
               <RequesterCard />
               <EventDetailsCard />
+              <TIEquipmentCard />
               <SupportTeamsCard />
             </div>
 
@@ -77,8 +82,8 @@ export default function EventForm() {
             <div className='lg:col-span-5 space-y-6'>
               <DateLocationCard />
               <CoffeeBreakCard />
-              <TIEquipmentCard />
               <FurnitureSupportCard />
+              <PresentationMaterialCard />
 
               {/* Termos de Uso e Botão de Envio */}
               <div className='bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4'>
@@ -92,12 +97,16 @@ export default function EventForm() {
                     />
                     <span className='text-xs text-gray-500 leading-normal font-medium'>
                       Declaro estar ciente dos{" "}
-                      <a
-                        href='#'
-                        className='text-primary hover:underline font-semibold'
+                      <button
+                        type='button'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowTermsModal(true);
+                        }}
+                        className='text-primary hover:underline font-semibold focus:outline-none'
                       >
                         Termos de Uso
-                      </a>{" "}
+                      </button>{" "}
                       e das normas de segurança dos ambientes da Unicesusc.
                     </span>
                   </label>
@@ -145,6 +154,30 @@ export default function EventForm() {
           onClose={() => setShowSuccessModal(false)}
           onReset={handleResetForm}
         />
+
+        {/* Modal de Termos de Uso */}
+        <InfoModal
+          isOpen={showTermsModal}
+          onClose={() => setShowTermsModal(false)}
+          title='Termos de Uso'
+          type='document'
+        >
+          <div className='space-y-4'>
+            <h4 className='font-bold text-gray-800 text-lg'>
+              Regras e Normas de Utilização
+            </h4>
+            <p className='text-sm text-gray-600 leading-relaxed'>
+              Este é um documento de espaço reservado. Aqui você poderá anexar
+              ou escrever os termos de uso reais do ambiente, detalhando as
+              regras de convivência, horários permitidos, responsabilidades
+              sobre equipamentos e demais normas de segurança necessárias para a
+              realização de eventos na instituição.
+            </p>
+            <p className='text-sm text-gray-600 leading-relaxed'>
+              O texto completo será incluído aqui futuramente.
+            </p>
+          </div>
+        </InfoModal>
       </div>
     </FormProvider>
   );

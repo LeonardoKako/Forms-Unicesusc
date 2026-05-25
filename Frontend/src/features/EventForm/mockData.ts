@@ -18,6 +18,7 @@ export const ROOM_OPTIONS: RoomOption[] = [
 export interface OptionItem {
   id: string;
   label: string;
+  hasInfo?: boolean;
 }
 
 export const TARGET_AUDIENCE_OPTIONS: OptionItem[] = [
@@ -38,8 +39,8 @@ export const COFFEE_BREAK_OPTIONS: OptionItem[] = [
 
 export const TI_EQUIPMENT_OPTIONS: OptionItem[] = [
   { id: 'microfones', label: 'Microfones' },
-  { id: 'projetor', label: 'Projetor' },
-  { id: 'nao_se_aplica', label: 'Não se aplica' },
+  { id: 'projetor_pequeno', label: 'Projetor Pequeno', hasInfo: true },
+  { id: 'projetor_grande', label: 'Projetor Grande', hasInfo: true },
   { id: 'notebook', label: 'Notebook' },
   { id: 'passador_slides', label: 'Passador de slides' },
 ];
@@ -72,5 +73,11 @@ export const SUPPORT_TEAMS_OPTIONS: OptionItem[] = [
   { id: 'bolsas', label: 'Bolsas' },
   { id: 'pos_graduacao', label: 'Pós-graduação' },
   { id: 'colegio_cruz_sousa', label: 'Colégio Cruz e Sousa' },
+];
+
+export const PRESENTATION_MATERIAL_OPTIONS: OptionItem[] = [
+  { id: 'arquivo_pdf_ppt', label: 'Apresentação (PDF, PPT, etc)' },
+  { id: 'arquivo_video', label: 'Vídeo' },
+  { id: 'pen_drive', label: 'Levarei Pen Drive (USB)' },
   { id: 'nao_se_aplica', label: 'Não se aplica' },
 ];

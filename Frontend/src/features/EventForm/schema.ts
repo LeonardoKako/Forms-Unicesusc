@@ -67,7 +67,13 @@ export const eventFormSchema = z.object({
   // Equipes de Apoio (Imagem 3)
   supportTeams: z
     .array(z.string())
-    .min(1, 'Selecione as equipes de apoio ou marque "Não se aplica"'),
+    .min(1, 'Selecione as equipes de apoio'),
+
+  // Material de Apresentação
+  presentationMaterials: z
+    .array(z.string())
+    .min(1, 'Selecione o material de apresentação ou marque "Não se aplica"'),
+  presentationFiles: z.any().optional(),
 
   // Termos de Uso
   acceptTerms: z

@@ -25,7 +25,12 @@ export default function SupportTeamsCard() {
         options={SUPPORT_TEAMS_OPTIONS}
         columns={3}
         withCardWrapper={false}
-      />
+        disabledOptions={["marketing"]}
+      >
+        <div className="p-3 bg-brand/5 border border-brand/10 rounded-xl text-sm text-brand font-medium">
+          O marketing sempre estará ciente do evento.
+        </div>
+      </CheckboxGrid>
     </div>
   );
 }
