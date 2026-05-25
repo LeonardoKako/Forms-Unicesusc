@@ -1,0 +1,45 @@
+Ticket Prisma
+
+model EventTicket {
+  id                    String   @id @default(uuid())
+  controlCode           String   @unique // Ex: #482910
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  // 👤 Dados do Solicitante
+  requesterName         String
+  requesterEmail        String
+  requesterPhone        String
+  requesterType         String   // "interno" ou "locacao"
+  requesterDepartment   String?  // Opcional: Setor/Curso (Apenas para Interno)
+  adminApprovalFileUrl  String?  // Opcional: URL da confirmação do administrativo (Locação)
+  // 🤝 Detalhes do Evento Parceiro (Opcionais, se for evento parceiro)
+  isPartnerEvent        Boolean  @default(false)
+  partnerName           String?
+  partnerEmail          String?
+  partnerPhone          String?
+  partnerInstitution    String?
+  // 📝 Detalhes Gerais do Evento
+  eventTitle            String
+  eventType             String
+  eventDescription      String   @db.Text
+  targetAudience        String[] // Array de públicos (PostgreSQL)
+  estimatedPublic       Int
+  // 📅 Data, Local & Orçamento
+  eventDate             DateTime // Data do evento
+  startTime             String   // "12:32"
+  endTime               String   // "15:32"
+  selectedRoom          String   // Ex: "auditorio"
+  needsBudget           Boolean  @default(false)
+  budgetApprovalFileUrl String?  // URL da confirmação da Reitoria (se necessitar de orçamento)
+  // 🍽️ Alimentação e Utensílios
+  copa                  String[] // Array de itens da copa
+  coffeeBreak           String[] // Array de itens de coffee break
+  // 🛠️ Logística, T.I. & Apoio
+  tiEquipment           String[] // Array de equipamentos solicitados
+  furnitureSupport      String[] // Array de móveis de apoio
+  supportTeams          String[] // Array de equipes de apoio acionadas (Ex: ["marketing", "administrativo", "ti"])
+  presentationMaterials String[] // Materiais de apresentação (PDF, vídeo, etc.)
+  needsArtwork          Boolean  @default(false)
+  artworkDescription    String?  @db.Text // Descrição da arte marketing (se necessitar de arte)
+  @@map("event_bookings")
+}
