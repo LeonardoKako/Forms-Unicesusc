@@ -1,8 +1,20 @@
+import { useEffect } from "react";
+import { useFormContext } from "react-hook-form";
 import { Coffee } from "lucide-react";
 import CheckboxGrid from "./CheckboxGrid";
 import { COFFEE_BREAK_OPTIONS } from "../mockData";
 
 export default function CoffeeBreakCard() {
+  const { watch, setValue } = useFormContext();
+  const coffeeBreak = watch("coffeeBreak") || [];
+
+  useEffect(() => {
+    const hasItems = coffeeBreak.length > 0 && !coffeeBreak.includes("nao_se_aplica");
+    if (hasItems) {
+      setValue("needsBudget", true, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [coffeeBreak, setValue]);
+
   return (
     <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md animate-fadeIn">
       {/* Header do Card */}
@@ -12,10 +24,10 @@ export default function CoffeeBreakCard() {
         </div>
         <div>
           <h2 className="text-base font-extrabold uppercase tracking-wide text-brand">
-            Copa / Coffee Break
+            Coffee Break
           </h2>
           <p className="text-xs text-gray-400">
-            Necessidades de alimentação e utensílios
+            Necessidades de alimentação
           </p>
         </div>
       </div>

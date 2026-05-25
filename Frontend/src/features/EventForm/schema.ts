@@ -36,15 +36,19 @@ export const eventFormSchema = z.object({
         .min(1, 'O público estimado deve ser de pelo menos 1 pessoa')
     ),
 
-  // Copa / Coffee Break (Imagem 1)
+  // Copa (Imagem 1)
+  copa: z
+    .array(z.string())
+    .min(1, 'Selecione as opções de copa ou marque "Não se aplica"'),
+
+  // Coffee Break (Imagem 1)
   coffeeBreak: z
     .array(z.string())
-    .min(1, 'Selecione as opções de copa/coffee break ou marque "Não se aplica"'),
+    .min(1, 'Selecione as opções de coffee break ou marque "Não se aplica"'),
 
   // Orçamento (Detalhamento Financeiro)
   needsBudget: z.boolean({ required_error: 'Informe se o evento necessita de orçamento' }),
-  budgetDescription: z.string().optional(),
-  budgetEmail: z.string().optional(),
+  budgetApprovalFile: z.any().optional(),
 
   // Data e Local
   eventDate: z.string().min(1, 'A data do evento é obrigatória'),
@@ -75,6 +79,10 @@ export const eventFormSchema = z.object({
     .min(1, 'Selecione o material de apresentação ou marque "Não se aplica"'),
   presentationFiles: z.any().optional(),
 
+  // Arte / Comunicação Visual
+  needsArtwork: z.boolean({ required_error: 'Informe se deseja arte' }),
+  artworkDescription: z.string().optional(),
+
   // Termos de Uso
   acceptTerms: z
     .boolean()
@@ -82,13 +90,15 @@ export const eventFormSchema = z.object({
       message: 'Você precisa aceitar os termos de uso do espaço para prosseguir',
     }),
 }).superRefine((data, ctx) => {
-  // 1. Validação de Orçamento e Descrição
+  // 1. Validação de Orçamento e Arquivo
   if (data.needsBudget) {
-    if (!data.budgetDescription || data.budgetDescription.trim().length < 5) {
+    // If we use RHF and a file input, a valid selection is typically a FileList.
+    // If it's missing or empty, add an issue.
+    if (!data.budgetApprovalFile || data.budgetApprovalFile.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Descreva a necessidade do orçamento (mínimo 5 caracteres)',
-        path: ['budgetDescription'],
+        message: 'O envio do Aval da Juliana Vital é obrigatório',
+        path: ['budgetApprovalFile'],
       });
     }
   }
@@ -122,6 +132,22 @@ export const eventFormSchema = z.object({
           path: ['eventDate'],
         });
       }
+
+      // Bloquear finais de semana se for agendado com menos de 15 dias de antecedência
+      // Calculamos a diferença de dias exata entre hoje e a data do evento
+      const diffTime = inputDate.getTime() - today.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
+      
+      if (diffDays <= 15) {
+        const dayOfWeek = inputDate.getDay(); // 0 = Domingo, 6 = Sábado
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Finais de semana só podem ser selecionados com mais de 15 dias de antecedência',
+            path: ['eventDate'],
+          });
+        }
+      }
     }
   }
 
@@ -138,6 +164,28 @@ export const eventFormSchema = z.object({
         code: z.ZodIssueCode.custom,
         message: 'O horário de término deve ser posterior ao horário de início',
         path: ['endTime'],
+      });
+    }
+  }
+
+  // 4. Validação de Orçamento para Coffee Break
+  if (data.coffeeBreak && data.coffeeBreak.length > 0 && !data.coffeeBreak.includes('nao_se_aplica')) {
+    if (data.needsBudget === false || data.needsBudget === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'O orçamento é obrigatório ao solicitar itens de Coffee Break',
+        path: ['needsBudget'],
+      });
+    }
+  }
+
+  // 5. Validação de Arte
+  if (data.needsArtwork) {
+    if (!data.artworkDescription || data.artworkDescription.trim().length < 5) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Descreva a arte desejada (mínimo 5 caracteres)',
+        path: ['artworkDescription'],
       });
     }
   }

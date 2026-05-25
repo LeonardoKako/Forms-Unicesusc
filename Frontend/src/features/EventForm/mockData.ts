@@ -6,13 +6,12 @@ export interface RoomOption {
 }
 
 export const ROOM_OPTIONS: RoomOption[] = [
-  { value: 'auditorio', label: 'Auditório Principal (Térreo)', capacity: 180, location: 'Bloco A - Térreo' },
-  { value: 'conferencia', label: 'Sala de Conferências Executiva', capacity: 40, location: 'Bloco C - 2º Andar' },
-  { value: 'lab_info_1', label: 'Laboratório de Informática I', capacity: 30, location: 'Bloco B - 1º Andar' },
-  { value: 'lab_info_2', label: 'Laboratório de Informática II', capacity: 30, location: 'Bloco B - 1º Andar' },
-  { value: 'sala_multimidia_1', label: 'Sala Multimídia 102', capacity: 50, location: 'Bloco A - 1º Andar' },
-  { value: 'sala_multimidia_2', label: 'Sala Multimídia 204', capacity: 60, location: 'Bloco A - 2º Andar' },
-  { value: 'arena_inovacao', label: 'Arena de Inovação e Cocriação', capacity: 80, location: 'Bloco D - Térreo' },
+  { value: 'campus', label: 'Campus', capacity: 1000, location: 'Área Externa' },
+  { value: 'auditorio', label: 'Auditório Principal', capacity: 228, location: 'Bloco A' },
+  { value: 'sala_aula', label: 'Sala de Aula', capacity: 60, location: 'Blocos Diversos' },
+  { value: 'ginasio_esportes', label: 'Ginásio de Esportes', capacity: 500, location: 'Ginásio' },
+  { value: 'colegio', label: 'Colégio', capacity: 300, location: 'Colégio' },
+  { value: 'lab_info', label: 'Laboratório de Informática', capacity: 30, location: 'Bloco B' },
 ]
 
 export interface OptionItem {
@@ -30,10 +29,19 @@ export const TARGET_AUDIENCE_OPTIONS: OptionItem[] = [
   { id: 'nao_se_aplica', label: 'Não se aplica' },
 ];
 
+export const COPA_OPTIONS: OptionItem[] = [
+  { id: 'garrafa_termica', label: 'Garrafa Térmica' },
+  { id: 'jarra', label: 'Jarra' },
+  { id: 'guardanapos', label: 'Guardanapos' },
+  { id: 'tacas_copos', label: 'Taças/Copos' },
+  { id: 'nao_se_aplica', label: 'Não se aplica' },
+];
+
 export const COFFEE_BREAK_OPTIONS: OptionItem[] = [
-  { id: 'cafe_2_termicas', label: 'Café (2 térmicas)' },
-  { id: 'guardanapo', label: 'Guardanapo' },
-  { id: 'tacas', label: 'Taças' },
+  { id: 'cafe', label: 'Café' },
+  { id: 'biscoito_maizena', label: 'Biscoito Maizena' },
+  { id: 'salgadinhos', label: 'Salgadinhos' },
+  { id: 'agua', label: 'Água' },
   { id: 'nao_se_aplica', label: 'Não será preciso/não se aplica' },
 ];
 

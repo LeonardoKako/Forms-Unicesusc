@@ -95,35 +95,32 @@ export default function DateLocationCard() {
               </span>
             </div>
 
-            {/* Descrição da Necessidade de Orçamento */}
-            <InputField
-              {...register("budgetDescription")}
-              as='textarea'
-              label='Descrição e Justificativa de Orçamento'
-              placeholder='Descreva detalhadamente o que será necessário custear (ex: coffee break, palestrante, material de apoio)...'
-              error={errors.budgetDescription?.message}
-              required
-            />
+            {/* Aval da Juliana Vital (File Upload) */}
+            <div className="flex flex-col space-y-2">
+              <label className="text-[13px] font-extrabold uppercase tracking-wide text-brand">
+                Anexar Aval da Juliana Vital <span className="text-primary">*</span>
+              </label>
+              <div className="flex items-center justify-center w-full">
+                <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.budgetApprovalFile ? 'border-red-300 bg-red-50/50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'}`}>
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <DollarSign className="w-8 h-8 mb-3 text-gray-400" />
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Clique para anexar o documento</span> ou arraste e solte
+                    </p>
+                    <p className="text-xs text-gray-500">PDF, JPG, PNG (MAX. 10MB)</p>
+                  </div>
+                  <input type="file" className="hidden" accept=".pdf,image/*" {...register("budgetApprovalFile")} />
+                </label>
+              </div>
+              {errors.budgetApprovalFile && (
+                <p className="text-xs text-red-600 font-medium animate-fadeIn">
+                  {errors.budgetApprovalFile.message as string}
+                </p>
+              )}
+            </div>
 
-            {/* Menu Dropdown de E-mail de Notificação (Selecionado e não alterável) */}
-            <InputField
-              {...register("budgetEmail")}
-              as='select'
-              label='E-mail de Notificação do Setor Responsável'
-              disabled
-              required
-              icon={<Mail className='h-4 w-4' />}
-              options={[
-                {
-                  value: "financeiro@unicesusc.edu.br",
-                  label: "financeiro@unicesusc.edu.br",
-                },
-              ]}
-            />
-
-            <p className='text-[9px] text-gray-400 leading-normal italic'>
-              * O departamento financeiro será notificado de forma imediata e
-              automática com este extrato de fomento.
+            <p className='text-[10px] text-gray-400 leading-normal italic'>
+              * Este documento comprova a autorização financeira prévia.
             </p>
           </div>
         )}
@@ -155,11 +152,15 @@ export default function DateLocationCard() {
             </span>
           </div>
         ) : (
-          <p className='text-[10px] text-gray-400 leading-normal italic mt-[-8px] animate-fadeIn'>
-            * Prazo para agendamento: no mínimo{" "}
-            <strong>{needsBudget ? "15 dias" : "7 dias"}</strong> de
-            antecedência ({needsBudget ? "exige fomento" : "sem orçamento"}).
-          </p>
+          <div className='text-[10px] text-gray-400 leading-normal italic mt-[-8px] animate-fadeIn space-y-1'>
+            <p>
+              * Prazo mínimo: <strong>{needsBudget ? "15 dias" : "7 dias"}</strong> de
+              antecedência ({needsBudget ? "exige fomento" : "sem orçamento"}).
+            </p>
+            <p className="text-amber-600 font-medium">
+              * Atenção: Finais de semana só podem ser agendados com mais de 15 dias de antecedência.
+            </p>
+          </div>
         )}
 
         {/* Horários de Início e Término */}

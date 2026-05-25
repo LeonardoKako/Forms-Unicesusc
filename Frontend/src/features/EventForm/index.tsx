@@ -7,11 +7,13 @@ import { eventFormSchema, EventFormData } from "./schema";
 import RequesterCard from "./components/RequesterCard";
 import EventDetailsCard from "./components/EventDetailsCard";
 import DateLocationCard from "./components/DateLocationCard";
+import CopaCard from "./components/CopaCard";
 import CoffeeBreakCard from "./components/CoffeeBreakCard";
 import TIEquipmentCard from "./components/TIEquipmentCard";
 import FurnitureSupportCard from "./components/FurnitureSupportCard";
 import SupportTeamsCard from "./components/SupportTeamsCard";
 import PresentationMaterialCard from "./components/PresentationMaterialCard";
+import ArtworkCard from "./components/ArtworkCard";
 import SuccessModal from "./components/SuccessModal";
 import InfoModal from "@/components/InfoModal";
 
@@ -30,14 +32,16 @@ export default function EventForm() {
       requesterType: "interno",
       acceptTerms: false,
       needsBudget: undefined,
-      budgetDescription: "",
-      budgetEmail: "financeiro@unicesusc.edu.br",
+      budgetApprovalFile: undefined,
       targetAudience: [],
+      copa: [],
       coffeeBreak: [],
       tiEquipment: [],
       furnitureSupport: [],
       supportTeams: ["marketing"],
       presentationMaterials: [],
+      needsArtwork: false,
+      artworkDescription: "",
     },
   });
 
@@ -74,6 +78,7 @@ export default function EventForm() {
             <div className='lg:col-span-7 space-y-6'>
               <RequesterCard />
               <EventDetailsCard />
+              <ArtworkCard />
               <TIEquipmentCard />
               <SupportTeamsCard />
             </div>
@@ -81,6 +86,7 @@ export default function EventForm() {
             {/* RIGHT COLUMN: Modularized cards and submit footer */}
             <div className='lg:col-span-5 space-y-6'>
               <DateLocationCard />
+              <CopaCard />
               <CoffeeBreakCard />
               <FurnitureSupportCard />
               <PresentationMaterialCard />
