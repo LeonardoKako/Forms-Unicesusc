@@ -95,10 +95,10 @@ export default function DateLocationCard() {
               </span>
             </div>
 
-            {/* Aval da Juliana Vital (File Upload) */}
+            {/* Aprovação da Reitoria (File Upload) */}
             <div className='flex flex-col space-y-2'>
               <label className='text-[13px] font-extrabold uppercase tracking-wide text-brand'>
-                Anexar Aval da Juliana Vital{" "}
+                Anexar Aprovação da Reitoria{" "}
                 <span className='text-primary'>*</span>
               </label>
               <div className='flex items-center justify-center w-full'>
