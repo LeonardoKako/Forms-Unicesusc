@@ -52,10 +52,19 @@ model EventTicket {
   // 🛠️ Logística, T.I. & Apoio
   tiEquipment           String[] // Array de equipamentos solicitados
   furnitureSupport      String[] // Array de móveis de apoio
-  supportTeams          String[] // Array de equipes de apoio acionadas (Ex: ["marketing", "administrativo", "ti"])
+  supportTeams          SupportTeam[]            @relation("EventBookingsSupportTeams")
   presentationMaterials String[] // Materiais de apresentação (PDF, vídeo, etc.)
   needsArtwork          Boolean  @default(false)
   artworkDescription    String?  @db.Text // Descrição da arte marketing (se necessitar de arte)
 
   @@map("event_bookings")
+}
+
+model SupportTeam {
+  id           String        @id
+  name         String
+  email        String?
+  eventTickets EventTicket[] @relation("EventBookingsSupportTeams")
+
+  @@map("support_teams")
 }

@@ -1,0 +1,59 @@
+### Variáveis Globais
+@baseUrl = http://localhost:3000
+
+### 1. Criar um Ticket de Evento (POST)
+POST {{baseUrl}}/event-tickets
+Content-Type: application/json
+
+{
+  "requesterName": "Leonardo Kako",
+  "requesterEmail": "leonardo.kako@unicesusc.edu.br",
+  "requesterPhone": "(48) 99999-9999",
+  "requesterType": "interno",
+  "requesterDepartment": "Tecnologia da Informação",
+  "isPartnerEvent": true,
+  "partnerName": "Empresa Parceira XYZ",
+  "partnerEmail": "contato@xyz.com",
+  "partnerPhone": "(48) 3333-3333",
+  "partnerInstitution": "Instituição XYZ",
+  "eventTitle": "Workshop de NestJS e Prisma",
+  "eventType": "Workshop",
+  "eventDescription": "Um workshop prático ensinando a criar APIs com NestJS, Prisma e PostgreSQL.",
+  "targetAudience": ["alunos", "professores", "comunidade externa"],
+  "estimatedPublic": 120,
+  "eventDate": "2026-06-15T18:00:00.000Z",
+  "startTime": "19:00",
+  "endTime": "22:00",
+  "selectedRoom": "Auditório Principal",
+  "needsBudget": false,
+  "copa": ["garrafas de água", "copos descartáveis"],
+  "coffeeBreak": ["café", "pão de queijo", "bolo de chocolate"],
+  "tiEquipment": ["projetor", "microfone sem fio", "caixas de som"],
+  "furnitureSupport": ["mesa de apoio", "cadeiras extras"],
+  "supportTeams": ["ti", "marketing", "administrativo"],
+  "presentationMaterials": ["slides.pdf", "video_abertura.mp4"],
+  "needsArtwork": true,
+  "artworkDescription": "Necessário criar banner digital para divulgação nas redes sociais da faculdade."
+}
+
+### 2. Listar Todos os Tickets de Eventos (GET)
+GET {{baseUrl}}/event-tickets
+
+### 3. Obter um Ticket Específico por ID (GET)
+# Substitua o ID abaixo por um ID real retornado na rota de criação
+GET {{baseUrl}}/event-tickets/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
+
+### 4. Atualizar um Ticket de Evento (PATCH)
+# Substitua o ID abaixo por um ID real retornado na rota de criação
+PATCH {{baseUrl}}/event-tickets/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
+Content-Type: application/json
+
+{
+  "eventTitle": "Workshop Avançado de NestJS e Prisma v7",
+  "estimatedPublic": 150,
+  "supportTeams": ["ti", "marketing"]
+}
+
+### 5. Excluir um Ticket de Evento (DELETE)
+# Substitua o ID abaixo por um ID real retornado na rota de criação
+DELETE {{baseUrl}}/event-tickets/d8f0a0d9-b903-4c91-9e79-4bc7ee290325

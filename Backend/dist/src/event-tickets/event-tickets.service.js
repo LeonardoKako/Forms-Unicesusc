@@ -34,22 +34,35 @@ let EventTicketsService = class EventTicketsService {
     async create(createEventTicketDto) {
         const controlCode = await this.generateUniqueControlCode();
         const eventDate = new Date(createEventTicketDto.eventDate);
+        const { supportTeams, ...rest } = createEventTicketDto;
         return this.prisma.eventTicket.create({
             data: {
-                ...createEventTicketDto,
+                ...rest,
                 controlCode,
                 eventDate,
+                supportTeams: supportTeams && supportTeams.length > 0
+                    ? { connect: supportTeams.map(id => ({ id })) }
+                    : undefined,
+            },
+            include: {
+                supportTeams: true,
             },
         });
     }
     async findAll() {
         return this.prisma.eventTicket.findMany({
+            include: {
+                supportTeams: true,
+            },
             orderBy: { createdAt: 'desc' },
         });
     }
     async findOne(id) {
         const ticket = await this.prisma.eventTicket.findUnique({
             where: { id },
+            include: {
+                supportTeams: true,
+            },
         });
         if (!ticket) {
             throw new common_1.NotFoundException(`Ticket com ID "${id}" não encontrado.`);
@@ -58,13 +71,22 @@ let EventTicketsService = class EventTicketsService {
     }
     async update(id, updateEventTicketDto) {
         await this.findOne(id);
-        const data = { ...updateEventTicketDto };
+        const { supportTeams, ...rest } = updateEventTicketDto;
+        const data = { ...rest };
         if (updateEventTicketDto.eventDate) {
             data.eventDate = new Date(updateEventTicketDto.eventDate);
+        }
+        if (supportTeams) {
+            data.supportTeams = {
+                set: supportTeams.map(id => ({ id })),
+            };
         }
         return this.prisma.eventTicket.update({
             where: { id },
             data,
+            include: {
+                supportTeams: true,
+            },
         });
     }
     async remove(id) {

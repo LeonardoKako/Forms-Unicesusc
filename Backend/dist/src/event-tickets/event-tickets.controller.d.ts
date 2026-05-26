@@ -5,6 +5,13 @@ export declare class EventTicketsController {
     private readonly eventTicketsService;
     constructor(eventTicketsService: EventTicketsService);
     create(createEventTicketDto: CreateEventTicketDto): Promise<{
+        supportTeams: {
+            id: string;
+            name: string;
+            email: string | null;
+        }[];
+    } & {
+        id: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
@@ -31,16 +38,21 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        supportTeams: string[];
         presentationMaterials: string[];
         needsArtwork: boolean;
         artworkDescription: string | null;
-        id: string;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
     }>;
-    findAll(): Promise<{
+    findAll(): Promise<({
+        supportTeams: {
+            id: string;
+            name: string;
+            email: string | null;
+        }[];
+    } & {
+        id: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
@@ -67,16 +79,21 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        supportTeams: string[];
         presentationMaterials: string[];
         needsArtwork: boolean;
         artworkDescription: string | null;
-        id: string;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
-    }[]>;
+    })[]>;
     findOne(id: string): Promise<{
+        supportTeams: {
+            id: string;
+            name: string;
+            email: string | null;
+        }[];
+    } & {
+        id: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
@@ -103,16 +120,21 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        supportTeams: string[];
         presentationMaterials: string[];
         needsArtwork: boolean;
         artworkDescription: string | null;
-        id: string;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
     }>;
     update(id: string, updateEventTicketDto: UpdateEventTicketDto): Promise<{
+        supportTeams: {
+            id: string;
+            name: string;
+            email: string | null;
+        }[];
+    } & {
+        id: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
@@ -139,16 +161,15 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        supportTeams: string[];
         presentationMaterials: string[];
         needsArtwork: boolean;
         artworkDescription: string | null;
-        id: string;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
     }>;
     remove(id: string): Promise<{
+        id: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
@@ -175,11 +196,9 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        supportTeams: string[];
         presentationMaterials: string[];
         needsArtwork: boolean;
         artworkDescription: string | null;
-        id: string;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;

@@ -12,15 +12,53 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrismaService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const adapter_pg_1 = require("@prisma/adapter-pg");
+const pg_1 = require("pg");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
+    pool;
     constructor() {
-        super();
+        const connectionString = process.env.DATABASE_URL;
+        const pool = new pg_1.Pool({ connectionString });
+        const adapter = new adapter_pg_1.PrismaPg(pool);
+        super({ adapter });
+        this.pool = pool;
     }
     async onModuleInit() {
         await this.$connect();
+        await this.seedSupportTeams();
+    }
+    async seedSupportTeams() {
+        const supportTeams = [
+            { id: 'administrativo', name: 'Administrativo' },
+            { id: 'financeiro', name: 'Financeiro' },
+            { id: 'nap', name: 'Nap' },
+            { id: 'secretaria_academica', name: 'Secretaria Acadêmica' },
+            { id: 'comercial', name: 'Comercial' },
+            { id: 'manutencao', name: 'Manutenção' },
+            { id: 'ti', name: 'TI' },
+            { id: 'reitoria', name: 'Reitoria' },
+            { id: 'nead', name: 'Nead' },
+            { id: 'biblioteca', name: 'Biblioteca' },
+            { id: 'marketing', name: 'Marketing' },
+            { id: 'pro_comunidade', name: 'Pró Comunidade' },
+            { id: 'recursos_humanos', name: 'Recursos Humanos' },
+            { id: 'nad', name: 'Nad' },
+            { id: 'central_atendimento', name: 'Central de Atendimento' },
+            { id: 'bolsas', name: 'Bolsas' },
+            { id: 'pos_graduacao', name: 'Pós-graduação' },
+            { id: 'colegio_cruz_sousa', name: 'Colégio Cruz e Sousa' },
+        ];
+        for (const team of supportTeams) {
+            await this.supportTeam.upsert({
+                where: { id: team.id },
+                update: { name: team.name },
+                create: { id: team.id, name: team.name },
+            });
+        }
     }
     async onModuleDestroy() {
         await this.$disconnect();
+        await this.pool.end();
     }
 };
 exports.PrismaService = PrismaService;
