@@ -30,7 +30,7 @@ export declare class CreateEventTicketDto {
     tiEquipment?: string[];
     furnitureSupport?: string[];
     supportTeams?: string[];
-    presentationMaterials?: string[];
+    presentationDriveUrl?: string;
     needsArtwork?: boolean;
     artworkDescription?: string;
 }

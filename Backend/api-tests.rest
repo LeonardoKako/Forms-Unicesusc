@@ -31,7 +31,7 @@ Content-Type: application/json
   "tiEquipment": ["projetor", "microfone sem fio", "caixas de som"],
   "furnitureSupport": ["mesa de apoio", "cadeiras extras"],
   "supportTeams": ["ti", "marketing", "administrativo"],
-  "presentationMaterials": ["slides.pdf", "video_abertura.mp4"],
+  "presentationDriveUrl": "https://drive.google.com/drive/folders/1abc123xyz_example",
   "needsArtwork": true,
   "artworkDescription": "Necessário criar banner digital para divulgação nas redes sociais da faculdade."
 }

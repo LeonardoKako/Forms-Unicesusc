@@ -131,10 +131,9 @@ export class CreateEventTicketDto {
   @IsOptional()
   supportTeams?: string[];
 
-  @IsArray()
-  @IsString({ each: true })
+  @IsString()
   @IsOptional()
-  presentationMaterials?: string[];
+  presentationDriveUrl?: string;
 
   @IsBoolean()
   @IsOptional()

@@ -45,7 +45,7 @@ class CreateEventTicketDto {
     tiEquipment;
     furnitureSupport;
     supportTeams;
-    presentationMaterials;
+    presentationDriveUrl;
     needsArtwork;
     artworkDescription;
 }
@@ -191,11 +191,10 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateEventTicketDto.prototype, "supportTeams", void 0);
 __decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "presentationMaterials", void 0);
+    __metadata("design:type", String)
+], CreateEventTicketDto.prototype, "presentationDriveUrl", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
