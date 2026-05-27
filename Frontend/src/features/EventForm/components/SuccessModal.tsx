@@ -368,6 +368,16 @@ export default function SuccessModal({
                       PRESENTATION_MATERIAL_OPTIONS,
                     )}
                   </span>
+                  {data.presentationMaterials?.includes("google_drive_link") && data.presentationDriveLink && (
+                    <a
+                      href={data.presentationDriveLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline block mt-1 font-semibold truncate"
+                    >
+                      🔗 Link do Drive
+                    </a>
+                  )}
                 </div>
                 <div>
                   <span className='font-semibold text-gray-400 block'>

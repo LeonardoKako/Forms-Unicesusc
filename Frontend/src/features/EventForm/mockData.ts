@@ -85,8 +85,7 @@ export const SUPPORT_TEAMS_OPTIONS: OptionItem[] = [
 ];
 
 export const PRESENTATION_MATERIAL_OPTIONS: OptionItem[] = [
-  { id: 'arquivo_pdf_ppt', label: 'Apresentação (PDF, PPT, etc)' },
-  { id: 'arquivo_video', label: 'Vídeo' },
+  { id: 'google_drive_link', label: 'Link do Google Drive' },
   { id: 'pen_drive', label: 'Levarei Pen Drive (USB)' },
   { id: 'nao_se_aplica', label: 'Não se aplica' },
 ];

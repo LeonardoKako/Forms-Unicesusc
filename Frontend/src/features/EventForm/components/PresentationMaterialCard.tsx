@@ -1,10 +1,13 @@
-import { FileUp } from "lucide-react";
+import { FileUp, Link } from "lucide-react";
 import CheckboxGrid from "./CheckboxGrid";
 import { PRESENTATION_MATERIAL_OPTIONS } from "../mockData";
 import { useFormContext } from "react-hook-form";
+import InputField from "../../../components/InputField";
 
 export default function PresentationMaterialCard() {
-  const { register } = useFormContext();
+  const { register, watch, formState: { errors } } = useFormContext();
+  const presentationMaterials = watch("presentationMaterials") || [];
+  const showDriveInput = presentationMaterials.includes("google_drive_link");
 
   return (
     <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md animate-fadeIn">
@@ -23,29 +26,25 @@ export default function PresentationMaterialCard() {
         </div>
       </div>
 
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Envio de Arquivos (Opcional)
-        </label>
-        <div className="flex items-center justify-center w-full">
-          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <FileUp className="w-8 h-8 mb-3 text-gray-400" />
-              <p className="mb-2 text-sm text-gray-500">
-                <span className="font-semibold">Clique para enviar</span> ou arraste e solte
-              </p>
-              <p className="text-xs text-gray-500">PDF, PPT, MP4 (MAX. 50MB)</p>
-            </div>
-            <input type="file" className="hidden" multiple {...register("presentationFiles")} />
-          </label>
-        </div>
-      </div>
-
       <CheckboxGrid
         name="presentationMaterials"
         options={PRESENTATION_MATERIAL_OPTIONS}
         withCardWrapper={false}
       />
+
+      {showDriveInput && (
+        <div className="mt-4 animate-fadeIn">
+          <InputField
+            {...register("presentationDriveLink")}
+            label="Link do Google Drive"
+            type="url"
+            placeholder="https://drive.google.com/..."
+            required
+            icon={<Link className="h-4 w-4" />}
+            error={errors.presentationDriveLink?.message as string}
+          />
+        </div>
+      )}
     </div>
   );
 }

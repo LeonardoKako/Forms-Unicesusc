@@ -85,7 +85,7 @@ export const eventFormSchema = z
     presentationMaterials: z
       .array(z.string())
       .min(1, 'Selecione o material de apresentação ou marque "Não se aplica"'),
-    presentationFiles: z.any().optional(),
+    presentationDriveLink: z.string().optional(),
 
     // Arte / Comunicação Visual
     needsArtwork: z.boolean({ required_error: "Informe se deseja arte" }),
@@ -263,6 +263,17 @@ export const eventFormSchema = z
           code: z.ZodIssueCode.custom,
           message: "Descreva a arte desejada (mínimo 5 caracteres)",
           path: ["artworkDescription"],
+        });
+      }
+    }
+
+    // 6. Validação do Link do Google Drive
+    if (data.presentationMaterials && data.presentationMaterials.includes("google_drive_link")) {
+      if (!data.presentationDriveLink || !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/.test(data.presentationDriveLink)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Insira um link de URL válido do Google Drive",
+          path: ["presentationDriveLink"],
         });
       }
     }

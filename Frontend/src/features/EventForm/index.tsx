@@ -48,6 +48,7 @@ export default function EventForm() {
       furnitureSupport: [],
       supportTeams: ["marketing", "administrativo"],
       presentationMaterials: [],
+      presentationDriveLink: "",
       needsArtwork: false,
       artworkDescription: "",
     },
