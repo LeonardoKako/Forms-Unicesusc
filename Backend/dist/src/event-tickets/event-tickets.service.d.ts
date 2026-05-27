@@ -5,6 +5,7 @@ export declare class EventTicketsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     private generateUniqueControlCode;
+    private validateAndSanitizeTicketData;
     create(createEventTicketDto: CreateEventTicketDto): Promise<{
         supportTeams: {
             id: string;
@@ -39,7 +40,8 @@ export declare class EventTicketsService {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -80,7 +82,8 @@ export declare class EventTicketsService {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -121,7 +124,8 @@ export declare class EventTicketsService {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -162,7 +166,8 @@ export declare class EventTicketsService {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -197,7 +202,8 @@ export declare class EventTicketsService {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;

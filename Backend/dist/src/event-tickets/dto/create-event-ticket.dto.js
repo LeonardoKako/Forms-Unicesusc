@@ -45,7 +45,8 @@ class CreateEventTicketDto {
     tiEquipment;
     furnitureSupport;
     supportTeams;
-    presentationDriveUrl;
+    presentationMaterials;
+    presentationDriveLink;
     needsArtwork;
     artworkDescription;
 }
@@ -73,11 +74,13 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "requesterDepartment", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "adminApprovalFileUrl", void 0);
 __decorate([
@@ -88,21 +91,25 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "partnerName", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "partnerEmail", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "partnerPhone", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "partnerInstitution", void 0);
 __decorate([
@@ -158,6 +165,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "budgetApprovalFileUrl", void 0);
 __decorate([
@@ -191,10 +199,17 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateEventTicketDto.prototype, "supportTeams", void 0);
 __decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], CreateEventTicketDto.prototype, "presentationMaterials", void 0);
+__decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "presentationDriveUrl", void 0);
+], CreateEventTicketDto.prototype, "presentationDriveLink", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
@@ -203,6 +218,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
     __metadata("design:type", String)
 ], CreateEventTicketDto.prototype, "artworkDescription", void 0);
 //# sourceMappingURL=create-event-ticket.dto.js.map

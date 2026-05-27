@@ -26,14 +26,48 @@ Content-Type: application/json
   "endTime": "22:00",
   "selectedRoom": "Auditório Principal",
   "needsBudget": false,
+  "budgetApprovalFileUrl": "https://storage.unicesusc.edu.br/uploads/budget-approval-123.pdf",
   "copa": ["garrafas de água", "copos descartáveis"],
   "coffeeBreak": ["café", "pão de queijo", "bolo de chocolate"],
   "tiEquipment": ["projetor", "microfone sem fio", "caixas de som"],
   "furnitureSupport": ["mesa de apoio", "cadeiras extras"],
   "supportTeams": ["ti", "marketing", "administrativo"],
-  "presentationDriveUrl": "https://drive.google.com/drive/folders/1abc123xyz_example",
+  "presentationMaterials": ["google_drive_link", "pen_drive"],
+  "presentationDriveLink": "https://drive.google.com/drive/folders/1abc123xyz_example",
   "needsArtwork": true,
   "artworkDescription": "Necessário criar banner digital para divulgação nas redes sociais da faculdade."
+}
+
+### 1.1 Criar um Ticket de Evento (Dados da Imagem) (POST)
+POST {{baseUrl}}/event-tickets
+Content-Type: application/json
+
+{
+  "requesterName": "Leonardo",
+  "requesterEmail": "gestor.campus@unicesusc.edu.br",
+  "requesterPhone": "48988352502",
+  "requesterType": "locacao",
+  "adminApprovalFileUrl": "https://storage.unicesusc.edu.br/uploads/admin-approval-leo.pdf",
+  "isPartnerEvent": false,
+  "eventTitle": "qweeqwe",
+  "eventType": "palestra",
+  "eventDescription": "qeqweqwesadqwdasdqwdasdawdasdas",
+  "targetAudience": ["aberto_publico", "colaboradores"],
+  "estimatedPublic": 10,
+  "eventDate": "2026-07-02T12:00:00.000Z",
+  "startTime": "14:18",
+  "endTime": "16:24",
+  "selectedRoom": "auditorio",
+  "needsBudget": true,
+  "budgetApprovalFileUrl": "https://storage.unicesusc.edu.br/uploads/budget-approval-leo.pdf",
+  "copa": ["garrafa_termica", "tacas_copos"],
+  "coffeeBreak": ["salgadinhos", "biscoito_maizena", "cafe"],
+  "tiEquipment": ["projetor_grande", "passador_slides", "microfones", "projetor_pequeno", "notebook"],
+  "furnitureSupport": ["mesas_grandes", "pulpito"],
+  "supportTeams": ["marketing", "administrativo", "ti", "nead", "manutencao", "nap"],
+  "presentationMaterials": ["google_drive_link"],
+  "presentationDriveLink": "https://drive.google.com/drive/folders/1RrAr4Qrjh7YHqMpstjMDZ4Qv1d0Q_cQY",
+  "needsArtwork": false
 }
 
 ### 2. Listar Todos os Tickets de Eventos (GET)

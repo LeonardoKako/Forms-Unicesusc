@@ -31,7 +31,70 @@ let EventTicketsService = class EventTicketsService {
         }
         return code;
     }
+    validateAndSanitizeTicketData(dto, isUpdate = false, existingTicket) {
+        const merged = isUpdate && existingTicket ? { ...existingTicket, ...dto } : dto;
+        if (merged.requesterType === 'locacao') {
+            if (!merged.adminApprovalFileUrl) {
+                throw new common_1.BadRequestException('adminApprovalFileUrl é obrigatório quando requesterType é "locacao".');
+            }
+            dto.requesterDepartment = null;
+        }
+        else if (merged.requesterType === 'interno') {
+            if (!merged.requesterDepartment) {
+                throw new common_1.BadRequestException('requesterDepartment é obrigatório quando requesterType é "interno".');
+            }
+            dto.adminApprovalFileUrl = null;
+        }
+        if (merged.isPartnerEvent) {
+            if (!merged.partnerName || !merged.partnerEmail || !merged.partnerPhone || !merged.partnerInstitution) {
+                throw new common_1.BadRequestException('Nome, email, telefone e instituição do parceiro são obrigatórios quando isPartnerEvent é verdadeiro.');
+            }
+        }
+        else {
+            dto.partnerName = null;
+            dto.partnerEmail = null;
+            dto.partnerPhone = null;
+            dto.partnerInstitution = null;
+        }
+        if (merged.needsArtwork) {
+            if (!merged.artworkDescription) {
+                throw new common_1.BadRequestException('artworkDescription é obrigatório quando needsArtwork é verdadeiro.');
+            }
+        }
+        else {
+            dto.artworkDescription = null;
+        }
+        const hasGoogleDriveLink = merged.presentationMaterials?.includes('google_drive_link');
+        if (hasGoogleDriveLink) {
+            if (!merged.presentationDriveLink) {
+                throw new common_1.BadRequestException('presentationDriveLink é obrigatório quando "google_drive_link" está selecionado em presentationMaterials.');
+            }
+        }
+        else {
+            dto.presentationDriveLink = null;
+        }
+        const hasActiveCoffeeBreak = merged.coffeeBreak && merged.coffeeBreak.length > 0 && merged.coffeeBreak.some((item) => item !== 'nao_se_aplica');
+        if (hasActiveCoffeeBreak) {
+            dto.needsBudget = true;
+            merged.needsBudget = true;
+        }
+        if (merged.needsBudget) {
+            if (!merged.budgetApprovalFileUrl) {
+                const reason = hasActiveCoffeeBreak
+                    ? 'budgetApprovalFileUrl é obrigatório quando há itens de coffee break selecionados (diferentes de "nao_se_aplica").'
+                    : 'budgetApprovalFileUrl é obrigatório quando needsBudget é verdadeiro.';
+                throw new common_1.BadRequestException(reason);
+            }
+        }
+        else {
+            if (merged.budgetApprovalFileUrl) {
+                throw new common_1.BadRequestException('Não é permitido enviar budgetApprovalFileUrl quando o evento não necessita de orçamento (needsBudget é falso).');
+            }
+            dto.budgetApprovalFileUrl = null;
+        }
+    }
     async create(createEventTicketDto) {
+        this.validateAndSanitizeTicketData(createEventTicketDto, false);
         const controlCode = await this.generateUniqueControlCode();
         const eventDate = new Date(createEventTicketDto.eventDate);
         const { supportTeams, ...rest } = createEventTicketDto;
@@ -70,7 +133,8 @@ let EventTicketsService = class EventTicketsService {
         return ticket;
     }
     async update(id, updateEventTicketDto) {
-        await this.findOne(id);
+        const existing = await this.findOne(id);
+        this.validateAndSanitizeTicketData(updateEventTicketDto, true, existing);
         const { supportTeams, ...rest } = updateEventTicketDto;
         const data = { ...rest };
         if (updateEventTicketDto.eventDate) {

@@ -53,7 +53,8 @@ model EventTicket {
   tiEquipment           String[] // Array de equipamentos solicitados
   furnitureSupport      String[] // Array de móveis de apoio
   supportTeams          SupportTeam[]            @relation("EventBookingsSupportTeams")
-  presentationDriveUrl  String?  // URL do Google Drive contendo materiais de apresentação
+  presentationMaterials String[] // Array de tipos de materiais de apresentação
+  presentationDriveLink String?  // URL do Google Drive contendo materiais de apresentação
   needsArtwork          Boolean  @default(false)
   artworkDescription    String?  @db.Text // Descrição da arte marketing (se necessitar de arte)
 

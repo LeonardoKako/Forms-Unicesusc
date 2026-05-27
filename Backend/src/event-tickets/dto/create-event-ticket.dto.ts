@@ -10,7 +10,7 @@ import {
   IsDateString,
   IsNotEmpty,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export enum RequesterType {
   INTERNO = 'interno',
@@ -36,10 +36,12 @@ export class CreateEventTicketDto {
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   requesterDepartment?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   adminApprovalFileUrl?: string;
 
   @IsBoolean()
@@ -48,18 +50,22 @@ export class CreateEventTicketDto {
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   partnerName?: string;
 
   @IsEmail()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   partnerEmail?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   partnerPhone?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   partnerInstitution?: string;
 
   @IsString()
@@ -104,6 +110,7 @@ export class CreateEventTicketDto {
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   budgetApprovalFileUrl?: string;
 
   @IsArray()
@@ -131,9 +138,15 @@ export class CreateEventTicketDto {
   @IsOptional()
   supportTeams?: string[];
 
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  presentationMaterials?: string[];
+
   @IsString()
   @IsOptional()
-  presentationDriveUrl?: string;
+  @Transform(({ value }) => value === '' ? undefined : value)
+  presentationDriveLink?: string;
 
   @IsBoolean()
   @IsOptional()
@@ -141,5 +154,6 @@ export class CreateEventTicketDto {
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   artworkDescription?: string;
 }

@@ -38,7 +38,8 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -79,7 +80,8 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -120,7 +122,8 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -161,7 +164,8 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;
@@ -196,7 +200,8 @@ export declare class EventTicketsController {
         coffeeBreak: string[];
         tiEquipment: string[];
         furnitureSupport: string[];
-        presentationDriveUrl: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
         needsArtwork: boolean;
         artworkDescription: string | null;
         controlCode: string;

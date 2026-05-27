@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventTicketDto } from './dto/create-event-ticket.dto';
 import { UpdateEventTicketDto } from './dto/update-event-ticket.dto';
@@ -22,13 +22,89 @@ export class EventTicketsService {
     return code;
   }
 
+  private validateAndSanitizeTicketData(dto: any, isUpdate = false, existingTicket?: any) {
+    // 1. Mescla os dados atuais do banco com os novos inputs para validar dependências condicionais
+    const merged = isUpdate && existingTicket ? { ...existingTicket, ...dto } : dto;
+
+    // Regra 1: requesterType
+    if (merged.requesterType === 'locacao') {
+      if (!merged.adminApprovalFileUrl) {
+        throw new BadRequestException('adminApprovalFileUrl é obrigatório quando requesterType é "locacao".');
+      }
+      dto.requesterDepartment = null;
+    } else if (merged.requesterType === 'interno') {
+      if (!merged.requesterDepartment) {
+        throw new BadRequestException('requesterDepartment é obrigatório quando requesterType é "interno".');
+      }
+      dto.adminApprovalFileUrl = null;
+    }
+
+    // Regra 2: isPartnerEvent
+    if (merged.isPartnerEvent) {
+      if (!merged.partnerName || !merged.partnerEmail || !merged.partnerPhone || !merged.partnerInstitution) {
+        throw new BadRequestException('Nome, email, telefone e instituição do parceiro são obrigatórios quando isPartnerEvent é verdadeiro.');
+      }
+    } else {
+      dto.partnerName = null;
+      dto.partnerEmail = null;
+      dto.partnerPhone = null;
+      dto.partnerInstitution = null;
+    }
+
+    // Regra 3: needsArtwork
+    if (merged.needsArtwork) {
+      if (!merged.artworkDescription) {
+        throw new BadRequestException('artworkDescription é obrigatório quando needsArtwork é verdadeiro.');
+      }
+    } else {
+      dto.artworkDescription = null;
+    }
+
+    // Regra 5: presentationMaterials & presentationDriveLink
+    const hasGoogleDriveLink = merged.presentationMaterials?.includes('google_drive_link');
+    if (hasGoogleDriveLink) {
+      if (!merged.presentationDriveLink) {
+        throw new BadRequestException('presentationDriveLink é obrigatório quando "google_drive_link" está selecionado em presentationMaterials.');
+      }
+    } else {
+      dto.presentationDriveLink = null;
+    }
+
+    // Regra 6: coffeeBreak & budgetApprovalFileUrl
+    const hasActiveCoffeeBreak = merged.coffeeBreak && merged.coffeeBreak.length > 0 && merged.coffeeBreak.some((item: string) => item !== 'nao_se_aplica');
+
+    // Se houver coffee break ativo, força a necessidade de orçamento (needsBudget = true)
+    if (hasActiveCoffeeBreak) {
+      dto.needsBudget = true;
+      merged.needsBudget = true;
+    }
+
+    // Regra 4: needsBudget e vice-versa
+    if (merged.needsBudget) {
+      if (!merged.budgetApprovalFileUrl) {
+        const reason = hasActiveCoffeeBreak
+          ? 'budgetApprovalFileUrl é obrigatório quando há itens de coffee break selecionados (diferentes de "nao_se_aplica").'
+          : 'budgetApprovalFileUrl é obrigatório quando needsBudget é verdadeiro.';
+        throw new BadRequestException(reason);
+      }
+    } else {
+      if (merged.budgetApprovalFileUrl) {
+        throw new BadRequestException('Não é permitido enviar budgetApprovalFileUrl quando o evento não necessita de orçamento (needsBudget é falso).');
+      }
+      dto.budgetApprovalFileUrl = null;
+    }
+  }
+
   async create(createEventTicketDto: CreateEventTicketDto) {
+    // Valida e higieniza os dados do DTO baseado nas regras de negócio condicionais
+    this.validateAndSanitizeTicketData(createEventTicketDto, false);
+
     const controlCode = await this.generateUniqueControlCode();
     
     // Converte a data do formato string ISO para objeto Date do JS/Prisma
     const eventDate = new Date(createEventTicketDto.eventDate);
 
-    // Separa supportTeams para connectar no relacionamento N:M
+    // Separa supportTeams para conectar no relacionamento N:M
     const { supportTeams, ...rest } = createEventTicketDto;
 
     return this.prisma.eventTicket.create({
@@ -71,8 +147,11 @@ export class EventTicketsService {
   }
 
   async update(id: string, updateEventTicketDto: UpdateEventTicketDto) {
-    // Garante que o ticket existe antes de atualizar
-    await this.findOne(id);
+    // Garante que o ticket existe antes de atualizar e carrega seus dados atuais
+    const existing = await this.findOne(id);
+
+    // Valida e higieniza os dados com base na fusão das alterações com o registro existente
+    this.validateAndSanitizeTicketData(updateEventTicketDto, true, existing);
 
     const { supportTeams, ...rest } = updateEventTicketDto;
 
