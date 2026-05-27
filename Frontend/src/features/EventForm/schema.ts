@@ -124,6 +124,28 @@ export const eventFormSchema = z
 
     // Validação Comunidade Interna
     if (data.requesterType === "interno") {
+      if (data.requesterEmail) {
+        const parts = data.requesterEmail.split('@');
+        const localPart = parts[0] || '';
+        const domainPart = parts[1] || '';
+
+        if (domainPart !== 'unicesusc.edu.br') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'O e-mail institucional deve terminar obrigatoriamente com @unicesusc.edu.br',
+            path: ['requesterEmail'],
+          });
+        }
+
+        if (/\d{3}/.test(localPart)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'O e-mail institucional não pode conter 3 ou mais números seguidos antes do @',
+            path: ['requesterEmail'],
+          });
+        }
+      }
+
       if (
         !data.requesterDepartment ||
         data.requesterDepartment.trim().length < 2

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, ChevronRight } from "lucide-react";
 
 import { eventFormSchema, EventFormData } from "./schema";
+import { mockBackendPayload } from "./mockBackendPayload";
 import RequesterCard from "./components/RequesterCard";
 import EventDetailsCard from "./components/EventDetailsCard";
 import DateLocationCard from "./components/DateLocationCard";
@@ -96,6 +97,8 @@ export default function EventForm() {
   // Simulated request submit logic
   const onSubmit = (data: EventFormData) => {
     setIsSubmitting(true);
+    console.log("Mock de payload completo esperado pelo backend:", mockBackendPayload);
+    console.log("Dados reais preenchidos enviados pelo formulário:", data);
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmittedData(data);

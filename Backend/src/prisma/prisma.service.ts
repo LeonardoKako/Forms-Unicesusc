@@ -4,7 +4,10 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   private pool: Pool;
 
   constructor() {
@@ -22,24 +25,76 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   private async seedSupportTeams() {
     const supportTeams = [
-      { id: 'administrativo', name: 'Administrativo' },
-      { id: 'financeiro', name: 'Financeiro' },
-      { id: 'nap', name: 'Nap' },
-      { id: 'secretaria_academica', name: 'Secretaria Acadêmica' },
-      { id: 'comercial', name: 'Comercial' },
-      { id: 'manutencao', name: 'Manutenção' },
-      { id: 'ti', name: 'TI' },
-      { id: 'reitoria', name: 'Reitoria' },
-      { id: 'nead', name: 'Nead' },
-      { id: 'biblioteca', name: 'Biblioteca' },
-      { id: 'marketing', name: 'Marketing' },
-      { id: 'pro_comunidade', name: 'Pró Comunidade' },
-      { id: 'recursos_humanos', name: 'Recursos Humanos' },
-      { id: 'nad', name: 'Nad' },
-      { id: 'central_atendimento', name: 'Central de Atendimento' },
-      { id: 'bolsas', name: 'Bolsas' },
-      { id: 'pos_graduacao', name: 'Pós-graduação' },
-      { id: 'colegio_cruz_sousa', name: 'Colégio Cruz e Sousa' },
+      {
+        id: 'administrativo',
+        name: 'Administrativo',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      {
+        id: 'financeiro',
+        name: 'Financeiro',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      { id: 'nap', name: 'Nap', email: 'apoio03.ti@unicesusc.edu.br' },
+      {
+        id: 'secretaria_academica',
+        name: 'Secretaria Acadêmica',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      {
+        id: 'comercial',
+        name: 'Comercial',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      {
+        id: 'manutencao',
+        name: 'Manutenção',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      { id: 'ti', name: 'TI', email: 'apoio03.ti@unicesusc.edu.br' },
+      {
+        id: 'reitoria',
+        name: 'Reitoria',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      { id: 'nead', name: 'Nead', email: 'apoio03.ti@unicesusc.edu.br' },
+      {
+        id: 'biblioteca',
+        name: 'Biblioteca',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      {
+        id: 'marketing',
+        name: 'Marketing',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      {
+        id: 'pro_comunidade',
+        name: 'Pró Comunidade',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      {
+        id: 'recursos_humanos',
+        name: 'Recursos Humanos',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      { id: 'nad', name: 'Nad', email: 'apoio03.ti@unicesusc.edu.br' },
+      {
+        id: 'central_atendimento',
+        name: 'Central de Atendimento',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      { id: 'bolsas', name: 'Bolsas', email: 'apoio03.ti@unicesusc.edu.br' },
+      {
+        id: 'pos_graduacao',
+        name: 'Pós-graduação',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
+      {
+        id: 'colegio_cruz_sousa',
+        name: 'Colégio Cruz e Sousa',
+        email: 'apoio03.ti@unicesusc.edu.br',
+      },
     ];
 
     for (const team of supportTeams) {
