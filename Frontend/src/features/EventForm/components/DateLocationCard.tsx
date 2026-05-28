@@ -26,8 +26,8 @@ export default function DateLocationCard() {
   const getMinDateStr = () => {
     if (needsBudget === undefined) return undefined;
     const today = new Date();
-    // Prazo mínimo: 15 dias se necessita de orçamento, 7 dias caso contrário
-    const minDays = needsBudget ? 15 : 7;
+    // Prazo mínimo: sempre 15 dias de antecedência
+    const minDays = 15;
     today.setDate(today.getDate() + minDays);
 
     const year = today.getFullYear();
@@ -230,9 +230,7 @@ export default function DateLocationCard() {
         ) : (
           <div className='text-[10px] text-gray-400 leading-normal italic mt-[-8px] animate-fadeIn space-y-1'>
             <p>
-              * Prazo mínimo:{" "}
-              <strong>{needsBudget ? "15 dias" : "7 dias"}</strong> de
-              antecedência ({needsBudget ? "exige fomento" : "sem orçamento"}).
+              * Prazo mínimo: <strong>15 dias</strong> de antecedência.
             </p>
             <p className='text-amber-600 font-medium'>
               * Atenção: Finais de semana só podem ser agendados com mais de 15
@@ -246,20 +244,24 @@ export default function DateLocationCard() {
           <InputField
             {...register("startTime")}
             type='time'
-            label='Hora Início'
+            label='Hora Início (07:30 - 22:30)'
             error={errors.startTime?.message}
             required
+            min="07:30"
+            max="22:30"
           />
 
           <InputField
             {...register("endTime")}
             type='time'
-            label='Hora Término'
+            label='Hora Término (07:30 - 22:30)'
             error={errors.endTime?.message}
             required
             disabled={isEndTimeDisabled}
             placeholder={isEndTimeDisabled ? "Aguardando..." : ""}
             className={isEndTimeDisabled ? "bg-gray-50/50 border-dashed" : ""}
+            min="07:30"
+            max="22:30"
           />
         </div>
 

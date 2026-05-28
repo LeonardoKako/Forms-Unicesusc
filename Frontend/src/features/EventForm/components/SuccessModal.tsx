@@ -47,8 +47,9 @@ export default function SuccessModal({
 
   // Find dynamic descriptive room string
   const roomLabel =
-    ROOM_OPTIONS.find((r) => r.value === data.selectedRoom)?.label ||
-    data.selectedRoom;
+    ROOM_OPTIONS.find((r) => r.value === data.selectedRoom)?.label +
+    " - Capacidade: " +
+    ROOM_OPTIONS.find((r) => r.value === data.selectedRoom)?.capacity;
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn'>
@@ -368,16 +369,17 @@ export default function SuccessModal({
                       PRESENTATION_MATERIAL_OPTIONS,
                     )}
                   </span>
-                  {data.presentationMaterials?.includes("google_drive_link") && data.presentationDriveLink && (
-                    <a
-                      href={data.presentationDriveLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline block mt-1 font-semibold truncate"
-                    >
-                      🔗 Link do Drive
-                    </a>
-                  )}
+                  {data.presentationMaterials?.includes("google_drive_link") &&
+                    data.presentationDriveLink && (
+                      <a
+                        href={data.presentationDriveLink}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='text-primary hover:underline block mt-1 font-semibold truncate'
+                      >
+                        🔗 Link do Drive
+                      </a>
+                    )}
                 </div>
                 <div>
                   <span className='font-semibold text-gray-400 block'>

@@ -1,4 +1,4 @@
-import { Palette } from "lucide-react";
+import { Palette, Info } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import ToggleGroup from "../../../components/ToggleGroup";
 import InputField from "../../../components/InputField";
@@ -30,7 +30,9 @@ export default function ArtworkCard() {
           value={needsArtwork ? "sim" : "nao"}
           onChange={(val) => {
             setValue("needsArtwork", val === "sim", { shouldValidate: true, shouldDirty: true });
-            if (val === "nao") {
+            if (val === "sim") {
+              setValue("needsBudget", true, { shouldValidate: true, shouldDirty: true });
+            } else {
               setValue("artworkDescription", "");
             }
           }}
@@ -42,7 +44,12 @@ export default function ArtworkCard() {
         />
 
         {needsArtwork && (
-          <div className="animate-fadeIn">
+          <div className="animate-fadeIn space-y-4">
+            <div className="flex items-start space-x-2 text-xs text-amber-600 font-semibold bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/50">
+              <Info className="h-4.5 w-4.5 shrink-0 text-amber-500 mt-0.5" />
+              <span>Atenção: A solicitação de artes para divulgação exige obrigatoriamente orçamento para o evento. O orçamento será marcado como &quot;Sim&quot; de forma automática.</span>
+            </div>
+
             <InputField
               {...register("artworkDescription")}
               label="Descrição da Arte"

@@ -192,8 +192,8 @@ export const eventFormSchema = z
       }
     }
 
-    // 2. Validação da Data com base no Orçamento e data atual
-    if (data.eventDate && data.needsBudget !== undefined) {
+    // 2. Validação da Data com base na antecedência de 15 dias e data atual
+    if (data.eventDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const inputDate = new Date(data.eventDate + "T00:00:00");
@@ -206,24 +206,20 @@ export const eventFormSchema = z
           path: ["eventDate"],
         });
       } else {
-        // Prazo com base no orçamento (15 dias ou 7 dias)
-        const minDays = data.needsBudget ? 15 : 7;
-
+        // Prazo mínimo fixo: sempre 15 dias de antecedência
+        const minDays = 15;
         const targetMinDate = new Date(today);
         targetMinDate.setDate(today.getDate() + minDays);
 
         if (inputDate < targetMinDate) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: data.needsBudget
-              ? `Com orçamento: prazo mínimo de 15 dias de antecedência (mínimo: ${targetMinDate.toLocaleDateString("pt-BR")})`
-              : `Sem orçamento: prazo mínimo de 7 dias de antecedência (mínimo: ${targetMinDate.toLocaleDateString("pt-BR")})`,
+            message: `Prazo mínimo de 15 dias de antecedência (mínimo a partir de: ${targetMinDate.toLocaleDateString("pt-BR")})`,
             path: ["eventDate"],
           });
         }
 
         // Bloquear finais de semana se for agendado com menos de 15 dias de antecedência
-        // Calculamos a diferença de dias exata entre hoje e a data do evento
         const diffTime = inputDate.getTime() - today.getTime();
         const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
 
@@ -241,15 +237,43 @@ export const eventFormSchema = z
       }
     }
 
-    // 3. Validação de Horários (Término posterior ao Início)
+    // Helper para converter hora (HH:MM) em minutos totais
+    const timeToMinutes = (timeStr: string) => {
+      const [h, m] = timeStr.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    // 3. Validação de Horários (Término posterior ao Início e entre 07:30 e 22:30)
+    const minTimeMinutes = 7 * 60 + 30; // 07:30 -> 450 min
+    const maxTimeMinutes = 22 * 60 + 30; // 22:30 -> 1350 min
+
+    if (data.startTime) {
+      const startMin = timeToMinutes(data.startTime);
+      if (startMin < minTimeMinutes || startMin > maxTimeMinutes) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "O horário de início deve estar entre 07:30 e 22:30",
+          path: ["startTime"],
+        });
+      }
+    }
+
+    if (data.endTime) {
+      const endMin = timeToMinutes(data.endTime);
+      if (endMin < minTimeMinutes || endMin > maxTimeMinutes) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "O horário de término deve estar entre 07:30 e 22:30",
+          path: ["endTime"],
+        });
+      }
+    }
+
     if (data.startTime && data.endTime) {
-      const [startHour, startMin] = data.startTime.split(":").map(Number);
-      const [endHour, endMin] = data.endTime.split(":").map(Number);
+      const startMin = timeToMinutes(data.startTime);
+      const endMin = timeToMinutes(data.endTime);
 
-      const startTotalMinutes = startHour * 60 + startMin;
-      const endTotalMinutes = endHour * 60 + endMin;
-
-      if (endTotalMinutes <= startTotalMinutes) {
+      if (endMin <= startMin) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
@@ -272,10 +296,16 @@ export const eventFormSchema = z
             "O orçamento é obrigatório ao solicitar itens de Coffee Break",
           path: ["needsBudget"],
         });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "A solicitação de Coffee Break exige que o orçamento seja marcado como 'Sim'",
+          path: ["coffeeBreak"],
+        });
       }
     }
 
-    // 5. Validação de Arte
+    // 5. Validação de Arte ligada ao orçamento
     if (data.needsArtwork) {
       if (
         !data.artworkDescription ||
@@ -285,6 +315,19 @@ export const eventFormSchema = z
           code: z.ZodIssueCode.custom,
           message: "Descreva a arte desejada (mínimo 5 caracteres)",
           path: ["artworkDescription"],
+        });
+      }
+
+      if (data.needsBudget === false || data.needsBudget === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "O orçamento é obrigatório ao solicitar Arte/Comunicação Visual",
+          path: ["needsBudget"],
+        });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A solicitação de arte exige que o orçamento seja marcado como 'Sim'",
+          path: ["needsArtwork"],
         });
       }
     }
