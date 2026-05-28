@@ -1,52 +1,19 @@
-import { useEffect, useRef } from "react";
-import { useFormContext } from "react-hook-form";
-import { User, BookOpen, Info, Phone, FileCheck, Building } from "lucide-react";
+import { User, Phone, BookOpen } from "lucide-react";
 import InputField from "../../../components/InputField";
-import ToggleGroup from "../../../components/ToggleGroup";
-import { EventFormData } from "../schema";
+import { useFormContext } from "react-hook-form";
 
-export default function RequesterCard() {
+interface RequesterCardProps {
+  isLocationForm?: boolean;
+}
+
+export default function RequesterCard({ isLocationForm = false }: RequesterCardProps) {
   const {
     register,
     watch,
-    setValue,
     formState: { errors },
-  } = useFormContext<EventFormData>();
+  } = useFormContext();
 
-  // Watch requesterType for dynamic field labelling
-  const requesterType = watch("requesterType");
   const isPartnerEvent = watch("isPartnerEvent");
-
-  const prevRequesterTypeRef = useRef<string>("interno");
-
-  // Transições de campos ao alternar entre interno e locação
-  useEffect(() => {
-    const prevType = prevRequesterTypeRef.current;
-    if (prevType !== requesterType) {
-      if (requesterType === "interno") {
-        // Limpar todos os campos e estados ao ir para Comunidade Interna
-        setValue("requesterName", "");
-        setValue("requesterPhone", "");
-        setValue("requesterEmail", "");
-        setValue("requesterDepartment", "");
-        setValue("isPartnerEvent", false);
-        setValue("partnerName", "");
-        setValue("partnerEmail", "");
-        setValue("partnerPhone", "");
-        setValue("partnerInstitution", "");
-        setValue("adminApprovalFileUrl", undefined);
-      } else if (requesterType === "locacao") {
-        // Limpar campos de identificação e forçar o e-mail administrativo padrão
-        setValue("requesterName", "");
-        setValue("requesterPhone", "");
-        setValue("requesterEmail", "gestor.campus@unicesusc.edu.br", {
-          shouldValidate: true,
-        });
-        setValue("adminApprovalFileUrl", undefined);
-      }
-    }
-    prevRequesterTypeRef.current = requesterType;
-  }, [requesterType, setValue]);
 
   return (
     <div className='bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md'>
@@ -66,68 +33,9 @@ export default function RequesterCard() {
       </div>
 
       <div className='space-y-6'>
-        {/* Tipo de Solicitante */}
-        <div>
-          <label className='text-[13px] font-extrabold uppercase tracking-wide text-brand block mb-3.5'>
-            Tipo de Solicitante
-          </label>
-          <div className='grid grid-cols-2 gap-4'>
-            <label
-              className={`
-                flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-300
-                ${
-                  requesterType === "interno"
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50/50"
-                }
-              `}
-            >
-              <input
-                type='radio'
-                value='interno'
-                {...register("requesterType")}
-                className='sr-only'
-              />
-              <span className='font-extrabold text-sm uppercase tracking-wide'>
-                Comunidade Interna
-              </span>
-              <span className='text-[10px] opacity-80 mt-1 font-medium'>
-                Professores, coordenadores, setores
-              </span>
-            </label>
-
-            <label
-              className={`
-                flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-300
-                ${
-                  requesterType === "locacao"
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50/50"
-                }
-              `}
-            >
-              <input
-                type='radio'
-                value='locacao'
-                {...register("requesterType")}
-                className='sr-only'
-              />
-              <span className='font-extrabold text-sm uppercase tracking-wide'>
-                Locação Externa
-              </span>
-              <span className='text-[10px] opacity-80 mt-1 font-medium'>
-                Eventos de terceiros e parcerias
-              </span>
-            </label>
-          </div>
-        </div>
-
-        <div className='border-t border-gray-100 my-6'></div>
-
-        {/* Renderização Condicional baseada no Tipo */}
-        {requesterType === "locacao" ? (
+        {isLocationForm ? (
           <div className='space-y-4 animate-fadeIn'>
-            {/* Locação */}
+            {/* Campos Simplificados para Locação */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <InputField
                 {...register("requesterName")}
@@ -135,6 +43,7 @@ export default function RequesterCard() {
                 placeholder='Ex: ACME Corporation'
                 required
                 error={errors.requesterName?.message as string}
+                icon={<User className='h-4 w-4' />}
               />
               <InputField
                 {...register("requesterPhone")}
@@ -142,94 +51,19 @@ export default function RequesterCard() {
                 placeholder='(48) 99999-9999'
                 required
                 error={errors.requesterPhone?.message as string}
+                icon={<Phone className='h-4 w-4' />}
               />
             </div>
 
             <InputField
               {...register("requesterEmail")}
-              label='E-mail do Administrativo'
-              placeholder='gestor.campus@unicesusc.edu.br'
+              label='E-mail de Contato'
+              type='email'
+              placeholder='Ex: financeiro@empresa.com'
               required
-              disabled
-              className='bg-gray-50/80 text-gray-500 font-medium cursor-not-allowed select-none border-gray-200'
               error={errors.requesterEmail?.message as string}
+              icon={<BookOpen className='h-4 w-4' />}
             />
-
-            {/* Aval do Administrativo (File Upload) */}
-            <div className='flex flex-col space-y-2 mt-4'>
-              <label className='text-[13px] font-extrabold uppercase tracking-wide text-brand'>
-                Confirmação do Administrativo{" "}
-                <span className='text-primary'>*</span>
-              </label>
-              <div className='flex items-center justify-center w-full'>
-                {watch("adminApprovalFileUrl") &&
-                watch("adminApprovalFileUrl").length > 0 ? (
-                  <div className='flex flex-col items-center justify-center w-full p-6 border-2 border-emerald-300 bg-emerald-50/30 rounded-xl relative'>
-                    <div className='flex items-center space-x-3 mb-3'>
-                      <div className='p-2 bg-emerald-500/10 rounded-lg text-emerald-600'>
-                        <FileCheck className='h-6 w-6 animate-bounce' />
-                      </div>
-                      <div className='text-left'>
-                        <p className='text-sm font-semibold text-gray-800 truncate max-w-[250px] sm:max-w-[400px]'>
-                          {watch("adminApprovalFileUrl")[0].name}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                          {(
-                            watch("adminApprovalFileUrl")[0].size /
-                            1024 /
-                            1024
-                          ).toFixed(2)}{" "}
-                          MB
-                        </p>
-                      </div>
-                    </div>
-                    <div className='flex space-x-3'>
-                      <button
-                        type='button'
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setValue("adminApprovalFileUrl", undefined, {
-                            shouldValidate: true,
-                          });
-                        }}
-                        className='px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200'
-                      >
-                        Remover arquivo
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <label
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.adminApprovalFileUrl ? "border-red-300 bg-red-50/50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}
-                  >
-                    <div className='flex flex-col items-center justify-center pt-5 pb-6'>
-                      <FileCheck className='w-8 h-8 mb-3 text-gray-400' />
-                      <p className='mb-2 text-sm text-gray-500'>
-                        <span className='font-semibold'>
-                          Clique para anexar a confirmação
-                        </span>{" "}
-                        ou arraste
-                      </p>
-                      <p className='text-xs text-gray-500'>
-                        PDF, JPG, PNG (MAX. 10MB)
-                      </p>
-                    </div>
-                    <input
-                      type='file'
-                      className='hidden'
-                      accept='.pdf,image/*'
-                      {...register("adminApprovalFileUrl")}
-                    />
-                  </label>
-                )}
-              </div>
-              {errors.adminApprovalFileUrl && (
-                <p className='text-xs text-red-600 font-medium animate-fadeIn'>
-                  {errors.adminApprovalFileUrl.message as string}
-                </p>
-              )}
-            </div>
           </div>
         ) : (
           <div className='space-y-5 animate-fadeIn'>
@@ -239,7 +73,7 @@ export default function RequesterCard() {
                 {...register("requesterName")}
                 label='Nome do Responsável Unicesusc'
                 placeholder='Ex: Prof. Dr. Leonardo Silva'
-                error={errors.requesterName?.message}
+                error={errors.requesterName?.message as string}
                 required
                 icon={<User className='h-4 w-4' />}
               />
@@ -247,7 +81,7 @@ export default function RequesterCard() {
                 {...register("requesterPhone")}
                 label='Telefone / Celular (Unicesusc)'
                 placeholder='Ex: (48) 99999-9999'
-                error={errors.requesterPhone?.message}
+                error={errors.requesterPhone?.message as string}
                 required
                 icon={<Phone className='h-4 w-4' />}
               />
@@ -259,7 +93,7 @@ export default function RequesterCard() {
                 label='E-mail Institucional'
                 type='email'
                 placeholder='Ex: leonardo.silva@unicesusc.edu.br'
-                error={errors.requesterEmail?.message}
+                error={errors.requesterEmail?.message as string}
                 required
                 icon={<BookOpen className='h-4 w-4' />}
               />
@@ -267,33 +101,29 @@ export default function RequesterCard() {
                 {...register("requesterDepartment")}
                 label='Setor, Coordenação ou Curso'
                 placeholder='Ex: Coordenação de Engenharia'
-                error={errors.requesterDepartment?.message}
+                error={errors.requesterDepartment?.message as string}
                 required
-                icon={<Info className='h-4 w-4' />}
+                icon={<BookOpen className='h-4 w-4' />}
               />
             </div>
 
             {/* Evento Parceiro */}
             <div className='pt-4 border-t border-gray-100'>
-              <ToggleGroup
-                label='Este é um evento parceiro?'
-                value={isPartnerEvent ? "sim" : "nao"}
-                onChange={(val) => {
-                  setValue("isPartnerEvent", val === "sim", {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  });
-                }}
-                options={[
-                  { value: "nao", label: "Não" },
-                  { value: "sim", label: "Sim" },
-                ]}
-              />
+              <div className='flex items-center space-x-3 mb-4'>
+                <input
+                  type='checkbox'
+                  id='isPartnerEvent'
+                  {...register("isPartnerEvent")}
+                  className='h-4.5 w-4.5 rounded border-gray-300 text-primary focus:ring-primary/20 accent-primary cursor-pointer'
+                />
+                <label htmlFor='isPartnerEvent' className='text-sm font-semibold text-gray-700 cursor-pointer select-none'>
+                  Este é um evento parceiro?
+                </label>
+              </div>
 
               {isPartnerEvent && (
                 <div className='mt-5 space-y-5 bg-brand/5 p-5 rounded-xl border border-brand/10 animate-fadeIn'>
                   <div className='flex items-start space-x-2 text-sm text-amber-700 bg-amber-100/50 p-3 rounded-lg border border-amber-200'>
-                    <Info className='h-5 w-5 shrink-0 text-amber-600 mt-0.5' />
                     <p className='font-medium'>
                       Atenção: O responsável Unicesusc deve estar presente no
                       evento e acompanhar todas as atividades, mesmo sendo um
@@ -310,7 +140,7 @@ export default function RequesterCard() {
                       {...register("partnerName")}
                       label='Nome do Parceiro'
                       placeholder='Ex: Maria Souza'
-                      error={errors.partnerName?.message}
+                      error={errors.partnerName?.message as string}
                       required
                       icon={<User className='h-4 w-4' />}
                     />
@@ -318,7 +148,7 @@ export default function RequesterCard() {
                       {...register("partnerPhone")}
                       label='Telefone / Celular'
                       placeholder='Ex: (48) 98888-8888'
-                      error={errors.partnerPhone?.message}
+                      error={errors.partnerPhone?.message as string}
                       required
                       icon={<Phone className='h-4 w-4' />}
                     />
@@ -330,7 +160,7 @@ export default function RequesterCard() {
                       label='E-mail do Parceiro'
                       type='email'
                       placeholder='Ex: maria@empresa.com.br'
-                      error={errors.partnerEmail?.message}
+                      error={errors.partnerEmail?.message as string}
                       required
                       icon={<BookOpen className='h-4 w-4' />}
                     />
@@ -338,7 +168,7 @@ export default function RequesterCard() {
                       {...register("partnerInstitution")}
                       label='Empresa / Instituição'
                       placeholder='Ex: Tech Solutions Ltda'
-                      error={errors.partnerInstitution?.message}
+                      error={errors.partnerInstitution?.message as string}
                       required
                       icon={<Building className='h-4 w-4' />}
                     />
@@ -352,3 +182,6 @@ export default function RequesterCard() {
     </div>
   );
 }
+
+// Pequeno mock de componente de ícone para evitar quebras se não importado
+import { Building } from "lucide-react";

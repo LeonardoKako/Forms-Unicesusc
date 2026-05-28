@@ -1,18 +1,17 @@
 import { z } from "zod";
 
+// ==========================================
+// 1. SCHEMA PARA COMUNIDADE INTERNA (COMPLETO)
+// ==========================================
 export const eventFormSchema = z
   .object({
-    // Dados do Solicitante
     requesterName: z
       .string()
       .min(3, "O nome do responsável deve conter pelo menos 3 caracteres"),
     requesterEmail: z.string().email("Insira um endereço de e-mail válido"),
     requesterPhone: z.string().min(10, "Insira um telefone/celular válido"),
     requesterDepartment: z.string().optional(),
-    requesterType: z.enum(["interno", "locacao"]),
-
-    // Locação
-    adminApprovalFileUrl: z.any().optional(),
+    requesterType: z.literal("interno"),
 
     // Evento Parceiro (Comunidade Interna)
     isPartnerEvent: z.boolean().optional(),
@@ -30,7 +29,7 @@ export const eventFormSchema = z
       .string()
       .min(1, "O resumo e finalidade do evento é obrigatório"),
 
-    // Público Alvo & Pessoas Esperadas (Imagem 1)
+    // Público Alvo & Pessoas Esperadas
     targetAudience: z
       .array(z.string())
       .min(1, 'Selecione pelo menos um público-alvo ou marque "Não se aplica"'),
@@ -44,12 +43,12 @@ export const eventFormSchema = z
         .min(1, "O público estimado deve ser de pelo menos 1 pessoa"),
     ),
 
-    // Copa (Imagem 1)
+    // Copa
     copa: z
       .array(z.string())
       .min(1, 'Selecione as opções de copa ou marque "Não se aplica"'),
 
-    // Coffee Break (Imagem 1)
+    // Coffee Break
     coffeeBreak: z
       .array(z.string())
       .min(1, 'Selecione as opções de coffee break ou marque "Não se aplica"'),
@@ -69,18 +68,18 @@ export const eventFormSchema = z
       .min(1, "Selecione a sala ou espaço desejado"),
     roomNotes: z.string().optional(),
 
-    // Equipamentos de TI (Imagem 2)
+    // Equipamentos de TI
     tiEquipment: z
       .array(z.string())
       .min(1, 'Selecione os equipamentos de T.I. ou marque "Não se aplica"'),
 
-    // Móveis e Apoio (Imagem 2)
+    // Móveis e Apoio
     furnitureSupport: z
       .array(z.string())
       .min(1, 'Selecione os móveis de apoio ou marque "Não se aplica"'),
     otherFurnitureDescription: z.string().optional(),
 
-    // Equipes de Apoio (Imagem 3)
+    // Equipes de Apoio
     supportTeams: z.array(z.string()).min(1, "Selecione as equipes de apoio"),
 
     // Material de Apresentação
@@ -92,8 +91,6 @@ export const eventFormSchema = z
     // Arte / Comunicação Visual
     needsArtwork: z.boolean({ required_error: "Informe se deseja arte" }),
     artworkDescription: z.string().optional(),
-
-    // Documentos Extras - Removido checkbox 'notApplicableExtraDocs'
 
     // Termos de Uso
     acceptTerms: z.boolean().refine((val) => val === true, {
@@ -112,10 +109,9 @@ export const eventFormSchema = z
         });
       }
     }
-    // 1. Validação de Orçamento e Arquivo
+    
+    // Validação de Orçamento e Arquivo
     if (data.needsBudget) {
-      // If we use RHF and a file input, a valid selection is typically a FileList.
-      // If it's missing or empty, add an issue.
       if (!data.budgetApprovalFileUrl || data.budgetApprovalFileUrl.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -125,94 +121,74 @@ export const eventFormSchema = z
       }
     }
 
-    // Validação de Locação
-    if (data.requesterType === "locacao") {
-      if (!data.adminApprovalFileUrl || data.adminApprovalFileUrl.length === 0) {
+    // Validação Comunidade Interna (E-mail e Setor)
+    if (data.requesterEmail) {
+      const parts = data.requesterEmail.split('@');
+      const localPart = parts[0] || '';
+      const domainPart = parts[1] || '';
+
+      if (domainPart !== 'unicesusc.edu.br') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "O envio da confirmação do administrativo é obrigatório",
-          path: ["adminApprovalFileUrl"],
+          message: 'O e-mail institucional deve terminar obrigatoriamente com @unicesusc.edu.br',
+          path: ['requesterEmail'],
+        });
+      }
+
+      if (/\d{3}/.test(localPart)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'O e-mail institucional não pode conter 3 ou mais números seguidos antes do @',
+          path: ['requesterEmail'],
         });
       }
     }
 
-    // Validação Comunidade Interna
-    if (data.requesterType === "interno") {
-      if (data.requesterEmail) {
-        const parts = data.requesterEmail.split('@');
-        const localPart = parts[0] || '';
-        const domainPart = parts[1] || '';
+    if (!data.requesterDepartment || data.requesterDepartment.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe o setor, coordenação ou curso",
+        path: ["requesterDepartment"],
+      });
+    }
 
-        if (domainPart !== 'unicesusc.edu.br') {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'O e-mail institucional deve terminar obrigatoriamente com @unicesusc.edu.br',
-            path: ['requesterEmail'],
-          });
-        }
-
-        if (/\d{3}/.test(localPart)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'O e-mail institucional não pode conter 3 ou mais números seguidos antes do @',
-            path: ['requesterEmail'],
-          });
-        }
-      }
-
-      if (
-        !data.requesterDepartment ||
-        data.requesterDepartment.trim().length < 2
-      ) {
+    if (data.isPartnerEvent) {
+      if (!data.partnerName || data.partnerName.trim().length < 3) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Informe o setor, coordenação ou curso",
-          path: ["requesterDepartment"],
+          message: "Informe o nome do responsável parceiro",
+          path: ["partnerName"],
         });
       }
-
-      if (data.isPartnerEvent) {
-        if (!data.partnerName || data.partnerName.trim().length < 3) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Informe o nome do responsável parceiro",
-            path: ["partnerName"],
-          });
-        }
-        if (!data.partnerEmail || !/^\S+@\S+\.\S+$/.test(data.partnerEmail)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Insira um e-mail válido para o parceiro",
-            path: ["partnerEmail"],
-          });
-        }
-        if (!data.partnerPhone || data.partnerPhone.trim().length < 10) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Insira um telefone válido para o parceiro",
-            path: ["partnerPhone"],
-          });
-        }
-        if (
-          !data.partnerInstitution ||
-          data.partnerInstitution.trim().length < 2
-        ) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Informe a empresa/instituição parceira",
-            path: ["partnerInstitution"],
-          });
-        }
+      if (!data.partnerEmail || !/^\S+@\S+\.\S+$/.test(data.partnerEmail)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Insira um e-mail válido para o parceiro",
+          path: ["partnerEmail"],
+        });
+      }
+      if (!data.partnerPhone || data.partnerPhone.trim().length < 10) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Insira um telefone válido para o parceiro",
+          path: ["partnerPhone"],
+        });
+      }
+      if (!data.partnerInstitution || data.partnerInstitution.trim().length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Informe a empresa/instituição parceira",
+          path: ["partnerInstitution"],
+        });
       }
     }
 
-    // 2. Validação da Data com base na antecedência de 15 dias e data atual
+    // Validação da Data (15 dias de antecedência)
     if (data.eventDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const inputDate = new Date(data.eventDate + "T00:00:00");
 
-      // Bloquear datas no passado (antes de hoje)
       if (inputDate < today) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -220,7 +196,6 @@ export const eventFormSchema = z
           path: ["eventDate"],
         });
       } else {
-        // Prazo mínimo fixo: sempre 15 dias de antecedência
         const minDays = 15;
         const targetMinDate = new Date(today);
         targetMinDate.setDate(today.getDate() + minDays);
@@ -233,17 +208,15 @@ export const eventFormSchema = z
           });
         }
 
-        // Bloquear finais de semana se for agendado com menos de 15 dias de antecedência
         const diffTime = inputDate.getTime() - today.getTime();
         const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
 
         if (diffDays <= 15) {
-          const dayOfWeek = inputDate.getDay(); // 0 = Domingo, 6 = Sábado
+          const dayOfWeek = inputDate.getDay();
           if (dayOfWeek === 0 || dayOfWeek === 6) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message:
-                "Finais de semana só podem ser selecionados com mais de 15 dias de antecedência",
+              message: "Finais de semana só podem ser selecionados com mais de 15 dias de antecedência",
               path: ["eventDate"],
             });
           }
@@ -251,15 +224,14 @@ export const eventFormSchema = z
       }
     }
 
-    // Helper para converter hora (HH:MM) em minutos totais
+    // Validação de Horários
     const timeToMinutes = (timeStr: string) => {
       const [h, m] = timeStr.split(":").map(Number);
       return h * 60 + m;
     };
 
-    // 3. Validação de Horários (Término posterior ao Início e entre 07:30 e 22:30)
-    const minTimeMinutes = 7 * 60 + 30; // 07:30 -> 450 min
-    const maxTimeMinutes = 22 * 60 + 30; // 22:30 -> 1350 min
+    const minTimeMinutes = 7 * 60 + 30; // 07:30
+    const maxTimeMinutes = 22 * 60 + 30; // 22:30
 
     if (data.startTime) {
       const startMin = timeToMinutes(data.startTime);
@@ -290,41 +262,26 @@ export const eventFormSchema = z
       if (endMin <= startMin) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message:
-            "O horário de término deve ser posterior ao horário de início",
+          message: "O horário de término deve ser posterior ao horário de início",
           path: ["endTime"],
         });
       }
     }
 
-    // 4. Validação de Orçamento para Coffee Break
-    if (
-      data.coffeeBreak &&
-      data.coffeeBreak.length > 0 &&
-      !data.coffeeBreak.includes("nao_se_aplica")
-    ) {
+    // Validação de Orçamento para Coffee Break
+    if (data.coffeeBreak && data.coffeeBreak.length > 0 && !data.coffeeBreak.includes("nao_se_aplica")) {
       if (data.needsBudget === false || data.needsBudget === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message:
-            "O orçamento é obrigatório ao solicitar itens de Coffee Break",
+          message: "O orçamento é obrigatório ao solicitar itens de Coffee Break",
           path: ["needsBudget"],
-        });
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "A solicitação de Coffee Break exige que o orçamento seja marcado como 'Sim'",
-          path: ["coffeeBreak"],
         });
       }
     }
 
-    // 5. Validação de Arte ligada ao orçamento
+    // Validação de Arte
     if (data.needsArtwork) {
-      if (
-        !data.artworkDescription ||
-        data.artworkDescription.trim().length < 5
-      ) {
+      if (!data.artworkDescription || data.artworkDescription.trim().length < 5) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Descreva a arte desejada (mínimo 5 caracteres)",
@@ -338,15 +295,10 @@ export const eventFormSchema = z
           message: "O orçamento é obrigatório ao solicitar Arte/Comunicação Visual",
           path: ["needsBudget"],
         });
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "A solicitação de arte exige que o orçamento seja marcado como 'Sim'",
-          path: ["needsArtwork"],
-        });
       }
     }
 
-    // 6. Validação do Link do Google Drive
+    // Validação Drive Link
     if (data.presentationMaterials && data.presentationMaterials.includes("google_drive_link")) {
       if (!data.presentationDriveLink || !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/.test(data.presentationDriveLink)) {
         ctx.addIssue({
@@ -359,3 +311,121 @@ export const eventFormSchema = z
   });
 
 export type EventFormData = z.infer<typeof eventFormSchema>;
+
+// ==========================================
+// 2. SCHEMA PARA LOCAÇÃO EXTERNA (SIMPLIFICADO)
+// ==========================================
+export const locationFormSchema = z
+  .object({
+    requesterName: z
+      .string()
+      .min(3, "O nome do responsável / empresa deve conter pelo menos 3 caracteres"),
+    requesterEmail: z.string().email("Insira um endereço de e-mail válido"),
+    requesterPhone: z.string().min(10, "Insira um telefone de contato válido"),
+    requesterType: z.literal("locacao"),
+
+    // Data e Local
+    eventDate: z.string().min(1, "A data do evento é obrigatória"),
+    startTime: z.string().min(1, "O horário de início é obrigatório"),
+    endTime: z.string().min(1, "O horário de término é obrigatório"),
+    selectedRoom: z
+      .string({ required_error: "Selecione a sala ou espaço desejado" })
+      .min(1, "Selecione a sala ou espaço desejado"),
+    roomNotes: z.string().optional(),
+
+    // Equipes de Apoio
+    supportTeams: z.array(z.string()).min(1, "Selecione as equipes de apoio"),
+
+    // Termos de Uso
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: "Você precisa aceitar os termos de uso do espaço para prosseguir",
+    }),
+  })
+  .superRefine((data, ctx) => {
+    // Validação da Data (15 dias de antecedência)
+    if (data.eventDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const inputDate = new Date(data.eventDate + "T00:00:00");
+
+      if (inputDate < today) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A data do evento não pode ser no passado",
+          path: ["eventDate"],
+        });
+      } else {
+        const minDays = 15;
+        const targetMinDate = new Date(today);
+        targetMinDate.setDate(today.getDate() + minDays);
+
+        if (inputDate < targetMinDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Prazo mínimo de 15 dias de antecedência (mínimo a partir de: ${targetMinDate.toLocaleDateString("pt-BR")})`,
+            path: ["eventDate"],
+          });
+        }
+
+        const diffTime = inputDate.getTime() - today.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 3600 * 24));
+
+        if (diffDays <= 15) {
+          const dayOfWeek = inputDate.getDay();
+          if (dayOfWeek === 0 || dayOfWeek === 6) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Finais de semana só podem ser selecionados com mais de 15 dias de antecedência",
+              path: ["eventDate"],
+            });
+          }
+        }
+      }
+    }
+
+    // Validação de Horários
+    const timeToMinutes = (timeStr: string) => {
+      const [h, m] = timeStr.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    const minTimeMinutes = 7 * 60 + 30; // 07:30
+    const maxTimeMinutes = 22 * 60 + 30; // 22:30
+
+    if (data.startTime) {
+      const startMin = timeToMinutes(data.startTime);
+      if (startMin < minTimeMinutes || startMin > maxTimeMinutes) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "O horário de início deve estar entre 07:30 e 22:30",
+          path: ["startTime"],
+        });
+      }
+    }
+
+    if (data.endTime) {
+      const endMin = timeToMinutes(data.endTime);
+      if (endMin < minTimeMinutes || endMin > maxTimeMinutes) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "O horário de término deve estar entre 07:30 e 22:30",
+          path: ["endTime"],
+        });
+      }
+    }
+
+    if (data.startTime && data.endTime) {
+      const startMin = timeToMinutes(data.startTime);
+      const endMin = timeToMinutes(data.endTime);
+
+      if (endMin <= startMin) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "O horário de término deve ser posterior ao horário de início",
+          path: ["endTime"],
+        });
+      }
+    }
+  });
+
+export type LocationFormData = z.infer<typeof locationFormSchema>;

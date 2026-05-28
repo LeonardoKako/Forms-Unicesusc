@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2, ChevronRight, User, Key } from "lucide-react";
 
-import { eventFormSchema, EventFormData } from "./schema";
+import { eventFormSchema, locationFormSchema, EventFormData, LocationFormData } from "./schema";
 import { mockBackendPayload } from "./mockBackendPayload";
 import RequesterCard from "./components/RequesterCard";
 import EventDetailsCard from "./components/EventDetailsCard";
@@ -21,7 +21,10 @@ import ExtraDocsCard from "./components/ExtraDocsCard";
 
 import { supabase } from "@/lib/supabase";
 
+type FormType = "interno" | "locacao";
+
 export default function EventForm() {
+  const [formType, setFormType] = useState<FormType>("interno");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -33,7 +36,6 @@ export default function EventForm() {
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `${folder}/${fileName}`;
 
-    // Envia o arquivo binário para o bucket 'comprovantes'
     const { error } = await supabase.storage
       .from("comprovantes")
       .upload(filePath, file);
@@ -42,16 +44,17 @@ export default function EventForm() {
       throw error;
     }
 
-    // Busca a URL pública do arquivo
     const { data } = supabase.storage.from("comprovantes").getPublicUrl(filePath);
     return data.publicUrl;
   };
 
-  // Initialize form methods
-  const methods = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema),
+  // Instanciamos os métodos do formulário com base na aba ativa (interno vs locacao)
+  const methods = useForm<any>({
+    resolver: zodResolver(formType === "interno" ? eventFormSchema : locationFormSchema),
     defaultValues: {
-      requesterType: "interno",
+      requesterType: formType,
+      requesterName: "",
+      requesterEmail: "",
       requesterPhone: "",
       requesterDepartment: "",
       isPartnerEvent: false,
@@ -59,7 +62,6 @@ export default function EventForm() {
       partnerEmail: "",
       partnerPhone: "",
       partnerInstitution: "",
-      adminApprovalFileUrl: undefined,
       acceptTerms: false,
       needsBudget: undefined,
       budgetApprovalFileUrl: undefined,
@@ -82,21 +84,56 @@ export default function EventForm() {
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = methods;
 
-  // Sincronização reativa entre Equipamentos de TI e Equipes de Apoio (TI)
-  const tiEquipment = methods.watch("tiEquipment") || [];
-  const supportTeams = methods.watch("supportTeams") || [];
+  // Resetar ou setar o requesterType correto ao mudar de aba
+  useEffect(() => {
+    reset({
+      requesterType: formType,
+      requesterName: "",
+      requesterEmail: "",
+      requesterPhone: "",
+      requesterDepartment: "",
+      isPartnerEvent: false,
+      partnerName: "",
+      partnerEmail: "",
+      partnerPhone: "",
+      partnerInstitution: "",
+      acceptTerms: false,
+      needsBudget: undefined,
+      budgetApprovalFileUrl: undefined,
+      roomNotes: "",
+      targetAudience: [],
+      copa: [],
+      coffeeBreak: [],
+      tiEquipment: [],
+      furnitureSupport: [],
+      otherFurnitureDescription: "",
+      supportTeams: ["marketing", "administrativo"],
+      presentationMaterials: [],
+      presentationDriveLink: "",
+      needsArtwork: false,
+      artworkDescription: "",
+    });
+  }, [formType, reset]);
+
+  // Sincronização reativa entre Equipamentos de TI e Equipes de Apoio (TI) - Apenas para formulário Interno
+  const tiEquipment = watch("tiEquipment") || [];
+  const supportTeams = watch("supportTeams") || [];
 
   const prevTiEquipmentRef = useRef<string[]>([]);
   const prevSupportTeamsRef = useRef<string[]>([]);
 
   useEffect(() => {
+    if (formType !== "interno") return;
+
     const prevTiEquipment = prevTiEquipmentRef.current;
     const prevSupportTeams = prevSupportTeamsRef.current;
 
-    const hasActiveTiEquipment = tiEquipment.some(id => id !== "nao_se_aplica" && id !== "");
+    const hasActiveTiEquipment = tiEquipment.some((id: string) => id !== "nao_se_aplica" && id !== "");
     const hasTiSupport = supportTeams.includes("ti");
 
     const tiEquipmentChanged = JSON.stringify(prevTiEquipment) !== JSON.stringify(tiEquipment);
@@ -104,55 +141,100 @@ export default function EventForm() {
 
     if (tiEquipmentChanged) {
       if (hasActiveTiEquipment && !hasTiSupport) {
-        methods.setValue("supportTeams", [...supportTeams, "ti"], { shouldValidate: true, shouldDirty: true });
+        setValue("supportTeams", [...supportTeams, "ti"], { shouldValidate: true, shouldDirty: true });
       }
     } else if (supportTeamsChanged) {
       const prevHadTiSupport = prevSupportTeams.includes("ti");
       if (prevHadTiSupport && !hasTiSupport && hasActiveTiEquipment) {
-        methods.setValue("tiEquipment", ["nao_se_aplica"], { shouldValidate: true, shouldDirty: true });
+        setValue("tiEquipment", ["nao_se_aplica"], { shouldValidate: true, shouldDirty: true });
       }
     }
 
     prevTiEquipmentRef.current = tiEquipment;
     prevSupportTeamsRef.current = supportTeams;
-  }, [tiEquipment, supportTeams, methods]);
+  }, [tiEquipment, supportTeams, setValue, formType]);
 
-  // Simulated request submit logic
-  const onSubmit = async (data: EventFormData) => {
+  // Envio de formulário final
+  const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
       let finalBudgetUrl = "";
 
-      // 1. Upload do Arquivo de Orçamento (Se houver arquivo selecionado no FileList)
-      if (data.budgetApprovalFileUrl && data.budgetApprovalFileUrl.length > 0) {
+      // 1. Upload do Arquivo de Orçamento (Apenas no Interno, se aplicável)
+      if (formType === "interno" && data.budgetApprovalFileUrl && data.budgetApprovalFileUrl.length > 0) {
         console.log("Subindo arquivo de orçamento para o Supabase Storage...", data.budgetApprovalFileUrl[0]);
         finalBudgetUrl = await uploadFile(data.budgetApprovalFileUrl[0], "orcamentos");
-        console.log("Arquivo submetido com sucesso! URL pública gerada:", finalBudgetUrl);
       }
 
-      // 2. Monta o payload final com a URL em string simples para o backend receber!
-      const finalPayload = {
-        ...data,
-        budgetApprovalFileUrl: finalBudgetUrl,
-        adminApprovalFileUrl: data.adminApprovalFileUrl && data.adminApprovalFileUrl.length > 0 
-          ? "[FileList Temporário - Integraremos na sequência]" 
-          : ""
-      };
+      // 2. Limpeza dos dados dependendo da API/Formulário ativo
+      let finalPayload: any = {};
 
-      console.log("Mock de payload completo esperado pelo backend:", mockBackendPayload);
-      console.log("PAYLOAD LIMPO E FINAL ENVIADO (Pronto para Banco de Dados!):", finalPayload);
+      if (formType === "interno") {
+        // Envia todos os dados pertinentes ao evento interno
+        finalPayload = {
+          controlCode: `#INT-${Math.floor(100000 + Math.random() * 900000)}`,
+          requesterType: "interno",
+          requesterName: data.requesterName,
+          requesterEmail: data.requesterEmail,
+          requesterPhone: data.requesterPhone,
+          requesterDepartment: data.requesterDepartment,
+          isPartnerEvent: data.isPartnerEvent,
+          partnerName: data.isPartnerEvent ? data.partnerName : undefined,
+          partnerEmail: data.isPartnerEvent ? data.partnerEmail : undefined,
+          partnerPhone: data.isPartnerEvent ? data.partnerPhone : undefined,
+          partnerInstitution: data.isPartnerEvent ? data.partnerInstitution : undefined,
+          eventTitle: data.eventTitle,
+          eventType: data.eventType,
+          eventDescription: data.eventDescription,
+          targetAudience: data.targetAudience,
+          estimatedPublic: data.estimatedPublic,
+          eventDate: data.eventDate,
+          startTime: data.startTime,
+          endTime: data.endTime,
+          selectedRoom: data.selectedRoom,
+          roomNotes: data.roomNotes,
+          needsBudget: data.needsBudget,
+          budgetApprovalFileUrl: finalBudgetUrl,
+          copa: data.copa,
+          coffeeBreak: data.coffeeBreak,
+          tiEquipment: data.tiEquipment,
+          furnitureSupport: data.furnitureSupport,
+          otherFurnitureDescription: data.furnitureSupport.includes("outro") ? data.otherFurnitureDescription : undefined,
+          supportTeams: data.supportTeams,
+          presentationMaterials: data.presentationMaterials,
+          presentationDriveLink: data.presentationMaterials.includes("google_drive_link") ? data.presentationDriveLink : undefined,
+          needsArtwork: data.needsArtwork,
+          artworkDescription: data.needsArtwork ? data.artworkDescription : undefined,
+        };
+      } else {
+        // Envia apenas o necessário para locação externa de forma limpa e simplificada
+        finalPayload = {
+          controlCode: `#LOC-${Math.floor(100000 + Math.random() * 900000)}`,
+          requesterType: "locacao",
+          requesterName: data.requesterName,
+          requesterEmail: data.requesterEmail,
+          requesterPhone: data.requesterPhone,
+          eventDate: data.eventDate,
+          startTime: data.startTime,
+          endTime: data.endTime,
+          selectedRoom: data.selectedRoom,
+          roomNotes: data.roomNotes,
+          supportTeams: data.supportTeams,
+        };
+      }
+
+      console.log(`[Formulário ${formType.toUpperCase()}] Dados reais enviados:`, finalPayload);
 
       setSubmittedData(finalPayload);
       setShowSuccessModal(true);
     } catch (err: any) {
-      console.error("Erro no upload para o Supabase:", err);
-      alert(`Erro ao enviar arquivo para o Supabase: ${err.message || err}`);
+      console.error("Erro ao enviar:", err);
+      alert(`Ocorreu um erro no processamento: ${err.message || err}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Reset form status and data
   const handleResetForm = () => {
     reset();
     setShowSuccessModal(false);
@@ -161,30 +243,72 @@ export default function EventForm() {
 
   return (
     <FormProvider {...methods}>
-      <div className='w-full'>
+      <div className='w-full space-y-6'>
+        {/* Seletor de Abas Premium */}
+        <div className='flex justify-center p-1 bg-gray-100 rounded-2xl max-w-md mx-auto border border-gray-200/50 shadow-sm'>
+          <button
+            type='button'
+            onClick={() => setFormType("interno")}
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+              formType === "interno"
+                ? "bg-white text-brand shadow-sm"
+                : "text-gray-500 hover:text-gray-800 hover:bg-white/40"
+            }`}
+          >
+            <User className='h-4 w-4 text-primary' />
+            <span>Comunidade Interna</span>
+          </button>
+          <button
+            type='button'
+            onClick={() => setFormType("locacao")}
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+              formType === "locacao"
+                ? "bg-white text-brand shadow-sm"
+                : "text-gray-500 hover:text-gray-800 hover:bg-white/40"
+            }`}
+          >
+            <Key className='h-4 w-4 text-primary' />
+            <span>Locação Externa</span>
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-start'>
+            
             {/* LEFT COLUMN: Modularized cards */}
             <div className='lg:col-span-7 space-y-6'>
-              <RequesterCard />
-              <EventDetailsCard />
-              <ArtworkCard />
-              <TIEquipmentCard />
+              <RequesterCard isLocationForm={formType === "locacao"} />
+              
+              {formType === "interno" && (
+                <>
+                  <EventDetailsCard />
+                  <ArtworkCard />
+                  <TIEquipmentCard />
+                </>
+              )}
+              
               <SupportTeamsCard />
-              <ExtraDocsCard />
+              
+              {formType === "interno" && (
+                <ExtraDocsCard />
+              )}
             </div>
 
             {/* RIGHT COLUMN: Modularized cards and submit footer */}
             <div className='lg:col-span-5 space-y-6'>
-              <DateLocationCard />
-              <CopaCard />
-              <CoffeeBreakCard />
-              <FurnitureSupportCard />
-              <PresentationMaterialCard />
+              <DateLocationCard isLocationForm={formType === "locacao"} />
+              
+              {formType === "interno" && (
+                <>
+                  <CopaCard />
+                  <CoffeeBreakCard />
+                  <FurnitureSupportCard />
+                  <PresentationMaterialCard />
+                </>
+              )}
 
               {/* Termos de Uso e Botão de Envio */}
               <div className='bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4'>
-                {/* Checkbox de Aceitação */}
                 <div className='flex flex-col space-y-1'>
                   <label className='flex items-start space-x-3 cursor-pointer'>
                     <input
@@ -209,12 +333,11 @@ export default function EventForm() {
                   </label>
                   {errors.acceptTerms && (
                     <span className='text-xs text-red-600 font-medium ml-7 animate-fadeIn'>
-                      {errors.acceptTerms.message}
+                      {errors.acceptTerms.message as string}
                     </span>
                   )}
                 </div>
 
-                {/* Botão de Envio de Agendamento */}
                 <button
                   type='submit'
                   disabled={isSubmitting}
@@ -241,10 +364,11 @@ export default function EventForm() {
                 </button>
               </div>
             </div>
+
           </div>
         </form>
 
-        {/* Modal de Sucesso Apresentacional */}
+        {/* Modal de Sucesso */}
         <SuccessModal
           isOpen={showSuccessModal}
           data={submittedData}
@@ -264,14 +388,7 @@ export default function EventForm() {
               Regras e Normas de Utilização
             </h4>
             <p className='text-sm text-gray-600 leading-relaxed'>
-              Este é um documento de espaço reservado. Aqui você poderá anexar
-              ou escrever os termos de uso reais do ambiente, detalhando as
-              regras de convivência, horários permitidos, responsabilidades
-              sobre equipamentos e demais normas de segurança necessárias para a
-              realização de eventos na instituição.
-            </p>
-            <p className='text-sm text-gray-600 leading-relaxed'>
-              O texto completo será incluído aqui futuramente.
+              Este é um documento de espaço reservado. Aqui você poderá anexar ou escrever os termos de uso reais do ambiente...
             </p>
           </div>
         </InfoModal>

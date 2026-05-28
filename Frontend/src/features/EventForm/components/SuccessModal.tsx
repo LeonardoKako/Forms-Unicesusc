@@ -1,19 +1,13 @@
-import { CheckCircle2 } from "lucide-react";
+import { useEffect } from "react";
+import { FileCheck, DollarSign, Calendar, Clock, MapPin } from "lucide-react";
 import {
   ROOM_OPTIONS,
-  TI_EQUIPMENT_OPTIONS,
-  TARGET_AUDIENCE_OPTIONS,
-  COPA_OPTIONS,
-  COFFEE_BREAK_OPTIONS,
-  FURNITURE_SUPPORT_OPTIONS,
   SUPPORT_TEAMS_OPTIONS,
-  PRESENTATION_MATERIAL_OPTIONS,
 } from "../mockData";
-import { EventFormData } from "../schema";
 
 interface SuccessModalProps {
   isOpen: boolean;
-  data: EventFormData | null;
+  data: any | null;
   onClose: () => void;
   onReset: () => void;
 }
@@ -24,68 +18,60 @@ export default function SuccessModal({
   onClose,
   onReset,
 }: SuccessModalProps) {
+  // Prevent body scrolling when modal is active
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   if (!isOpen || !data) return null;
 
-  // Helper local to format short dates
+  const roomDetails = ROOM_OPTIONS.find((r) => r.value === data.selectedRoom);
+  const roomLabel = roomDetails
+    ? `${roomDetails.label} (${roomDetails.location})`
+    : data.selectedRoom;
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     const [year, month, day] = dateStr.split("-");
     return `${day}/${month}/${year}`;
   };
 
-  // Helper to translate array IDs to comma separated text
-  const getLabels = (
-    ids: string[] | undefined,
-    options: { id: string; label: string }[],
-  ) => {
-    if (!ids || ids.length === 0) return "Nenhum";
-    if (ids.includes("nao_se_aplica")) return "Não se aplica";
-    return ids
-      .map((id) => options.find((opt) => opt.id === id)?.label || id)
-      .join(", ");
-  };
-
-  // Find dynamic descriptive room string
-  const roomLabel =
-    ROOM_OPTIONS.find((r) => r.value === data.selectedRoom)?.label +
-    " - Capacidade: " +
-    ROOM_OPTIONS.find((r) => r.value === data.selectedRoom)?.capacity;
+  const isLocacao = data.requesterType === "locacao";
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn'>
-      <div
-        className='relative bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 animate-scaleUp overflow-hidden'
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Decorative Top Accent Bar */}
-        <div className='h-2 bg-brand w-full'></div>
-
+    <div className='fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn'>
+      <div className='bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-scaleUp max-h-[90vh] flex flex-col'>
+        
         {/* Modal Header */}
-        <div className='flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50/50'>
-          <div className='flex items-center space-x-3'>
-            <div className='h-10 w-10 rounded-full bg-green-50 flex items-center justify-center text-green-500 shadow-inner'>
-              <CheckCircle2 className='h-6 w-6' />
-            </div>
-            <div>
-              <h3 className='text-lg font-extrabold text-brand uppercase tracking-wide'>
-                Solicitação Recebida!
-              </h3>
-              <p className='text-xs text-gray-500'>
-                Código de Controle:{" "}
-                <span className='font-bold text-gray-700'>
-                  #{Math.floor(100000 + Math.random() * 900000)}
-                </span>
-              </p>
-            </div>
+        <div className='p-6 sm:p-8 bg-gradient-to-r from-brand to-brand/90 text-white text-center shrink-0'>
+          <div className='inline-flex p-3 bg-white/10 rounded-full mb-3.5 animate-pulse'>
+            <FileCheck className='h-8 w-8 text-white' />
+          </div>
+          <h3 className='text-xl sm:text-2xl font-black uppercase tracking-wider'>
+            Solicitação Enviada!
+          </h3>
+          <p className='text-xs text-white/80 mt-1 font-medium'>
+            Guarde o seu código de controle para futuras consultas
+          </p>
+          <div className='inline-block mt-4 px-4 py-2 bg-white text-brand font-black rounded-xl shadow-inner text-sm tracking-widest border border-white/20 uppercase'>
+            {data.controlCode}
           </div>
         </div>
 
-        {/* Modal Body with Custom Scroll */}
-        <div className='p-6 overflow-y-auto space-y-6 max-h-[60vh] bg-gray-50/30'>
-          {/* SECÃO 1: SOLICITANTE */}
+        {/* Modal Body (Scrollable container) */}
+        <div className='flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 bg-gray-50/50'>
+          
+          {/* SEÇÃO 1: DADOS DO SOLICITANTE */}
           <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
-            <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2 flex items-center'>
-              👤 Dados do Solicitante
+            <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
+              👤 Identificação do Solicitante
             </h4>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-xs'>
               <div>
@@ -99,9 +85,7 @@ export default function SuccessModal({
                   Vínculo
                 </span>
                 <span className='font-bold text-gray-800 text-sm uppercase tracking-wide'>
-                  {data.requesterType === "interno"
-                    ? "Comunidade Interna"
-                    : "Locação"}
+                  {isLocacao ? "Locação Externa" : "Comunidade Interna"}
                 </span>
               </div>
               <div>
@@ -120,7 +104,7 @@ export default function SuccessModal({
                   {data.requesterPhone}
                 </span>
               </div>
-              {data.requesterType === "interno" && data.requesterDepartment && (
+              {!isLocacao && data.requesterDepartment && (
                 <div className='col-span-1 md:col-span-2'>
                   <span className='font-semibold text-gray-400 block'>
                     Setor/Curso/Coordenação
@@ -130,20 +114,10 @@ export default function SuccessModal({
                   </span>
                 </div>
               )}
-              {data.requesterType === "locacao" && (
-                <div className='col-span-1 md:col-span-2 bg-brand/5 p-3 rounded-xl border border-brand/10'>
-                  <span className='font-semibold text-brand block'>
-                    Confirmação do Administrativo
-                  </span>
-                  <span className='font-bold text-green-600 flex items-center mt-1'>
-                    ✓ Arquivo Anexado
-                  </span>
-                </div>
-              )}
             </div>
 
-            {/* Evento Parceiro */}
-            {data.requesterType === "interno" && data.isPartnerEvent && (
+            {/* Evento Parceiro (Apenas Interno) */}
+            {!isLocacao && data.isPartnerEvent && (
               <div className='mt-3 bg-amber-50/50 p-4 rounded-xl border border-amber-100 space-y-2 text-xs'>
                 <span className='font-bold text-amber-800 block'>
                   🤝 Detalhes do Evento Parceiro
@@ -186,61 +160,63 @@ export default function SuccessModal({
             )}
           </div>
 
-          {/* SEÇÃO 2: DETALHES DO EVENTO */}
-          <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
-            <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
-              📝 Detalhes do Evento
-            </h4>
-            <div className='space-y-3 text-xs'>
-              <div>
-                <span className='font-semibold text-gray-400 block'>
-                  Título do Evento
-                </span>
-                <span className='font-extrabold text-gray-800 text-sm'>
-                  {data.eventTitle}
-                </span>
-              </div>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          {/* SEÇÃO 2: DETALHES DO EVENTO (Apenas Interno) */}
+          {!isLocacao && (
+            <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
+              <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
+                📝 Detalhes do Evento
+              </h4>
+              <div className='space-y-3 text-xs'>
                 <div>
                   <span className='font-semibold text-gray-400 block'>
-                    Tipo do Evento
+                    Título do Evento
                   </span>
-                  <span className='font-bold text-gray-700'>
-                    {data.eventType}
+                  <span className='font-extrabold text-gray-800 text-sm'>
+                    {data.eventTitle}
                   </span>
+                </div>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div>
+                    <span className='font-semibold text-gray-400 block'>
+                      Tipo do Evento
+                    </span>
+                    <span className='font-bold text-gray-700'>
+                      {data.eventType}
+                    </span>
+                  </div>
+                  <div>
+                    <span className='font-semibold text-gray-400 block'>
+                      Público Estimado
+                    </span>
+                    <span className='font-bold text-gray-700'>
+                      {data.estimatedPublic} pessoas
+                    </span>
+                  </div>
                 </div>
                 <div>
                   <span className='font-semibold text-gray-400 block'>
-                    Público Estimado
+                    Resumo e Finalidade
+                  </span>
+                  <p className='text-gray-700 leading-relaxed font-medium mt-1 whitespace-pre-wrap bg-gray-50 p-3 rounded-xl border border-gray-100'>
+                    {data.eventDescription}
+                  </p>
+                </div>
+                <div>
+                  <span className='font-semibold text-gray-400 block'>
+                    Público Alvo
                   </span>
                   <span className='font-bold text-gray-700'>
-                    {data.estimatedPublic} pessoas
+                    {data.targetAudience?.join(", ")}
                   </span>
                 </div>
-              </div>
-              <div>
-                <span className='font-semibold text-gray-400 block'>
-                  Resumo e Finalidade
-                </span>
-                <p className='text-gray-700 leading-relaxed font-medium mt-1 whitespace-pre-wrap bg-gray-50 p-3 rounded-xl border border-gray-100'>
-                  {data.eventDescription}
-                </p>
-              </div>
-              <div>
-                <span className='font-semibold text-gray-400 block'>
-                  Público Alvo
-                </span>
-                <span className='font-bold text-gray-700'>
-                  {getLabels(data.targetAudience, TARGET_AUDIENCE_OPTIONS)}
-                </span>
               </div>
             </div>
-          </div>
+          )}
 
           {/* SEÇÃO 3: DATA, LOCAL E ALIMENTAÇÃO */}
           <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
             <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
-              📅 Data, Local & Alimentação
+              📅 Data, Local & Infraestrutura
             </h4>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-xs'>
               <div>
@@ -268,7 +244,7 @@ export default function SuccessModal({
                 </span>
               </div>
               {data.roomNotes && (
-                <div className='col-span-1 md:col-span-2 bg-gray-55 p-3.5 rounded-xl border border-gray-100/50 mt-1'>
+                <div className='col-span-1 md:col-span-2 bg-gray-50 p-3.5 rounded-xl border border-gray-100 mt-1'>
                   <span className='font-semibold text-gray-500 block mb-0.5'>
                     Observações de Espaço Adicional
                   </span>
@@ -277,84 +253,88 @@ export default function SuccessModal({
                   </p>
                 </div>
               )}
-              <div>
-                <span className='font-semibold text-gray-400 block'>
-                  Necessita de Orçamento?
-                </span>
-                <span className='font-bold text-gray-700'>
-                  {data.needsBudget ? "Sim, necessita" : "Não necessita"}
-                </span>
-              </div>
-              {data.needsBudget && (
-                <div className='col-span-1 md:col-span-2 bg-red-50/20 p-3 rounded-xl border border-red-100/50 flex justify-between items-center'>
+              {!isLocacao && (
+                <>
                   <div>
-                    <span className='font-semibold text-red-800 block'>
-                      Confirmação da Reitoria
+                    <span className='font-semibold text-gray-400 block'>
+                      Necessita de Orçamento?
                     </span>
-                    <span className='text-[10px] text-red-600 font-medium'>
-                      Aprovação financeira integrada
+                    <span className='font-bold text-gray-700'>
+                      {data.needsBudget ? "Sim, necessita" : "Não necessita"}
                     </span>
                   </div>
-                  <span className='font-bold text-green-600 flex items-center text-[11px]'>
-                    ✓ Anexado
-                  </span>
-                </div>
+                  {data.needsBudget && (
+                    <div className='col-span-1 md:col-span-2 bg-red-50/20 p-3 rounded-xl border border-red-100/50 flex justify-between items-center'>
+                      <div>
+                        <span className='font-semibold text-red-800 block'>
+                          Confirmação da Reitoria
+                        </span>
+                        <span className='text-[10px] text-red-600 font-medium'>
+                          Aprovação financeira integrada
+                        </span>
+                      </div>
+                      <span className='font-bold text-green-600 flex items-center text-[11px]'>
+                        ✓ Anexado
+                      </span>
+                    </div>
+                  )}
+                  <div className='col-span-1 md:col-span-2 border-t border-gray-100 pt-3 grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div>
+                      <span className='font-semibold text-gray-400 block'>
+                        Itens de Copa
+                      </span>
+                      <span className='font-bold text-gray-700'>
+                        {data.copa?.join(", ") || "Nenhum"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className='font-semibold text-gray-400 block'>
+                        Itens de Coffee Break
+                      </span>
+                      <span className='font-bold text-gray-700'>
+                        {data.coffeeBreak?.join(", ") || "Nenhum"}
+                      </span>
+                    </div>
+                  </div>
+                </>
               )}
-              <div className='col-span-1 md:col-span-2 border-t border-gray-100 pt-3 grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div>
-                  <span className='font-semibold text-gray-400 block'>
-                    Itens de Copa
-                  </span>
-                  <span className='font-bold text-gray-700'>
-                    {getLabels(data.copa, COPA_OPTIONS)}
-                  </span>
-                </div>
-                <div>
-                  <span className='font-semibold text-gray-400 block'>
-                    Itens de Coffee Break
-                  </span>
-                  <span className='font-bold text-gray-700'>
-                    {getLabels(data.coffeeBreak, COFFEE_BREAK_OPTIONS)}
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
 
           {/* SEÇÃO 4: LOGÍSTICA E APOIO */}
           <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
             <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
-              🛠️ Logística, T.I. & Apoio
+              🛠️ Logística & Apoio
             </h4>
             <div className='space-y-4 text-xs'>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div>
-                  <span className='font-semibold text-gray-400 block mb-1'>
-                    Equipamentos de T.I.
-                  </span>
-                  <span className='font-bold text-gray-700'>
-                    {getLabels(data.tiEquipment, TI_EQUIPMENT_OPTIONS)}
-                  </span>
+              {!isLocacao && (
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div>
+                    <span className='font-semibold text-gray-400 block mb-1'>
+                      Equipamentos de T.I.
+                    </span>
+                    <span className='font-bold text-gray-700'>
+                      {data.tiEquipment?.join(", ") || "Nenhum"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className='font-semibold text-gray-400 block mb-1'>
+                      Móveis e Apoio
+                    </span>
+                    <span className='font-bold text-gray-700'>
+                      {data.furnitureSupport?.join(", ") || "Nenhum"}
+                      {data.otherFurnitureDescription && ` (Outros: ${data.otherFurnitureDescription})`}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className='font-semibold text-gray-400 block mb-1'>
-                    Móveis e Apoio
-                  </span>
-                  <span className='font-bold text-gray-700'>
-                    {getLabels(
-                      data.furnitureSupport,
-                      FURNITURE_SUPPORT_OPTIONS,
-                    )}
-                  </span>
-                </div>
-              </div>
-              <div className='border-t border-gray-100 pt-3'>
+              )}
+              <div className={isLocacao ? "" : "border-t border-gray-100 pt-3"}>
                 <span className='font-semibold text-gray-400 block mb-1.5'>
                   Equipes de Apoio Acionadas
                 </span>
                 <div className='flex flex-wrap gap-1.5'>
                   {data.supportTeams && data.supportTeams.length > 0 ? (
-                    data.supportTeams.map((teamId) => (
+                    data.supportTeams.map((teamId: string) => (
                       <span
                         key={teamId}
                         className='bg-brand/5 border border-brand/10 text-brand text-[10px] font-bold px-2 py-0.5 rounded-md'
@@ -368,48 +348,48 @@ export default function SuccessModal({
                   )}
                 </div>
               </div>
-              <div className='border-t border-gray-100 pt-3 grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div>
-                  <span className='font-semibold text-gray-400 block'>
-                    Apresentação de Slides/Vídeo
-                  </span>
-                  <span className='font-bold text-gray-700'>
-                    {getLabels(
-                      data.presentationMaterials,
-                      PRESENTATION_MATERIAL_OPTIONS,
-                    )}
-                  </span>
-                  {data.presentationMaterials?.includes("google_drive_link") &&
-                    data.presentationDriveLink && (
-                      <a
-                        href={data.presentationDriveLink}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='text-primary hover:underline block mt-1 font-semibold truncate'
-                      >
-                        🔗 Link do Drive
-                      </a>
-                    )}
-                </div>
-                <div>
-                  <span className='font-semibold text-gray-400 block'>
-                    Necessita de Arte do Marketing?
-                  </span>
-                  <span className='font-bold text-gray-700'>
-                    {data.needsArtwork ? "Sim" : "Não"}
-                  </span>
-                </div>
-                {data.needsArtwork && data.artworkDescription && (
-                  <div className='col-span-1 md:col-span-2 bg-brand/5 p-3 rounded-xl border border-brand/10'>
-                    <span className='font-semibold text-brand block mb-1'>
-                      Descrição da Arte Solicitada
+
+              {!isLocacao && (
+                <div className='border-t border-gray-100 pt-3 grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div>
+                    <span className='font-semibold text-gray-400 block'>
+                      Apresentação de Slides/Vídeo
                     </span>
-                    <p className='text-gray-700 leading-normal'>
-                      {data.artworkDescription}
-                    </p>
+                    <span className='font-bold text-gray-700'>
+                      {data.presentationMaterials?.join(", ") || "Nenhum"}
+                    </span>
+                    {data.presentationMaterials?.includes("google_drive_link") &&
+                      data.presentationDriveLink && (
+                        <a
+                          href={data.presentationDriveLink}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='text-primary hover:underline block mt-1 font-semibold truncate'
+                        >
+                          🔗 Link do Drive
+                        </a>
+                      )}
                   </div>
-                )}
-              </div>
+                  <div>
+                    <span className='font-semibold text-gray-400 block'>
+                      Necessita de Arte do Marketing?
+                    </span>
+                    <span className='font-bold text-gray-700'>
+                      {data.needsArtwork ? "Sim" : "Não"}
+                    </span>
+                  </div>
+                  {data.needsArtwork && data.artworkDescription && (
+                    <div className='col-span-1 md:col-span-2 bg-brand/5 p-3 rounded-xl border border-brand/10'>
+                      <span className='font-semibold text-brand block mb-1'>
+                        Descrição da Arte Solicitada
+                      </span>
+                      <p className='text-gray-700 leading-normal'>
+                        {data.artworkDescription}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
