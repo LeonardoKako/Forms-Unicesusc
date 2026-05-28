@@ -12,7 +12,7 @@ export const eventFormSchema = z
     requesterType: z.enum(["interno", "locacao"]),
 
     // Locação
-    adminApprovalFile: z.any().optional(),
+    adminApprovalFileUrl: z.any().optional(),
 
     // Evento Parceiro (Comunidade Interna)
     isPartnerEvent: z.boolean().optional(),
@@ -58,7 +58,7 @@ export const eventFormSchema = z
     needsBudget: z.boolean({
       required_error: "Informe se o evento necessita de orçamento",
     }),
-    budgetApprovalFile: z.any().optional(),
+    budgetApprovalFileUrl: z.any().optional(),
 
     // Data e Local
     eventDate: z.string().min(1, "A data do evento é obrigatória"),
@@ -77,6 +77,7 @@ export const eventFormSchema = z
     furnitureSupport: z
       .array(z.string())
       .min(1, 'Selecione os móveis de apoio ou marque "Não se aplica"'),
+    otherFurnitureDescription: z.string().optional(),
 
     // Equipes de Apoio (Imagem 3)
     supportTeams: z.array(z.string()).min(1, "Selecione as equipes de apoio"),
@@ -91,6 +92,8 @@ export const eventFormSchema = z
     needsArtwork: z.boolean({ required_error: "Informe se deseja arte" }),
     artworkDescription: z.string().optional(),
 
+    // Documentos Extras - Removido checkbox 'notApplicableExtraDocs'
+
     // Termos de Uso
     acceptTerms: z.boolean().refine((val) => val === true, {
       message:
@@ -98,26 +101,36 @@ export const eventFormSchema = z
     }),
   })
   .superRefine((data, ctx) => {
+    // Validação de Móveis e Apoio - Campo outro preenchido obrigatório
+    if (data.furnitureSupport && data.furnitureSupport.includes("outro")) {
+      if (!data.otherFurnitureDescription || data.otherFurnitureDescription.trim().length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Informe os detalhes e quantidades do outro móvel/apoio",
+          path: ["otherFurnitureDescription"],
+        });
+      }
+    }
     // 1. Validação de Orçamento e Arquivo
     if (data.needsBudget) {
       // If we use RHF and a file input, a valid selection is typically a FileList.
       // If it's missing or empty, add an issue.
-      if (!data.budgetApprovalFile || data.budgetApprovalFile.length === 0) {
+      if (!data.budgetApprovalFileUrl || data.budgetApprovalFileUrl.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "O envio da confirmação da Reitoria é obrigatório",
-          path: ["budgetApprovalFile"],
+          path: ["budgetApprovalFileUrl"],
         });
       }
     }
 
     // Validação de Locação
     if (data.requesterType === "locacao") {
-      if (!data.adminApprovalFile || data.adminApprovalFile.length === 0) {
+      if (!data.adminApprovalFileUrl || data.adminApprovalFileUrl.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "O envio da confirmação do administrativo é obrigatório",
-          path: ["adminApprovalFile"],
+          path: ["adminApprovalFileUrl"],
         });
       }
     }

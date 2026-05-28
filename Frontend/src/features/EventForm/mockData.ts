@@ -61,11 +61,13 @@ export const TARGET_AUDIENCE_OPTIONS: OptionItem[] = [
 ];
 
 export const COPA_OPTIONS: OptionItem[] = [
-  { id: "garrafa_termica", label: "Garrafa Térmica" },
-  { id: "jarra", label: "Jarra" },
-  { id: "guardanapos", label: "Guardanapos" },
-  { id: "tacas_copos", label: "Taças/Copos" },
-  { id: "nao_se_aplica", label: "Não se aplica" },
+  { id: "cafe_2_termicas", label: "Café (2 térmicas)" },
+  { id: "espatula_bolo", label: "Espátula para bolo" },
+  { id: "faca_bolo", label: "Faca para bolo" },
+  { id: "guardanapo", label: "Guardanapo" },
+  { id: "jarra_2_unidades", label: "Jarra (2 unidades, apenas para sucos)" },
+  { id: "tacas", label: "Taças (informe quantidade em \"outros\")" },
+  { id: "nao_se_aplica", label: "Não será preciso/não se aplica" },
 ];
 
 export const COFFEE_BREAK_OPTIONS: OptionItem[] = [
@@ -86,12 +88,23 @@ export const TI_EQUIPMENT_OPTIONS: OptionItem[] = [
 ];
 
 export const FURNITURE_SUPPORT_OPTIONS: OptionItem[] = [
-  { id: "cadeiras_extras", label: "Cadeiras Extras" },
-  { id: "pulpito", label: "Púlpito" },
+  { id: "cadeiras_extras", label: "Cadeiras Extras (informe quantidades em \"outros\")" },
+  { id: "mesas_grandes", label: "Mesas grandes (2 unidades) (informe quantidades em \"outros\")" },
+  { id: "mesa_coffee_break", label: "Mesa para coffee break (1 unidade)" },
+  { id: "mesa_pequena_sala", label: "Mesa Pequena (sala de aula) (informe quantidades em \"outros\")" },
+  { id: "mesa_apoio", label: "Mesa pequena de apoio" },
+  { id: "mesa_recepcao_pequena", label: "Mesa (pequena) para recepção" },
+  { id: "mesa_recepcao_grande", label: "Mesa (grande) para recepção" },
+  { id: "puffs", label: "Puffs (2 unidades)" },
+  { id: "poltrona", label: "Poltrona (2 unidades)" },
+  { id: "pulpito", label: "Púlpito (1 unidade)" },
+  { id: "sofa", label: "Sofá (1 unidade)" },
+  { id: "mobiliario_palco", label: "Mobiliário posicionado em cima do palco" },
+  { id: "mobiliario_frente_palco", label: "Mobiliário localizado abaixo, em frente ao palco" },
+  { id: "barra_divisao", label: "1 barra para divisão de espaço" },
   { id: "toalhas", label: "Toalhas" },
-  { id: "mesas_grandes", label: "Mesas grandes" },
-  { id: "sofa", label: "Sofa" },
-  { id: "nao_se_aplica", label: "Não se aplica" },
+  { id: "nao_se_aplica", label: "Não será preciso/não se aplica" },
+  { id: "outro", label: "Outro" },
 ];
 
 export const SUPPORT_TEAMS_OPTIONS: OptionItem[] = [

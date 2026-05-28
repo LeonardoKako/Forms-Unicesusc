@@ -17,14 +17,35 @@ import PresentationMaterialCard from "./components/PresentationMaterialCard";
 import ArtworkCard from "./components/ArtworkCard";
 import SuccessModal from "./components/SuccessModal";
 import InfoModal from "@/components/InfoModal";
+import ExtraDocsCard from "./components/ExtraDocsCard";
+
+import { supabase } from "@/lib/supabase";
 
 export default function EventForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [submittedData, setSubmittedData] = useState<EventFormData | null>(
-    null,
-  );
+  const [submittedData, setSubmittedData] = useState<any | null>(null);
+
+  // Helper para fazer upload de arquivos no Supabase
+  const uploadFile = async (file: File, folder: string): Promise<string> => {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+
+    // Envia o arquivo binário para o bucket 'comprovantes'
+    const { error } = await supabase.storage
+      .from("comprovantes")
+      .upload(filePath, file);
+
+    if (error) {
+      throw error;
+    }
+
+    // Busca a URL pública do arquivo
+    const { data } = supabase.storage.from("comprovantes").getPublicUrl(filePath);
+    return data.publicUrl;
+  };
 
   // Initialize form methods
   const methods = useForm<EventFormData>({
@@ -38,15 +59,16 @@ export default function EventForm() {
       partnerEmail: "",
       partnerPhone: "",
       partnerInstitution: "",
-      adminApprovalFile: undefined,
+      adminApprovalFileUrl: undefined,
       acceptTerms: false,
       needsBudget: undefined,
-      budgetApprovalFile: undefined,
+      budgetApprovalFileUrl: undefined,
       targetAudience: [],
       copa: [],
       coffeeBreak: [],
       tiEquipment: [],
       furnitureSupport: [],
+      otherFurnitureDescription: "",
       supportTeams: ["marketing", "administrativo"],
       presentationMaterials: [],
       presentationDriveLink: "",
@@ -95,15 +117,38 @@ export default function EventForm() {
   }, [tiEquipment, supportTeams, methods]);
 
   // Simulated request submit logic
-  const onSubmit = (data: EventFormData) => {
+  const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
-    console.log("Mock de payload completo esperado pelo backend:", mockBackendPayload);
-    console.log("Dados reais preenchidos enviados pelo formulário:", data);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmittedData(data);
+    try {
+      let finalBudgetUrl = "";
+
+      // 1. Upload do Arquivo de Orçamento (Se houver arquivo selecionado no FileList)
+      if (data.budgetApprovalFileUrl && data.budgetApprovalFileUrl.length > 0) {
+        console.log("Subindo arquivo de orçamento para o Supabase Storage...", data.budgetApprovalFileUrl[0]);
+        finalBudgetUrl = await uploadFile(data.budgetApprovalFileUrl[0], "orcamentos");
+        console.log("Arquivo submetido com sucesso! URL pública gerada:", finalBudgetUrl);
+      }
+
+      // 2. Monta o payload final com a URL em string simples para o backend receber!
+      const finalPayload = {
+        ...data,
+        budgetApprovalFileUrl: finalBudgetUrl,
+        adminApprovalFileUrl: data.adminApprovalFileUrl && data.adminApprovalFileUrl.length > 0 
+          ? "[FileList Temporário - Integraremos na sequência]" 
+          : ""
+      };
+
+      console.log("Mock de payload completo esperado pelo backend:", mockBackendPayload);
+      console.log("PAYLOAD LIMPO E FINAL ENVIADO (Pronto para Banco de Dados!):", finalPayload);
+
+      setSubmittedData(finalPayload);
       setShowSuccessModal(true);
-    }, 1500);
+    } catch (err: any) {
+      console.error("Erro no upload para o Supabase:", err);
+      alert(`Erro ao enviar arquivo para o Supabase: ${err.message || err}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Reset form status and data
@@ -125,6 +170,7 @@ export default function EventForm() {
               <ArtworkCard />
               <TIEquipmentCard />
               <SupportTeamsCard />
+              <ExtraDocsCard />
             </div>
 
             {/* RIGHT COLUMN: Modularized cards and submit footer */}

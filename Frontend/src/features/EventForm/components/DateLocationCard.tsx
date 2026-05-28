@@ -103,7 +103,7 @@ export default function DateLocationCard() {
                 <span className='text-primary'>*</span>
               </label>
               <div className='flex items-center justify-center w-full'>
-                {watch("budgetApprovalFile") && watch("budgetApprovalFile").length > 0 ? (
+                {watch("budgetApprovalFileUrl") && watch("budgetApprovalFileUrl").length > 0 ? (
                   <div className='flex flex-col items-center justify-center w-full p-6 border-2 border-emerald-300 bg-emerald-50/30 rounded-xl relative'>
                     <div className='flex items-center space-x-3 mb-3'>
                       <div className='p-2 bg-emerald-500/10 rounded-lg text-emerald-600'>
@@ -111,10 +111,10 @@ export default function DateLocationCard() {
                       </div>
                       <div className='text-left'>
                         <p className='text-sm font-semibold text-gray-800 truncate max-w-[250px] sm:max-w-[400px]'>
-                          {watch("budgetApprovalFile")[0].name}
+                          {watch("budgetApprovalFileUrl")[0].name}
                         </p>
                         <p className='text-xs text-gray-500'>
-                          {(watch("budgetApprovalFile")[0].size / 1024 / 1024).toFixed(2)} MB
+                          {(watch("budgetApprovalFileUrl")[0].size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
                     </div>
@@ -124,7 +124,7 @@ export default function DateLocationCard() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          setValue("budgetApprovalFile", undefined, { shouldValidate: true });
+                          setValue("budgetApprovalFileUrl", undefined, { shouldValidate: true });
                         }}
                         className='px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200'
                       >
@@ -134,7 +134,7 @@ export default function DateLocationCard() {
                   </div>
                 ) : (
                   <label
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.budgetApprovalFile ? "border-red-300 bg-red-50/50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}
+                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.budgetApprovalFileUrl ? "border-red-300 bg-red-50/50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}
                   >
                     <div className='flex flex-col items-center justify-center pt-5 pb-6'>
                       <DollarSign className='w-8 h-8 mb-3 text-gray-400' />
@@ -152,14 +152,14 @@ export default function DateLocationCard() {
                       type='file'
                       className='hidden'
                       accept='.pdf,image/*'
-                      {...register("budgetApprovalFile")}
+                      {...register("budgetApprovalFileUrl")}
                     />
                   </label>
                 )}
               </div>
-              {errors.budgetApprovalFile && (
+              {errors.budgetApprovalFileUrl && (
                 <p className='text-xs text-red-600 font-medium animate-fadeIn'>
-                  {errors.budgetApprovalFile.message as string}
+                  {errors.budgetApprovalFileUrl.message as string}
                 </p>
               )}
             </div>

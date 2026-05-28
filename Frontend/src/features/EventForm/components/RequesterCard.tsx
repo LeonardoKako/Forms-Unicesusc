@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { User, BookOpen, Info, Phone, FileCheck, Building } from "lucide-react";
 import InputField from "../../../components/InputField";
 import ToggleGroup from "../../../components/ToggleGroup";
@@ -8,7 +8,6 @@ import { EventFormData } from "../schema";
 export default function RequesterCard() {
   const {
     register,
-    control,
     watch,
     setValue,
     formState: { errors },
@@ -35,6 +34,7 @@ export default function RequesterCard() {
         setValue("partnerEmail", "");
         setValue("partnerPhone", "");
         setValue("partnerInstitution", "");
+        setValue("adminApprovalFileUrl", undefined);
       } else if (requesterType === "locacao") {
         // Limpar campos de identificação e forçar o e-mail administrativo padrão
         setValue("requesterName", "");
@@ -42,7 +42,7 @@ export default function RequesterCard() {
         setValue("requesterEmail", "gestor.campus@unicesusc.edu.br", {
           shouldValidate: true,
         });
-        setValue("adminApprovalFile", undefined);
+        setValue("adminApprovalFileUrl", undefined);
       }
     }
     prevRequesterTypeRef.current = requesterType;
@@ -60,63 +60,99 @@ export default function RequesterCard() {
             Identificação do Solicitante
           </h2>
           <p className='text-xs text-gray-400'>
-            Quem está agendando este espaço acadêmico
+            Informações sobre o responsável pelo agendamento
           </p>
         </div>
       </div>
 
       <div className='space-y-6'>
-        {/* ToggleGroup - Vínculo Acadêmico */}
-        <Controller
-          name='requesterType'
-          control={control}
-          render={({ field }) => (
-            <ToggleGroup
-              label='Tipo de Vínculo'
-              value={field.value}
-              onChange={field.onChange}
-              error={errors.requesterType?.message}
-              required
-              options={[
-                { value: "interno", label: "Comunidade Interna" },
-                { value: "locacao", label: "Locação" },
-              ]}
-            />
-          )}
-        />
+        {/* Tipo de Solicitante */}
+        <div>
+          <label className='text-[13px] font-extrabold uppercase tracking-wide text-brand block mb-3.5'>
+            Tipo de Solicitante
+          </label>
+          <div className='grid grid-cols-2 gap-4'>
+            <label
+              className={`
+                flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-300
+                ${
+                  requesterType === "interno"
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50/50"
+                }
+              `}
+            >
+              <input
+                type='radio'
+                value='interno'
+                {...register("requesterType")}
+                className='sr-only'
+              />
+              <span className='font-extrabold text-sm uppercase tracking-wide'>
+                Comunidade Interna
+              </span>
+              <span className='text-[10px] opacity-80 mt-1 font-medium'>
+                Professores, coordenadores, setores
+              </span>
+            </label>
+
+            <label
+              className={`
+                flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-300
+                ${
+                  requesterType === "locacao"
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50/50"
+                }
+              `}
+            >
+              <input
+                type='radio'
+                value='locacao'
+                {...register("requesterType")}
+                className='sr-only'
+              />
+              <span className='font-extrabold text-sm uppercase tracking-wide'>
+                Locação Externa
+              </span>
+              <span className='text-[10px] opacity-80 mt-1 font-medium'>
+                Eventos de terceiros e parcerias
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div className='border-t border-gray-100 my-6'></div>
 
         {/* Renderização Condicional baseada no Tipo */}
         {requesterType === "locacao" ? (
-          <div className='space-y-5 animate-fadeIn'>
+          <div className='space-y-4 animate-fadeIn'>
+            {/* Locação */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <InputField
                 {...register("requesterName")}
-                label='Nome do Responsável'
-                placeholder='Ex: João da Silva'
-                error={errors.requesterName?.message}
+                label='Nome do Responsável / Empresa'
+                placeholder='Ex: ACME Corporation'
                 required
-                icon={<User className='h-4 w-4' />}
+                error={errors.requesterName?.message as string}
               />
               <InputField
                 {...register("requesterPhone")}
-                label='Telefone / Celular'
-                placeholder='Ex: (48) 99999-9999'
-                error={errors.requesterPhone?.message}
+                label='Telefone de Contato'
+                placeholder='(48) 99999-9999'
                 required
-                icon={<Phone className='h-4 w-4' />}
+                error={errors.requesterPhone?.message as string}
               />
             </div>
 
             <InputField
               {...register("requesterEmail")}
               label='E-mail do Administrativo'
-              type='email'
-              readOnly={true}
-              className='bg-gray-50 border-dashed text-gray-500 '
               placeholder='gestor.campus@unicesusc.edu.br'
-              error={errors.requesterEmail?.message}
               required
-              icon={<BookOpen className='h-4 w-4' />}
+              disabled
+              className='bg-gray-50/80 text-gray-500 font-medium cursor-not-allowed select-none border-gray-200'
+              error={errors.requesterEmail?.message as string}
             />
 
             {/* Aval do Administrativo (File Upload) */}
@@ -126,7 +162,8 @@ export default function RequesterCard() {
                 <span className='text-primary'>*</span>
               </label>
               <div className='flex items-center justify-center w-full'>
-                {watch("adminApprovalFile") && watch("adminApprovalFile").length > 0 ? (
+                {watch("adminApprovalFileUrl") &&
+                watch("adminApprovalFileUrl").length > 0 ? (
                   <div className='flex flex-col items-center justify-center w-full p-6 border-2 border-emerald-300 bg-emerald-50/30 rounded-xl relative'>
                     <div className='flex items-center space-x-3 mb-3'>
                       <div className='p-2 bg-emerald-500/10 rounded-lg text-emerald-600'>
@@ -134,10 +171,15 @@ export default function RequesterCard() {
                       </div>
                       <div className='text-left'>
                         <p className='text-sm font-semibold text-gray-800 truncate max-w-[250px] sm:max-w-[400px]'>
-                          {watch("adminApprovalFile")[0].name}
+                          {watch("adminApprovalFileUrl")[0].name}
                         </p>
                         <p className='text-xs text-gray-500'>
-                          {(watch("adminApprovalFile")[0].size / 1024 / 1024).toFixed(2)} MB
+                          {(
+                            watch("adminApprovalFileUrl")[0].size /
+                            1024 /
+                            1024
+                          ).toFixed(2)}{" "}
+                          MB
                         </p>
                       </div>
                     </div>
@@ -147,7 +189,9 @@ export default function RequesterCard() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          setValue("adminApprovalFile", undefined, { shouldValidate: true });
+                          setValue("adminApprovalFileUrl", undefined, {
+                            shouldValidate: true,
+                          });
                         }}
                         className='px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200'
                       >
@@ -157,7 +201,7 @@ export default function RequesterCard() {
                   </div>
                 ) : (
                   <label
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.adminApprovalFile ? "border-red-300 bg-red-50/50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}
+                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${errors.adminApprovalFileUrl ? "border-red-300 bg-red-50/50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}
                   >
                     <div className='flex flex-col items-center justify-center pt-5 pb-6'>
                       <FileCheck className='w-8 h-8 mb-3 text-gray-400' />
@@ -175,14 +219,14 @@ export default function RequesterCard() {
                       type='file'
                       className='hidden'
                       accept='.pdf,image/*'
-                      {...register("adminApprovalFile")}
+                      {...register("adminApprovalFileUrl")}
                     />
                   </label>
                 )}
               </div>
-              {errors.adminApprovalFile && (
+              {errors.adminApprovalFileUrl && (
                 <p className='text-xs text-red-600 font-medium animate-fadeIn'>
-                  {errors.adminApprovalFile.message as string}
+                  {errors.adminApprovalFileUrl.message as string}
                 </p>
               )}
             </div>
