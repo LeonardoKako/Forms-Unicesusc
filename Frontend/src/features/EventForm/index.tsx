@@ -20,6 +20,7 @@ import InfoModal from "@/components/InfoModal";
 import ExtraDocsCard from "./components/ExtraDocsCard";
 
 import { supabase } from "@/lib/supabase";
+import { toast } from "react-toastify";
 
 type FormType = "interno" | "locacao";
 
@@ -226,12 +227,39 @@ export default function EventForm() {
       console.log(`[Formulário ${formType.toUpperCase()}] Dados reais enviados:`, finalPayload);
 
       setSubmittedData(finalPayload);
+      toast.success("Solicitação enviada com sucesso!");
       setShowSuccessModal(true);
     } catch (err: any) {
       console.error("Erro ao enviar:", err);
-      alert(`Ocorreu um erro no processamento: ${err.message || err}`);
+      toast.error(`Erro ao enviar: ${err.message || "Problema no upload do arquivo"}`);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Callback acionado quando a validação do formulário falha
+  const onError = (errors: any) => {
+    toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
+    
+    // Encontra o primeiro campo com erro
+    const errorKeys = Object.keys(errors);
+    if (errorKeys.length > 0) {
+      const firstErrorKey = errorKeys[0];
+      // Tenta achar o elemento pelo name do input
+      const element = document.getElementsByName(firstErrorKey)[0];
+      
+      if (element) {
+        // Rola até o elemento de erro de forma suave
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Se possível, foca no campo
+        element.focus({ preventScroll: true });
+      } else {
+        // Fallback: se for um ToggleGroup ou Custom, procura pelo primeiro elemento com classe de erro
+        const firstErrorEl = document.querySelector(".text-red-600, .text-red-500");
+        if (firstErrorEl) {
+          firstErrorEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
     }
   };
 
@@ -272,7 +300,7 @@ export default function EventForm() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+        <form onSubmit={handleSubmit(onSubmit, onError)} className='space-y-6'>
           <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-start'>
             
             {/* LEFT COLUMN: Modularized cards */}
