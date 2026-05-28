@@ -292,20 +292,43 @@ export default function DateLocationCard() {
 
         {/* Informações detalhadas do Espaço Selecionado */}
         {roomDetails && (
-          <div className='bg-brand/5 border border-brand/10 rounded-xl p-4 text-xs text-brand leading-relaxed animate-fadeIn'>
-            <div className='flex items-center space-x-1.5 font-bold uppercase tracking-wider mb-1'>
-              <MapPin className='h-3.5 w-3.5 text-primary' />
-              <span>Localização Física</span>
+          <div className='bg-brand/5 border border-brand/10 rounded-xl p-4 text-xs text-brand leading-relaxed animate-fadeIn space-y-1.5'>
+            <div>
+              <div className='flex items-center space-x-1.5 font-bold uppercase tracking-wider mb-1'>
+                <MapPin className='h-3.5 w-3.5 text-primary' />
+                <span>Localização Física</span>
+              </div>
+              <p className='font-semibold text-gray-700'>
+                {roomDetails.location}
+              </p>
+              <p className='text-gray-500 mt-0.5'>
+                Capacidade homologada para segurança e prevenção contra incêndio
+                de até {roomDetails.capacity} participantes.
+              </p>
             </div>
-            <p className='font-semibold text-gray-700'>
-              {roomDetails.location}
-            </p>
-            <p className='text-gray-500 mt-0.5'>
-              Capacidade homologada para segurança e prevenção contra incêndio
-              de até {roomDetails.capacity} participantes.
-            </p>
+
+            {/* Aviso informativo de salas extras */}
+            <div className='flex items-start space-x-2 bg-white/70 p-2.5 rounded-lg border border-brand/5 text-[11px] mt-2'>
+              <Info className='h-3.5 w-3.5 text-primary shrink-0 mt-0.5' />
+              <span className='text-gray-500'>
+                Caso precise de salas adicionais (como salas de apoio) além do espaço principal selecionado acima, por favor descreva abaixo no campo de observações.
+              </span>
+            </div>
           </div>
         )}
+
+        {/* Observações Opcionais de Local/Espaço */}
+        <div className="space-y-1.5 animate-fadeIn">
+          <label className="text-[13px] font-extrabold uppercase tracking-wide text-brand block">
+            Observações Extras de Espaço (Opcional)
+          </label>
+          <textarea
+            {...register("roomNotes")}
+            placeholder="Ex: Preciso de uma sala de apoio próxima ao auditório para organizar os materiais e credenciamento..."
+            rows={3}
+            className="w-full p-4 rounded-xl border border-gray-200 text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all resize-none"
+          />
+        </div>
       </div>
     </div>
   );

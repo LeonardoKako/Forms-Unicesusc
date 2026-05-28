@@ -67,6 +67,7 @@ export const eventFormSchema = z
     selectedRoom: z
       .string({ required_error: "Selecione a sala ou espaço desejado" })
       .min(1, "Selecione a sala ou espaço desejado"),
+    roomNotes: z.string().optional(),
 
     // Equipamentos de TI (Imagem 2)
     tiEquipment: z

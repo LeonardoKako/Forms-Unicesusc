@@ -72,7 +72,7 @@ export default function CheckboxGrid({
                 checked={isChecked}
                 disabled={disabledOptions.includes(option.id)}
                 onChange={(e) => handleCheckboxChange(option.id, e.target.checked)}
-                className={`h-4.5 w-4.5 rounded border-gray-300 focus:ring-primary/20 accent-primary transition-all cursor-pointer ${
+                className={`h-4.5 w-4.5 shrink-0 rounded border-gray-300 focus:ring-primary/20 accent-primary transition-all cursor-pointer ${
                   disabledOptions.includes(option.id) ? "opacity-50 cursor-not-allowed" : "text-primary"
                 }`}
               />

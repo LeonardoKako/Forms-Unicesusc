@@ -63,6 +63,7 @@ export default function EventForm() {
       acceptTerms: false,
       needsBudget: undefined,
       budgetApprovalFileUrl: undefined,
+      roomNotes: "",
       targetAudience: [],
       copa: [],
       coffeeBreak: [],

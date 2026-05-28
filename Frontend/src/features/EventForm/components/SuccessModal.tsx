@@ -267,6 +267,16 @@ export default function SuccessModal({
                   {roomLabel}
                 </span>
               </div>
+              {data.roomNotes && (
+                <div className='col-span-1 md:col-span-2 bg-gray-55 p-3.5 rounded-xl border border-gray-100/50 mt-1'>
+                  <span className='font-semibold text-gray-500 block mb-0.5'>
+                    Observações de Espaço Adicional
+                  </span>
+                  <p className='text-gray-700 leading-normal font-medium'>
+                    {data.roomNotes}
+                  </p>
+                </div>
+              )}
               <div>
                 <span className='font-semibold text-gray-400 block'>
                   Necessita de Orçamento?
