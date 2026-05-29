@@ -3,8 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, ChevronRight, User, Key } from "lucide-react";
 
-import { eventFormSchema, locationFormSchema, EventFormData, LocationFormData } from "./schema";
-import { mockBackendPayload } from "./mockBackendPayload";
+import { eventFormSchema, locationFormSchema } from "./schema";
 import RequesterCard from "./components/RequesterCard";
 import EventDetailsCard from "./components/EventDetailsCard";
 import DateLocationCard from "./components/DateLocationCard";
@@ -45,13 +44,17 @@ export default function EventForm() {
       throw error;
     }
 
-    const { data } = supabase.storage.from("comprovantes").getPublicUrl(filePath);
+    const { data } = supabase.storage
+      .from("comprovantes")
+      .getPublicUrl(filePath);
     return data.publicUrl;
   };
 
   // Instanciamos os métodos do formulário com base na aba ativa (interno vs locacao)
   const methods = useForm<any>({
-    resolver: zodResolver(formType === "interno" ? eventFormSchema : locationFormSchema),
+    resolver: zodResolver(
+      formType === "interno" ? eventFormSchema : locationFormSchema,
+    ),
     defaultValues: {
       requesterType: formType,
       requesterName: "",
@@ -77,6 +80,7 @@ export default function EventForm() {
       presentationMaterials: [],
       presentationDriveLink: "",
       needsArtwork: false,
+      hasPrintedArtwork: false,
       artworkDescription: "",
     },
   });
@@ -117,6 +121,7 @@ export default function EventForm() {
       presentationMaterials: [],
       presentationDriveLink: "",
       needsArtwork: false,
+      hasPrintedArtwork: false,
       artworkDescription: "",
     });
   }, [formType, reset]);
@@ -134,20 +139,30 @@ export default function EventForm() {
     const prevTiEquipment = prevTiEquipmentRef.current;
     const prevSupportTeams = prevSupportTeamsRef.current;
 
-    const hasActiveTiEquipment = tiEquipment.some((id: string) => id !== "nao_se_aplica" && id !== "");
+    const hasActiveTiEquipment = tiEquipment.some(
+      (id: string) => id !== "nao_se_aplica" && id !== "",
+    );
     const hasTiSupport = supportTeams.includes("ti");
 
-    const tiEquipmentChanged = JSON.stringify(prevTiEquipment) !== JSON.stringify(tiEquipment);
-    const supportTeamsChanged = JSON.stringify(prevSupportTeams) !== JSON.stringify(supportTeams);
+    const tiEquipmentChanged =
+      JSON.stringify(prevTiEquipment) !== JSON.stringify(tiEquipment);
+    const supportTeamsChanged =
+      JSON.stringify(prevSupportTeams) !== JSON.stringify(supportTeams);
 
     if (tiEquipmentChanged) {
       if (hasActiveTiEquipment && !hasTiSupport) {
-        setValue("supportTeams", [...supportTeams, "ti"], { shouldValidate: true, shouldDirty: true });
+        setValue("supportTeams", [...supportTeams, "ti"], {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
       }
     } else if (supportTeamsChanged) {
       const prevHadTiSupport = prevSupportTeams.includes("ti");
       if (prevHadTiSupport && !hasTiSupport && hasActiveTiEquipment) {
-        setValue("tiEquipment", ["nao_se_aplica"], { shouldValidate: true, shouldDirty: true });
+        setValue("tiEquipment", ["nao_se_aplica"], {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
       }
     }
 
@@ -162,9 +177,19 @@ export default function EventForm() {
       let finalBudgetUrl = "";
 
       // 1. Upload do Arquivo de Orçamento (Apenas no Interno, se aplicável)
-      if (formType === "interno" && data.budgetApprovalFileUrl && data.budgetApprovalFileUrl.length > 0) {
-        console.log("Subindo arquivo de orçamento para o Supabase Storage...", data.budgetApprovalFileUrl[0]);
-        finalBudgetUrl = await uploadFile(data.budgetApprovalFileUrl[0], "orcamentos");
+      if (
+        formType === "interno" &&
+        data.budgetApprovalFileUrl &&
+        data.budgetApprovalFileUrl.length > 0
+      ) {
+        console.log(
+          "Subindo arquivo de orçamento para o Supabase Storage...",
+          data.budgetApprovalFileUrl[0],
+        );
+        finalBudgetUrl = await uploadFile(
+          data.budgetApprovalFileUrl[0],
+          "orcamentos",
+        );
       }
 
       // 2. Limpeza dos dados dependendo da API/Formulário ativo
@@ -183,7 +208,9 @@ export default function EventForm() {
           partnerName: data.isPartnerEvent ? data.partnerName : undefined,
           partnerEmail: data.isPartnerEvent ? data.partnerEmail : undefined,
           partnerPhone: data.isPartnerEvent ? data.partnerPhone : undefined,
-          partnerInstitution: data.isPartnerEvent ? data.partnerInstitution : undefined,
+          partnerInstitution: data.isPartnerEvent
+            ? data.partnerInstitution
+            : undefined,
           eventTitle: data.eventTitle,
           eventType: data.eventType,
           eventDescription: data.eventDescription,
@@ -200,12 +227,21 @@ export default function EventForm() {
           coffeeBreak: data.coffeeBreak,
           tiEquipment: data.tiEquipment,
           furnitureSupport: data.furnitureSupport,
-          otherFurnitureDescription: data.furnitureSupport.includes("outro") ? data.otherFurnitureDescription : undefined,
+          otherFurnitureDescription: data.furnitureSupport.includes("outro")
+            ? data.otherFurnitureDescription
+            : undefined,
           supportTeams: data.supportTeams,
           presentationMaterials: data.presentationMaterials,
-          presentationDriveLink: data.presentationMaterials.includes("google_drive_link") ? data.presentationDriveLink : undefined,
+          presentationDriveLink: data.presentationMaterials.includes(
+            "google_drive_link",
+          )
+            ? data.presentationDriveLink
+            : undefined,
           needsArtwork: data.needsArtwork,
-          artworkDescription: data.needsArtwork ? data.artworkDescription : undefined,
+          hasPrintedArtwork: data.needsArtwork ? data.hasPrintedArtwork : false,
+          artworkDescription: data.needsArtwork
+            ? data.artworkDescription
+            : undefined,
         };
       } else {
         // Envia apenas o necessário para locação externa de forma limpa e simplificada
@@ -224,14 +260,19 @@ export default function EventForm() {
         };
       }
 
-      console.log(`[Formulário ${formType.toUpperCase()}] Dados reais enviados:`, finalPayload);
+      console.log(
+        `[Formulário ${formType.toUpperCase()}] Dados reais enviados:`,
+        finalPayload,
+      );
 
       setSubmittedData(finalPayload);
       toast.success("Solicitação enviada com sucesso!");
       setShowSuccessModal(true);
     } catch (err: any) {
       console.error("Erro ao enviar:", err);
-      toast.error(`Erro ao enviar: ${err.message || "Problema no upload do arquivo"}`);
+      toast.error(
+        `Erro ao enviar: ${err.message || "Problema no upload do arquivo"}`,
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -239,15 +280,17 @@ export default function EventForm() {
 
   // Callback acionado quando a validação do formulário falha
   const onError = (errors: any) => {
-    toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
-    
+    toast.error(
+      "Por favor, preencha todos os campos obrigatórios corretamente.",
+    );
+
     // Encontra o primeiro campo com erro
     const errorKeys = Object.keys(errors);
     if (errorKeys.length > 0) {
       const firstErrorKey = errorKeys[0];
       // Tenta achar o elemento pelo name do input
       const element = document.getElementsByName(firstErrorKey)[0];
-      
+
       if (element) {
         // Rola até o elemento de erro de forma suave
         element.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -255,7 +298,9 @@ export default function EventForm() {
         element.focus({ preventScroll: true });
       } else {
         // Fallback: se for um ToggleGroup ou Custom, procura pelo primeiro elemento com classe de erro
-        const firstErrorEl = document.querySelector(".text-red-600, .text-red-500");
+        const firstErrorEl = document.querySelector(
+          ".text-red-600, .text-red-500",
+        );
         if (firstErrorEl) {
           firstErrorEl.scrollIntoView({ behavior: "smooth", block: "center" });
         }
@@ -302,11 +347,10 @@ export default function EventForm() {
 
         <form onSubmit={handleSubmit(onSubmit, onError)} className='space-y-6'>
           <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-start'>
-            
             {/* LEFT COLUMN: Modularized cards */}
             <div className='lg:col-span-7 space-y-6'>
               <RequesterCard isLocationForm={formType === "locacao"} />
-              
+
               {formType === "interno" && (
                 <>
                   <EventDetailsCard />
@@ -314,18 +358,16 @@ export default function EventForm() {
                   <TIEquipmentCard />
                 </>
               )}
-              
+
               <SupportTeamsCard />
-              
-              {formType === "interno" && (
-                <ExtraDocsCard />
-              )}
+
+              {formType === "interno" && <ExtraDocsCard />}
             </div>
 
             {/* RIGHT COLUMN: Modularized cards and submit footer */}
             <div className='lg:col-span-5 space-y-6'>
               <DateLocationCard isLocationForm={formType === "locacao"} />
-              
+
               {formType === "interno" && (
                 <>
                   <CopaCard />
@@ -392,7 +434,6 @@ export default function EventForm() {
                 </button>
               </div>
             </div>
-
           </div>
         </form>
 
@@ -416,7 +457,8 @@ export default function EventForm() {
               Regras e Normas de Utilização
             </h4>
             <p className='text-sm text-gray-600 leading-relaxed'>
-              Este é um documento de espaço reservado. Aqui você poderá anexar ou escrever os termos de uso reais do ambiente...
+              Este é um documento de espaço reservado. Aqui você poderá anexar
+              ou escrever os termos de uso reais do ambiente...
             </p>
           </div>
         </InfoModal>

@@ -90,6 +90,7 @@ export const eventFormSchema = z
 
     // Arte / Comunicação Visual
     needsArtwork: z.boolean({ required_error: "Informe se deseja arte" }),
+    hasPrintedArtwork: z.boolean().optional(),
     artworkDescription: z.string().optional(),
 
     // Termos de Uso
@@ -289,11 +290,17 @@ export const eventFormSchema = z
         });
       }
 
-      if (data.needsBudget === false || data.needsBudget === undefined) {
+      // Orçamento só é obrigatório se for peça impressa (como banner)
+      if (data.hasPrintedArtwork && (data.needsBudget === false || data.needsBudget === undefined)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "O orçamento é obrigatório ao solicitar Arte/Comunicação Visual",
+          message: "O orçamento é obrigatório ao solicitar artes impressas (ex: banner)",
           path: ["needsBudget"],
+        });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Artes impressas exigem que o orçamento seja marcado como 'Sim'",
+          path: ["hasPrintedArtwork"],
         });
       }
     }

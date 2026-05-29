@@ -1,9 +1,6 @@
 import { useEffect } from "react";
-import { FileCheck, DollarSign, Calendar, Clock, MapPin } from "lucide-react";
-import {
-  ROOM_OPTIONS,
-  SUPPORT_TEAMS_OPTIONS,
-} from "../mockData";
+import { FileCheck } from "lucide-react";
+import { ROOM_OPTIONS, SUPPORT_TEAMS_OPTIONS } from "../mockData";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -48,9 +45,8 @@ export default function SuccessModal({
   return (
     <div className='fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn'>
       <div className='bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-scaleUp max-h-[90vh] flex flex-col'>
-        
         {/* Modal Header */}
-        <div className='p-6 sm:p-8 bg-gradient-to-r from-brand to-brand/90 text-white text-center shrink-0'>
+        <div className='p-6 sm:p-8 bg-linear-to-r from-brand to-brand/90 text-white text-center shrink-0'>
           <div className='inline-flex p-3 bg-white/10 rounded-full mb-3.5 animate-pulse'>
             <FileCheck className='h-8 w-8 text-white' />
           </div>
@@ -67,7 +63,6 @@ export default function SuccessModal({
 
         {/* Modal Body (Scrollable container) */}
         <div className='flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 bg-gray-50/50'>
-          
           {/* SEÇÃO 1: DADOS DO SOLICITANTE */}
           <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
             <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>
@@ -323,7 +318,8 @@ export default function SuccessModal({
                     </span>
                     <span className='font-bold text-gray-700'>
                       {data.furnitureSupport?.join(", ") || "Nenhum"}
-                      {data.otherFurnitureDescription && ` (Outros: ${data.otherFurnitureDescription})`}
+                      {data.otherFurnitureDescription &&
+                        ` (Outros: ${data.otherFurnitureDescription})`}
                     </span>
                   </div>
                 </div>
@@ -358,7 +354,9 @@ export default function SuccessModal({
                     <span className='font-bold text-gray-700'>
                       {data.presentationMaterials?.join(", ") || "Nenhum"}
                     </span>
-                    {data.presentationMaterials?.includes("google_drive_link") &&
+                    {data.presentationMaterials?.includes(
+                      "google_drive_link",
+                    ) &&
                       data.presentationDriveLink && (
                         <a
                           href={data.presentationDriveLink}
