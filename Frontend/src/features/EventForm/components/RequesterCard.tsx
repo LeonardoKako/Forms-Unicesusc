@@ -1,4 +1,4 @@
-import { User, Phone, BookOpen } from "lucide-react";
+import { User, Phone, BookOpen, Info } from "lucide-react";
 import InputField from "../../../components/InputField";
 import { useFormContext } from "react-hook-form";
 
@@ -64,6 +64,14 @@ export default function RequesterCard({ isLocationForm = false }: RequesterCardP
               error={errors.requesterEmail?.message as string}
               icon={<BookOpen className='h-4 w-4' />}
             />
+
+            {/* Alerta de validação do administrativo */}
+            <div className="flex items-start space-x-2 text-xs text-brand bg-brand/5 p-3.5 rounded-xl border border-brand/10 animate-fadeIn mt-2">
+              <Info className="h-4.5 w-4.5 shrink-0 text-brand mt-0.5" />
+              <span className="leading-relaxed font-medium">
+                <strong>Atenção:</strong> Todas as solicitações de locação externa deverão ser validadas previamente pelo e-mail administrativo oficial: <strong className="text-primary">gestor.campus@unicesusc.edu.br</strong>.
+              </span>
+            </div>
           </div>
         ) : (
           <div className='space-y-5 animate-fadeIn'>
