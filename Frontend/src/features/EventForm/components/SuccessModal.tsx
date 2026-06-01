@@ -284,13 +284,26 @@ export default function SuccessModal({
                     </div>
                     <div>
                       <span className='font-semibold text-gray-400 block'>
-                        Itens de Coffee Break
+                        Plano de Coffee Break
                       </span>
-                      <span className='font-bold text-gray-700'>
-                        {data.coffeeBreak?.join(", ") || "Nenhum"}
+                      <span className='font-bold text-gray-700 uppercase tracking-wide text-[11px]'>
+                        {data.coffeeBreak === "nao_se_aplica" && "Não se aplica"}
+                        {data.coffeeBreak === "padrao_100" && "Padrão (Até 100 pessoas)"}
+                        {data.coffeeBreak === "padrao_288" && "Padrão (Até 288 pessoas)"}
+                        {data.coffeeBreak === "biscoitos_100" && "Biscoitos (Até 100 pessoas)"}
                       </span>
                     </div>
                   </div>
+                  {data.coffeeNotes && (
+                    <div className='col-span-1 md:col-span-2 bg-gray-50 p-3 rounded-xl border border-gray-100 mt-1'>
+                      <span className='font-semibold text-gray-500 block mb-0.5'>
+                        Observações de Alimentação
+                      </span>
+                      <p className='text-gray-700 leading-normal font-medium'>
+                        {data.coffeeNotes}
+                      </p>
+                    </div>
+                  )}
                 </>
               )}
             </div>

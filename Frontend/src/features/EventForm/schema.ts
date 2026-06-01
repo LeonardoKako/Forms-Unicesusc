@@ -50,8 +50,9 @@ export const eventFormSchema = z
 
     // Coffee Break
     coffeeBreak: z
-      .array(z.string())
-      .min(1, 'Selecione as opções de coffee break ou marque "Não se aplica"'),
+      .string({ required_error: "Selecione a opção de coffee break" })
+      .min(1, "Selecione a opção de coffee break"),
+    coffeeNotes: z.string().optional(),
 
     // Orçamento (Detalhamento Financeiro)
     needsBudget: z.boolean({
@@ -269,8 +270,8 @@ export const eventFormSchema = z
       }
     }
 
-    // Validação de Orçamento para Coffee Break
-    if (data.coffeeBreak && data.coffeeBreak.length > 0 && !data.coffeeBreak.includes("nao_se_aplica")) {
+    // Validação de Orçamento para Coffee Break (quando selecionado um plano que não seja "nao_se_aplica")
+    if (data.coffeeBreak && data.coffeeBreak !== "nao_se_aplica") {
       if (data.needsBudget === false || data.needsBudget === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

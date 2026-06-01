@@ -13,8 +13,8 @@ export default function Footer() {
               </span>
             </div>
             <p className='text-xs text-white/60 leading-relaxed max-w-xs'>
-              Complexo de Ensino Superior de Santa Catarina. Formando cidadãos
-              e profissionais qualificados com responsabilidade social.
+              Complexo de Ensino Superior de Santa Catarina. Formando cidadãos e
+              profissionais qualificados com responsabilidade social.
             </p>
           </div>
 
@@ -39,16 +39,16 @@ export default function Footer() {
               <span>Ajuda e Suporte</span>
             </h4>
             <p className='text-xs text-white/70 leading-relaxed'>
-              Dúvidas técnicas no agendamento ou suporte a áudio/vídeo? Entre
-              em contato com a equipe de Tecnologia da Informação.
+              Dúvidas técnicas no agendamento ou suporte a áudio/vídeo? Entre em
+              contato com a equipe de Tecnologia da Informação.
             </p>
             <div className='text-xs font-semibold text-white mt-2'>
               <span>E-mail: </span>
               <a
-                href='mailto:suporte.ti@cesusc.edu.br'
+                href='mailto:suporte.ti@unicesusc.edu.br'
                 className='text-primary hover:underline'
               >
-                suporte.ti@cesusc.edu.br
+                suporte.ti@unicesusc.edu.br
               </a>
             </div>
           </div>

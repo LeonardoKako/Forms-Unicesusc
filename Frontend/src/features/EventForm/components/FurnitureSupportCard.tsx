@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Box } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import CheckboxGrid from "./CheckboxGrid";
 import { FURNITURE_SUPPORT_OPTIONS } from "../mockData";
+import InfoModal from "../../../components/InfoModal";
+import auditorioMontadoImg from "@/assets/images/auditorioMontado.png";
 
 export default function FurnitureSupportCard() {
   const {
@@ -11,6 +14,18 @@ export default function FurnitureSupportCard() {
   } = useFormContext();
   const selectedFurniture = watch("furnitureSupport") || [];
   const showOtherInput = selectedFurniture.includes("outro");
+
+  const [modalData, setModalData] = useState<{ isOpen: boolean; title: string; imageUrl: string } | null>(null);
+
+  const handleInfoClick = (optionId: string) => {
+    if (optionId === "palco_padrao") {
+      setModalData({
+        isOpen: true,
+        title: "Palco Padrão Montado",
+        imageUrl: auditorioMontadoImg,
+      });
+    }
+  };
 
   return (
     <div className='bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md animate-fadeIn'>
@@ -33,6 +48,7 @@ export default function FurnitureSupportCard() {
         name='furnitureSupport'
         options={FURNITURE_SUPPORT_OPTIONS}
         withCardWrapper={false}
+        onInfoClick={handleInfoClick}
       >
         {showOtherInput && (
           <div className='mt-4 p-4 bg-gray-50 border border-gray-100 rounded-xl space-y-2 animate-slideDown'>
@@ -53,6 +69,16 @@ export default function FurnitureSupportCard() {
           </div>
         )}
       </CheckboxGrid>
+
+      {modalData && (
+        <InfoModal
+          isOpen={modalData.isOpen}
+          onClose={() => setModalData(null)}
+          title={modalData.title}
+          type='image'
+          imageUrl={modalData.imageUrl}
+        />
+      )}
     </div>
   );
 }

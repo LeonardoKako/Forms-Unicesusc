@@ -72,7 +72,8 @@ export default function EventForm() {
       roomNotes: "",
       targetAudience: [],
       copa: [],
-      coffeeBreak: [],
+      coffeeBreak: "nao_se_aplica",
+      coffeeNotes: "",
       tiEquipment: [],
       furnitureSupport: [],
       otherFurnitureDescription: "",
@@ -113,7 +114,8 @@ export default function EventForm() {
       roomNotes: "",
       targetAudience: [],
       copa: [],
-      coffeeBreak: [],
+      coffeeBreak: "nao_se_aplica",
+      coffeeNotes: "",
       tiEquipment: [],
       furnitureSupport: [],
       otherFurnitureDescription: "",
@@ -225,6 +227,7 @@ export default function EventForm() {
           budgetApprovalFileUrl: finalBudgetUrl,
           copa: data.copa,
           coffeeBreak: data.coffeeBreak,
+          coffeeNotes: data.coffeeNotes,
           tiEquipment: data.tiEquipment,
           furnitureSupport: data.furnitureSupport,
           otherFurnitureDescription: data.furnitureSupport.includes("outro")
@@ -354,8 +357,8 @@ export default function EventForm() {
               {formType === "interno" && (
                 <>
                   <EventDetailsCard />
-                  <ArtworkCard />
-                  <TIEquipmentCard />
+                  <CopaCard />
+                  <FurnitureSupportCard />
                 </>
               )}
 
@@ -370,9 +373,9 @@ export default function EventForm() {
 
               {formType === "interno" && (
                 <>
-                  <CopaCard />
+                  <ArtworkCard />
                   <CoffeeBreakCard />
-                  <FurnitureSupportCard />
+                  <TIEquipmentCard />
                   <PresentationMaterialCard />
                 </>
               )}

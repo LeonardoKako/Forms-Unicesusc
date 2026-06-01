@@ -61,13 +61,18 @@ export const TARGET_AUDIENCE_OPTIONS: OptionItem[] = [
 ];
 
 export const COPA_OPTIONS: OptionItem[] = [
-  { id: "cafe_2_termicas", label: "Café (2 térmicas)" },
   { id: "espatula_bolo", label: "Espátula para bolo" },
-  { id: "faca_bolo", label: "Faca para bolo" },
-  { id: "guardanapo", label: "Guardanapo" },
-  { id: "jarra_2_unidades", label: "Jarra (2 unidades, apenas para sucos)" },
-  { id: "tacas", label: "Taças (informe quantidade em \"outros\")" },
-  { id: "nao_se_aplica", label: "Não será preciso/não se aplica" },
+  { id: "faca_bolo", label: "Faca p/ bolo" },
+  { id: "guardanapo_suporte", label: "Guardapano c/ suporte" },
+  { id: "jarra_suco", label: "Jarra p/ suco (disponível somente 2 unidades - informar quantidade)" },
+  { id: "tacas_padrao", label: "Taças padrão (disponível somente 10 unidades - informar quantidade)" },
+  { id: "boleira_com_base", label: "Boleira com base (disponível somente 2 unidades - informar quantidade)" },
+  { id: "boleira_sem_base", label: "1 boleira sem base" },
+  { id: "bandeja_quadrada", label: "Bandeja quadrada (disponível somente 2 unidades - informar quantidade)" },
+  { id: "bandeja_retangular", label: "Bandeja retangula (disponíveis somente 2 unidades - informar quantidade)" },
+  { id: "toalha", label: "Toalha (informar quantidade)" },
+  { id: "outro", label: "Outros" },
+  { id: "nao_se_aplica", label: "Não será preciso/não se aplica." },
 ];
 
 export const COFFEE_BREAK_OPTIONS: OptionItem[] = [
@@ -88,23 +93,14 @@ export const TI_EQUIPMENT_OPTIONS: OptionItem[] = [
 ];
 
 export const FURNITURE_SUPPORT_OPTIONS: OptionItem[] = [
-  { id: "cadeiras_extras", label: "Cadeiras Extras (informe quantidades em \"outros\")" },
-  { id: "mesas_grandes", label: "Mesas grandes (2 unidades) (informe quantidades em \"outros\")" },
-  { id: "mesa_coffee_break", label: "Mesa para coffee break (1 unidade)" },
-  { id: "mesa_pequena_sala", label: "Mesa Pequena (sala de aula) (informe quantidades em \"outros\")" },
-  { id: "mesa_apoio", label: "Mesa pequena de apoio" },
-  { id: "mesa_recepcao_pequena", label: "Mesa (pequena) para recepção" },
-  { id: "mesa_recepcao_grande", label: "Mesa (grande) para recepção" },
-  { id: "puffs", label: "Puffs (2 unidades)" },
-  { id: "poltrona", label: "Poltrona (2 unidades)" },
-  { id: "pulpito", label: "Púlpito (1 unidade)" },
-  { id: "sofa", label: "Sofá (1 unidade)" },
-  { id: "mobiliario_palco", label: "Mobiliário posicionado em cima do palco" },
-  { id: "mobiliario_frente_palco", label: "Mobiliário localizado abaixo, em frente ao palco" },
-  { id: "barra_divisao", label: "1 barra para divisão de espaço" },
-  { id: "toalhas", label: "Toalhas" },
-  { id: "nao_se_aplica", label: "Não será preciso/não se aplica" },
-  { id: "outro", label: "Outro" },
+  { id: "cadeiras_cinza", label: "Cadeiras cinza padrão (disponível somente 10 unidades - informar quantidade)" },
+  { id: "mesas_grandes", label: "Mesas grandes (disponível somente 4 unidades - informar quantidade)" },
+  { id: "mesas_apoio_sala", label: "Mesas de apoio padrão sala de aula retangulares (disponível somente 4 unidades - informar quantidade)" },
+  { id: "poltrona_bordo", label: "Poltrona bordô (1 unidade)" },
+  { id: "puff_cinza", label: "Puff cinza (1 unidade)" },
+  { id: "palco_padrao", label: "Palco padrão montado (1 sofá preto, 2 poltronas pretas, 2 puffs roxos, 1 púlpito)", hasInfo: true },
+  { id: "outro", label: "Outros" },
+  { id: "nao_se_aplica", label: "Não será preciso/não se aplica." },
 ];
 
 export const SUPPORT_TEAMS_OPTIONS: OptionItem[] = [
