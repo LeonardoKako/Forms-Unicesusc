@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInternalEventDto } from './dto/create-internal-event.dto';
 import { CreateExternalLocationDto } from './dto/create-external-location.dto';
@@ -7,12 +11,14 @@ import { CreateExternalLocationDto } from './dto/create-external-location.dto';
 export class EventTicketsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async generateUniqueControlCode(prefix: 'INT' | 'LOC'): Promise<string> {
+  private async generateUniqueControlCode(
+    prefix: 'INT' | 'LOC',
+  ): Promise<string> {
     let code = '';
     let isUnique = false;
     while (!isUnique) {
       code = `#${prefix}-${Math.floor(100000 + Math.random() * 900000)}`; // Ex: #INT-482910 ou #LOC-918523
-      
+
       if (prefix === 'INT') {
         const existing = await this.prisma.event.findUnique({
           where: { controlCode: code },
@@ -28,7 +34,11 @@ export class EventTicketsService {
     return code;
   }
 
-  private validateDateTime(eventDateStr: string, startTimeStr: string, endTimeStr: string) {
+  private validateDateTime(
+    eventDateStr: string,
+    startTimeStr: string,
+    endTimeStr: string,
+  ) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -40,14 +50,18 @@ export class EventTicketsService {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 15) {
-      throw new BadRequestException('A reserva deve possuir no mínimo 15 dias de antecedência.');
+      throw new BadRequestException(
+        'A reserva deve possuir no mínimo 15 dias de antecedência.',
+      );
     }
 
     const dayOfWeek = eventDate.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
     if (isWeekend && diffDays <= 15) {
-      throw new BadRequestException('Finais de semana só podem ser agendados com antecedência superior a 15 dias.');
+      throw new BadRequestException(
+        'Finais de semana só podem ser agendados com antecedência superior a 15 dias.',
+      );
     }
 
     const toMinutes = (timeStr: string) => {
@@ -60,24 +74,37 @@ export class EventTicketsService {
     const minAllowed = toMinutes('07:30');
     const maxAllowed = toMinutes('22:30');
 
-    if (startMinutes < minAllowed || startMinutes > maxAllowed || endMinutes < minAllowed || endMinutes > maxAllowed) {
-      throw new BadRequestException('Os horários de agendamento devem estar contidos entre 07:30 e 22:30.');
+    if (
+      startMinutes < minAllowed ||
+      startMinutes > maxAllowed ||
+      endMinutes < minAllowed ||
+      endMinutes > maxAllowed
+    ) {
+      throw new BadRequestException(
+        'Os horários de agendamento devem estar contidos entre 07:30 e 22:30.',
+      );
     }
 
     if (endMinutes <= startMinutes) {
-      throw new BadRequestException('O horário de término deve ser estritamente posterior ao horário de início.');
+      throw new BadRequestException(
+        'O horário de término deve ser estritamente posterior ao horário de início.',
+      );
     }
   }
 
   private validateInstitutionalEmail(email: string) {
     if (!email.endsWith('@unicesusc.edu.br')) {
-      throw new BadRequestException('O e-mail do solicitante interno deve terminar estritamente com @unicesusc.edu.br.');
+      throw new BadRequestException(
+        'O e-mail do solicitante interno deve terminar estritamente com @unicesusc.edu.br.',
+      );
     }
 
     const username = email.split('@')[0];
     const hasThreeSequentialNumbers = /\d{3,}/.test(username);
     if (hasThreeSequentialNumbers) {
-      throw new BadRequestException('O e-mail institucional não pode conter 3 ou mais números sequenciais seguidos antes do @ (ex: apoio123).');
+      throw new BadRequestException(
+        'O e-mail institucional não pode conter 3 ou mais números sequenciais seguidos antes do @ (ex: apoio123).',
+      );
     }
   }
 
@@ -88,8 +115,16 @@ export class EventTicketsService {
 
     // Regra: Evento Parceiro
     if (dto.isPartnerEvent) {
-      if (!dto.partnerName || !dto.partnerEmail || !dto.partnerPhone || !dto.partnerInstitution) {
-        throw new BadRequestException('Todos os dados do parceiro externo são obrigatórios para eventos parceiros.');
+      if (
+        !dto.partnerName ||
+        !dto.partnerEmail ||
+        !dto.partnerPhone ||
+        dto.partnerPhone.length < 10 ||
+        !dto.partnerInstitution
+      ) {
+        throw new BadRequestException(
+          'Revise os dados do parceiro externo, pois são obrigatórios para eventos parceiros.',
+        );
       }
     } else {
       dto.partnerName = undefined;
@@ -99,7 +134,10 @@ export class EventTicketsService {
     }
 
     // TI Reativo
-    const hasTiEquipment = dto.tiEquipment && dto.tiEquipment.length > 0 && dto.tiEquipment.some(item => item !== 'nao_se_aplica');
+    const hasTiEquipment =
+      dto.tiEquipment &&
+      dto.tiEquipment.length > 0 &&
+      dto.tiEquipment.some((item) => item !== 'nao_se_aplica');
     let finalSupportTeams = [...(dto.supportTeams || [])];
     if (hasTiEquipment && !finalSupportTeams.includes('ti')) {
       finalSupportTeams.push('ti');
@@ -107,8 +145,13 @@ export class EventTicketsService {
 
     // Campos "Outros" Dinâmicos
     if (dto.furnitureSupport.includes('outro')) {
-      if (!dto.otherFurnitureDescription || dto.otherFurnitureDescription.length < 3) {
-        throw new BadRequestException('otherFurnitureDescription é obrigatório (mínimo 3 caracteres) quando "outro" for selecionado nos móveis.');
+      if (
+        !dto.otherFurnitureDescription ||
+        dto.otherFurnitureDescription.length < 3
+      ) {
+        throw new BadRequestException(
+          'otherFurnitureDescription é obrigatório (mínimo 3 caracteres) quando "outro" for selecionado nos móveis.',
+        );
       }
     } else {
       dto.otherFurnitureDescription = undefined;
@@ -116,7 +159,9 @@ export class EventTicketsService {
 
     if (dto.copa.includes('outro')) {
       if (!dto.otherCopaDescription || dto.otherCopaDescription.length < 3) {
-        throw new BadRequestException('otherCopaDescription é obrigatório (mínimo 3 caracteres) quando "outro" for selecionado na copa.');
+        throw new BadRequestException(
+          'otherCopaDescription é obrigatório (mínimo 3 caracteres) quando "outro" for selecionado na copa.',
+        );
       }
     } else {
       dto.otherCopaDescription = undefined;
@@ -125,14 +170,17 @@ export class EventTicketsService {
     // Google Drive Link
     if (dto.presentationMaterials.includes('google_drive_link')) {
       if (!dto.presentationDriveLink) {
-        throw new BadRequestException('presentationDriveLink é obrigatório quando "google_drive_link" está em presentationMaterials.');
+        throw new BadRequestException(
+          'presentationDriveLink é obrigatório quando "google_drive_link" está em presentationMaterials.',
+        );
       }
     } else {
       dto.presentationDriveLink = undefined;
     }
 
     // Orçamento Financeiro
-    const hasActiveCoffeeBreak = dto.coffeeBreak && dto.coffeeBreak !== 'nao_se_aplica';
+    const hasActiveCoffeeBreak =
+      dto.coffeeBreak && dto.coffeeBreak !== 'nao_se_aplica';
     const hasPrintedArtwork = dto.needsArtwork && dto.hasPrintedArtwork;
 
     let needsBudget = dto.needsBudget;
@@ -145,13 +193,15 @@ export class EventTicketsService {
         const reason = hasActiveCoffeeBreak
           ? 'budgetApprovalFileUrl é obrigatório quando coffeeBreak é contratado (diferente de "nao_se_aplica").'
           : hasPrintedArtwork
-          ? 'budgetApprovalFileUrl é obrigatório quando há peças de arte impressas (hasPrintedArtwork = true).'
-          : 'budgetApprovalFileUrl é obrigatório quando o evento necessita de orçamento.';
+            ? 'budgetApprovalFileUrl é obrigatório quando há peças de arte impressas (hasPrintedArtwork = true).'
+            : 'budgetApprovalFileUrl é obrigatório quando o evento necessita de orçamento.';
         throw new BadRequestException(reason);
       }
     } else {
       if (dto.budgetApprovalFileUrl) {
-        throw new BadRequestException('Não é permitido enviar budgetApprovalFileUrl se o evento não necessita de orçamento.');
+        throw new BadRequestException(
+          'Não é permitido enviar budgetApprovalFileUrl se o evento não necessita de orçamento.',
+        );
       }
       dto.budgetApprovalFileUrl = undefined;
     }
@@ -175,7 +225,7 @@ export class EventTicketsService {
         presentationDriveLink: dto.presentationDriveLink,
         budgetApprovalFileUrl: dto.budgetApprovalFileUrl,
         supportTeams: {
-          connect: finalSupportTeams.map(id => ({ id })),
+          connect: finalSupportTeams.map((id) => ({ id })),
         },
       },
       include: {
@@ -198,7 +248,7 @@ export class EventTicketsService {
         controlCode,
         eventDate: new Date(dto.eventDate),
         supportTeams: {
-          connect: supportTeams.map(id => ({ id })),
+          connect: supportTeams.map((id) => ({ id })),
         },
       },
       include: {

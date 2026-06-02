@@ -63,7 +63,10 @@ let EventTicketsService = class EventTicketsService {
         const endMinutes = toMinutes(endTimeStr);
         const minAllowed = toMinutes('07:30');
         const maxAllowed = toMinutes('22:30');
-        if (startMinutes < minAllowed || startMinutes > maxAllowed || endMinutes < minAllowed || endMinutes > maxAllowed) {
+        if (startMinutes < minAllowed ||
+            startMinutes > maxAllowed ||
+            endMinutes < minAllowed ||
+            endMinutes > maxAllowed) {
             throw new common_1.BadRequestException('Os horários de agendamento devem estar contidos entre 07:30 e 22:30.');
         }
         if (endMinutes <= startMinutes) {
@@ -84,8 +87,12 @@ let EventTicketsService = class EventTicketsService {
         this.validateDateTime(dto.eventDate, dto.startTime, dto.endTime);
         this.validateInstitutionalEmail(dto.requesterEmail);
         if (dto.isPartnerEvent) {
-            if (!dto.partnerName || !dto.partnerEmail || !dto.partnerPhone || !dto.partnerInstitution) {
-                throw new common_1.BadRequestException('Todos os dados do parceiro externo são obrigatórios para eventos parceiros.');
+            if (!dto.partnerName ||
+                !dto.partnerEmail ||
+                !dto.partnerPhone ||
+                dto.partnerPhone.length < 10 ||
+                !dto.partnerInstitution) {
+                throw new common_1.BadRequestException('Revise os dados do parceiro externo, pois são obrigatórios para eventos parceiros.');
             }
         }
         else {
@@ -94,13 +101,16 @@ let EventTicketsService = class EventTicketsService {
             dto.partnerPhone = undefined;
             dto.partnerInstitution = undefined;
         }
-        const hasTiEquipment = dto.tiEquipment && dto.tiEquipment.length > 0 && dto.tiEquipment.some(item => item !== 'nao_se_aplica');
+        const hasTiEquipment = dto.tiEquipment &&
+            dto.tiEquipment.length > 0 &&
+            dto.tiEquipment.some((item) => item !== 'nao_se_aplica');
         let finalSupportTeams = [...(dto.supportTeams || [])];
         if (hasTiEquipment && !finalSupportTeams.includes('ti')) {
             finalSupportTeams.push('ti');
         }
         if (dto.furnitureSupport.includes('outro')) {
-            if (!dto.otherFurnitureDescription || dto.otherFurnitureDescription.length < 3) {
+            if (!dto.otherFurnitureDescription ||
+                dto.otherFurnitureDescription.length < 3) {
                 throw new common_1.BadRequestException('otherFurnitureDescription é obrigatório (mínimo 3 caracteres) quando "outro" for selecionado nos móveis.');
             }
         }
@@ -162,7 +172,7 @@ let EventTicketsService = class EventTicketsService {
                 presentationDriveLink: dto.presentationDriveLink,
                 budgetApprovalFileUrl: dto.budgetApprovalFileUrl,
                 supportTeams: {
-                    connect: finalSupportTeams.map(id => ({ id })),
+                    connect: finalSupportTeams.map((id) => ({ id })),
                 },
             },
             include: {
@@ -180,7 +190,7 @@ let EventTicketsService = class EventTicketsService {
                 controlCode,
                 eventDate: new Date(dto.eventDate),
                 supportTeams: {
-                    connect: supportTeams.map(id => ({ id })),
+                    connect: supportTeams.map((id) => ({ id })),
                 },
             },
             include: {
