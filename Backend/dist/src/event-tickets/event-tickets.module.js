@@ -8,15 +8,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventTicketsModule = void 0;
 const common_1 = require("@nestjs/common");
-const event_tickets_controller_1 = require("./event-tickets.controller");
+const events_controller_1 = require("./events.controller");
+const locations_controller_1 = require("./locations.controller");
 const event_tickets_service_1 = require("./event-tickets.service");
 let EventTicketsModule = class EventTicketsModule {
 };
 exports.EventTicketsModule = EventTicketsModule;
 exports.EventTicketsModule = EventTicketsModule = __decorate([
     (0, common_1.Module)({
-        controllers: [event_tickets_controller_1.EventTicketsController],
-        providers: [event_tickets_service_1.EventTicketsService]
+        controllers: [events_controller_1.EventsController, locations_controller_1.LocationsController],
+        providers: [event_tickets_service_1.EventTicketsService],
     })
 ], EventTicketsModule);
 //# sourceMappingURL=event-tickets.module.js.map

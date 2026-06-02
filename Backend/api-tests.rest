@@ -1,93 +1,91 @@
 ### Variáveis Globais
 @baseUrl = http://localhost:3000
 
-### 1. Criar um Ticket de Evento (POST)
-POST {{baseUrl}}/event-tickets
+# ==========================================
+# 1. FLUXO: COMUNIDADE INTERNA (/events)
+# ==========================================
+
+### 1.1 Criar um Evento Interno (POST)
+# Valida e insere um fluxo completo com e-mail institucional @unicesusc.edu.br
+POST {{baseUrl}}/events
 Content-Type: application/json
 
 {
-  "requesterName": "Leonardo Kako",
-  "requesterEmail": "leonardo.kako@unicesusc.edu.br",
-  "requesterPhone": "(48) 99999-9999",
   "requesterType": "interno",
-  "requesterDepartment": "Tecnologia da Informação",
-  "isPartnerEvent": true,
-  "partnerName": "Empresa Parceira XYZ",
-  "partnerEmail": "contato@xyz.com",
-  "partnerPhone": "(48) 3333-3333",
-  "partnerInstitution": "Instituição XYZ",
-  "eventTitle": "Workshop de NestJS e Prisma",
-  "eventType": "Workshop",
-  "eventDescription": "Um workshop prático ensinando a criar APIs com NestJS, Prisma e PostgreSQL.",
-  "targetAudience": ["alunos", "professores", "comunidade externa"],
-  "estimatedPublic": 120,
-  "eventDate": "2026-06-15T18:00:00.000Z",
-  "startTime": "19:00",
-  "endTime": "22:00",
-  "selectedRoom": "Auditório Principal",
-  "needsBudget": false,
-  "budgetApprovalFileUrl": "https://storage.unicesusc.edu.br/uploads/budget-approval-123.pdf",
-  "copa": ["garrafas de água", "copos descartáveis"],
-  "coffeeBreak": ["café", "pão de queijo", "bolo de chocolate"],
-  "tiEquipment": ["projetor", "microfone sem fio", "caixas de som"],
-  "furnitureSupport": ["mesa de apoio", "cadeiras extras"],
-  "supportTeams": ["ti", "marketing", "administrativo"],
-  "presentationMaterials": ["google_drive_link", "pen_drive"],
-  "presentationDriveLink": "https://drive.google.com/drive/folders/1abc123xyz_example",
-  "needsArtwork": true,
-  "artworkDescription": "Necessário criar banner digital para divulgação nas redes sociais da faculdade."
-}
-
-### 1.1 Criar um Ticket de Evento (Dados da Imagem) (POST)
-POST {{baseUrl}}/event-tickets
-Content-Type: application/json
-
-{
-  "requesterName": "Leonardo",
-  "requesterEmail": "gestor.campus@unicesusc.edu.br",
+  "requesterName": "Prof. Roberto Mendes",
+  "requesterEmail": "roberto.mendes@unicesusc.edu.br",
   "requesterPhone": "48988352502",
-  "requesterType": "locacao",
-  "adminApprovalFileUrl": "https://storage.unicesusc.edu.br/uploads/admin-approval-leo.pdf",
-  "isPartnerEvent": false,
-  "eventTitle": "qweeqwe",
+  "requesterDepartment": "Engenharia de Software",
+  "isPartnerEvent": true,
+  "partnerName": "Maria Souza",
+  "partnerEmail": "maria@empresa.com.br",
+  "partnerPhone": "48988888888",
+  "partnerInstitution": "Tech Solutions Ltda",
+  "eventTitle": "Semana de Inovação e Software",
   "eventType": "palestra",
-  "eventDescription": "qeqweqwesadqwdasdqwdasdawdasdas",
-  "targetAudience": ["aberto_publico", "colaboradores"],
-  "estimatedPublic": 10,
-  "eventDate": "2026-07-02T12:00:00.000Z",
-  "startTime": "14:18",
-  "endTime": "16:24",
+  "eventDescription": "Evento acadêmico com palestras sobre IA e desafios modernos da tecnologia.",
+  "targetAudience": ["alunos", "docentes", "colaboradores"],
+  "estimatedPublic": 150,
+  "eventDate": "2026-07-15",
+  "startTime": "09:00",
+  "endTime": "18:00",
   "selectedRoom": "auditorio",
+  "roomNotes": "Necessário projetor calibrado e ar condicionado ligado 30min antes.",
   "needsBudget": true,
-  "budgetApprovalFileUrl": "https://storage.unicesusc.edu.br/uploads/budget-approval-leo.pdf",
-  "copa": ["garrafa_termica", "tacas_copos"],
-  "coffeeBreak": ["salgadinhos", "biscoito_maizena", "cafe"],
-  "tiEquipment": ["projetor_grande", "passador_slides", "microfones", "projetor_pequeno", "notebook"],
-  "furnitureSupport": ["mesas_grandes", "pulpito"],
-  "supportTeams": ["marketing", "administrativo", "ti", "nead", "manutencao", "nap"],
-  "presentationMaterials": ["google_drive_link"],
-  "presentationDriveLink": "https://drive.google.com/drive/folders/1RrAr4Qrjh7YHqMpstjMDZ4Qv1d0Q_cQY",
-  "needsArtwork": false
+  "budgetApprovalFileUrl": "https://kgdmqgzhfgnndbxtcqdq.supabase.co/storage/v1/object/public/comprovantes/orcamentos/ryv9l9j3b-17804002404",
+  "copa": ["tacas_padrao", "outro"],
+  "otherCopaDescription": "Espátulas extras para servir bolo",
+  "coffeeBreak": "padrao_100",
+  "coffeeNotes": "Servir pontualmente às 10:30",
+  "tiEquipment": ["projetor_grande", "projetor_pequeno", "notebook"],
+  "furnitureSupport": ["outro", "mesas_apoio_sala", "cadeiras_cinza"],
+  "otherFurnitureDescription": "2 aparadores de vidro",
+  "supportTeams": ["marketing", "administrativo", "ti"],
+  "presentationMaterials": ["google_drive_link", "pen_drive"],
+  "presentationDriveLink": "https://drive.google.com/drive/folders/1RrAr4Qrjh7YhqMpstjMDZ4Qv1d0Q_cQY",
+  "needsArtwork": true,
+  "hasPrintedArtwork": true,
+  "artworkDescription": "Banner impresso de 2x1m para entrada"
 }
 
-### 2. Listar Todos os Tickets de Eventos (GET)
-GET {{baseUrl}}/event-tickets
+### 1.2 Listar Todos os Eventos Internos (GET)
+GET {{baseUrl}}/events
 
-### 3. Obter um Ticket Específico por ID (GET)
-# Substitua o ID abaixo por um ID real retornado na rota de criação
-GET {{baseUrl}}/event-tickets/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
 
-### 4. Atualizar um Ticket de Evento (PATCH)
-# Substitua o ID abaixo por um ID real retornado na rota de criação
-PATCH {{baseUrl}}/event-tickets/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
+# ==========================================
+# 2. FLUXO: LOCAÇÃO EXTERNA (/locations)
+# ==========================================
+
+### 2.1 Criar uma Locação Externa (POST)
+# Valida e insere o fluxo simplificado para parceiros externos
+POST {{baseUrl}}/locations
 Content-Type: application/json
 
 {
-  "eventTitle": "Workshop Avançado de NestJS e Prisma v7",
-  "estimatedPublic": 150,
-  "supportTeams": ["ti", "marketing"]
+  "requesterType": "locacao",
+  "requesterName": "Ana Maria Braga",
+  "requesterEmail": "ana.braga@empresa.com",
+  "requesterPhone": "48999999999",
+  "eventDate": "2026-07-20",
+  "startTime": "08:00",
+  "endTime": "17:00",
+  "selectedRoom": "colegio",
+  "roomNotes": "Aluguel da quadra de esportes para evento corporativo",
+  "supportTeams": ["marketing", "administrativo", "nap", "manutencao"]
 }
 
-### 5. Excluir um Ticket de Evento (DELETE)
-# Substitua o ID abaixo por um ID real retornado na rota de criação
-DELETE {{baseUrl}}/event-tickets/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
+### 2.2 Listar Todas as Locações Externas (GET)
+GET {{baseUrl}}/locations
+
+
+# ==========================================
+# 3. ROTAS DE CONSULTA E REMOÇÃO POR ID
+# ==========================================
+
+### 3.1 Obter Ticket Individual por ID (GET)
+# Substitua o ID abaixo por um ID real retornado na criação
+GET {{baseUrl}}/events/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
+
+### 3.2 Excluir Ticket por ID (DELETE)
+# Substitua o ID abaixo por um ID real retornado na criação
+DELETE {{baseUrl}}/events/d8f0a0d9-b903-4c91-9e79-4bc7ee290325

@@ -9,21 +9,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateEventTicketDto = exports.RequesterType = void 0;
+exports.CreateInternalEventDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
-var RequesterType;
-(function (RequesterType) {
-    RequesterType["INTERNO"] = "interno";
-    RequesterType["LOCACAO"] = "locacao";
-})(RequesterType || (exports.RequesterType = RequesterType = {}));
-class CreateEventTicketDto {
+class CreateInternalEventDto {
+    requesterType;
     requesterName;
     requesterEmail;
     requesterPhone;
-    requesterType;
     requesterDepartment;
-    adminApprovalFileUrl;
     isPartnerEvent;
     partnerName;
     partnerEmail;
@@ -38,187 +32,208 @@ class CreateEventTicketDto {
     startTime;
     endTime;
     selectedRoom;
+    roomNotes;
     needsBudget;
     budgetApprovalFileUrl;
     copa;
+    otherCopaDescription;
     coffeeBreak;
+    coffeeNotes;
     tiEquipment;
     furnitureSupport;
+    otherFurnitureDescription;
     supportTeams;
     presentationMaterials;
     presentationDriveLink;
     needsArtwork;
+    hasPrintedArtwork;
     artworkDescription;
 }
-exports.CreateEventTicketDto = CreateEventTicketDto;
+exports.CreateInternalEventDto = CreateInternalEventDto;
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsEnum)(['interno']),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "requesterName", void 0);
-__decorate([
-    (0, class_validator_1.IsEmail)(),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "requesterEmail", void 0);
+], CreateInternalEventDto.prototype, "requesterType", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MinLength)(3, { message: 'requesterName deve ter no mínimo 3 caracteres' }),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "requesterPhone", void 0);
+], CreateInternalEventDto.prototype, "requesterName", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(RequesterType, {
-        message: 'requesterType deve ser "interno" ou "locacao"',
+    (0, class_validator_1.IsEmail)({}, { message: 'requesterEmail deve ser um e-mail válido' }),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "requesterEmail", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(10, { message: 'requesterPhone deve ter no mínimo 10 dígitos' }),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "requesterPhone", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(2, {
+        message: 'requesterDepartment deve ter no mínimo 2 caracteres',
     }),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "requesterType", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "requesterDepartment", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "adminApprovalFileUrl", void 0);
+], CreateInternalEventDto.prototype, "requesterDepartment", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
-], CreateEventTicketDto.prototype, "isPartnerEvent", void 0);
+], CreateInternalEventDto.prototype, "isPartnerEvent", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "partnerName", void 0);
+], CreateInternalEventDto.prototype, "partnerName", void 0);
 __decorate([
-    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsEmail)({}, { message: 'partnerEmail deve ser um e-mail válido' }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "partnerEmail", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "partnerPhone", void 0);
+], CreateInternalEventDto.prototype, "partnerEmail", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "partnerInstitution", void 0);
+], CreateInternalEventDto.prototype, "partnerPhone", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "partnerInstitution", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(5, { message: 'eventTitle deve ter no mínimo 5 caracteres' }),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "eventTitle", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "eventTitle", void 0);
+], CreateInternalEventDto.prototype, "eventType", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "eventType", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "eventDescription", void 0);
+], CreateInternalEventDto.prototype, "eventDescription", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "targetAudience", void 0);
+], CreateInternalEventDto.prototype, "targetAudience", void 0);
 __decorate([
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
     (0, class_transformer_1.Type)(() => Number),
     __metadata("design:type", Number)
-], CreateEventTicketDto.prototype, "estimatedPublic", void 0);
-__decorate([
-    (0, class_validator_1.IsDateString)(),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "eventDate", void 0);
+], CreateInternalEventDto.prototype, "estimatedPublic", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "startTime", void 0);
+], CreateInternalEventDto.prototype, "eventDate", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "endTime", void 0);
+], CreateInternalEventDto.prototype, "startTime", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "selectedRoom", void 0);
+], CreateInternalEventDto.prototype, "endTime", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "selectedRoom", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "roomNotes", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateInternalEventDto.prototype, "needsBudget", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "budgetApprovalFileUrl", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateInternalEventDto.prototype, "copa", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "otherCopaDescription", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "coffeeBreak", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "coffeeNotes", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateInternalEventDto.prototype, "tiEquipment", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateInternalEventDto.prototype, "furnitureSupport", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "otherFurnitureDescription", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateInternalEventDto.prototype, "supportTeams", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateInternalEventDto.prototype, "presentationMaterials", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
+    __metadata("design:type", String)
+], CreateInternalEventDto.prototype, "presentationDriveLink", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateInternalEventDto.prototype, "needsArtwork", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
-], CreateEventTicketDto.prototype, "needsBudget", void 0);
+], CreateInternalEventDto.prototype, "hasPrintedArtwork", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
     __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "budgetApprovalFileUrl", void 0);
-__decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "copa", void 0);
-__decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "coffeeBreak", void 0);
-__decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "tiEquipment", void 0);
-__decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "furnitureSupport", void 0);
-__decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "supportTeams", void 0);
-__decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], CreateEventTicketDto.prototype, "presentationMaterials", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "presentationDriveLink", void 0);
-__decorate([
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CreateEventTicketDto.prototype, "needsArtwork", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === '' ? undefined : value),
-    __metadata("design:type", String)
-], CreateEventTicketDto.prototype, "artworkDescription", void 0);
-//# sourceMappingURL=create-event-ticket.dto.js.map
+], CreateInternalEventDto.prototype, "artworkDescription", void 0);
+//# sourceMappingURL=create-internal-event.dto.js.map

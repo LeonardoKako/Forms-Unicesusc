@@ -9,9 +9,9 @@ datasource db {
   provider = "postgresql"
 }
 
-model EventTicket {
+model Event {
   id                    String   @id @default(uuid())
-  controlCode           String   @unique // Ex: #482910
+  controlCode           String   @unique // Ex: #INT-482910
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   
@@ -19,11 +19,10 @@ model EventTicket {
   requesterName         String
   requesterEmail        String
   requesterPhone        String
-  requesterType         String   // "interno" ou "locacao"
-  requesterDepartment   String?  // Opcional: Setor/Curso (Apenas para Interno)
-  adminApprovalFileUrl  String?  // Opcional: URL da confirmação do administrativo (Locação)
+  requesterType         String   // "interno"
+  requesterDepartment   String   // Setor/Coordenação
   
-  // 🤝 Detalhes do Evento Parceiro (Opcionais, se for evento parceiro)
+  // 🤝 Detalhes do Evento Parceiro
   isPartnerEvent        Boolean  @default(false)
   partnerName           String?
   partnerEmail          String?
@@ -34,7 +33,7 @@ model EventTicket {
   eventTitle            String
   eventType             String
   eventDescription      String   @db.Text
-  targetAudience        String[] // Array de públicos (PostgreSQL)
+  targetAudience        String[] // Array de públicos
   estimatedPublic       Int
   
   // 📅 Data, Local & Orçamento
@@ -42,30 +41,61 @@ model EventTicket {
   startTime             String   // "12:32"
   endTime               String   // "15:32"
   selectedRoom          String   // Ex: "auditorio"
+  roomNotes             String?  @db.Text
   needsBudget           Boolean  @default(false)
-  budgetApprovalFileUrl String?  // URL da confirmação da Reitoria (se necessitar de orçamento)
+  budgetApprovalFileUrl String?  // URL da confirmação (Supabase Storage)
   
   // 🍽️ Alimentação e Utensílios
   copa                  String[] // Array de itens da copa
-  coffeeBreak           String[] // Array de itens de coffee break
+  otherCopaDescription  String?  @db.Text
+  coffeeBreak           String   // Nome do plano de coffee ou "nao_se_aplica"
+  coffeeNotes           String?  @db.Text
   
   // 🛠️ Logística, T.I. & Apoio
   tiEquipment           String[] // Array de equipamentos solicitados
   furnitureSupport      String[] // Array de móveis de apoio
-  supportTeams          SupportTeam[]            @relation("EventBookingsSupportTeams")
+  otherFurnitureDescription String? @db.Text
+  supportTeams          SupportTeam[] @relation("EventsSupportTeams")
   presentationMaterials String[] // Array de tipos de materiais de apresentação
-  presentationDriveLink String?  // URL do Google Drive contendo materiais de apresentação
+  presentationDriveLink String?  // URL do Google Drive
   needsArtwork          Boolean  @default(false)
-  artworkDescription    String?  @db.Text // Descrição da arte marketing (se necessitar de arte)
+  hasPrintedArtwork     Boolean? // Peça impressa exige orçamento
+  artworkDescription    String?  @db.Text // Descrição da arte
 
-  @@map("event_bookings")
+  @@map("events")
+}
+
+model Location {
+  id                    String   @id @default(uuid())
+  controlCode           String   @unique // Ex: #LOC-918523
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // 👤 Dados do Solicitante
+  requesterName         String
+  requesterEmail        String
+  requesterPhone        String
+  requesterType         String   // "locacao"
+  
+  // 📅 Data, Local & Orçamento
+  eventDate             DateTime // Data do evento
+  startTime             String   // "07:30"
+  endTime               String   // "22:30"
+  selectedRoom          String   // Ex: "colegio"
+  roomNotes             String?  @db.Text
+  
+  // 🛠️ Logística & Apoio
+  supportTeams          SupportTeam[] @relation("LocationsSupportTeams")
+
+  @@map("locations")
 }
 
 model SupportTeam {
   id           String        @id
   name         String
   email        String?
-  eventTickets EventTicket[] @relation("EventBookingsSupportTeams")
+  events       Event[]       @relation("EventsSupportTeams")
+  locations    Location[]    @relation("LocationsSupportTeams")
 
   @@map("support_teams")
 }

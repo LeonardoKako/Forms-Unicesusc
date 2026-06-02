@@ -1,12 +1,13 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateEventTicketDto } from './dto/create-event-ticket.dto';
-import { UpdateEventTicketDto } from './dto/update-event-ticket.dto';
+import { CreateInternalEventDto } from './dto/create-internal-event.dto';
+import { CreateExternalLocationDto } from './dto/create-external-location.dto';
 export declare class EventTicketsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     private generateUniqueControlCode;
-    private validateAndSanitizeTicketData;
-    create(createEventTicketDto: CreateEventTicketDto): Promise<{
+    private validateDateTime;
+    private validateInstitutionalEmail;
+    createInternal(dto: CreateInternalEventDto): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -14,12 +15,14 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
+        requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
         partnerEmail: string | null;
@@ -34,21 +37,23 @@ export declare class EventTicketsService {
         startTime: string;
         endTime: string;
         selectedRoom: string;
+        roomNotes: string | null;
         needsBudget: boolean;
         budgetApprovalFileUrl: string | null;
         copa: string[];
-        coffeeBreak: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
         tiEquipment: string[];
         furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
         presentationMaterials: string[];
         presentationDriveLink: string | null;
         needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
-    findAll(): Promise<({
+    createExternal(dto: CreateExternalLocationDto): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -56,12 +61,35 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
+        eventDate: Date;
+        startTime: string;
+        endTime: string;
+        selectedRoom: string;
+        roomNotes: string | null;
+    }>;
+    findAllEvents(): Promise<({
+        supportTeams: {
+            id: string;
+            name: string;
+            email: string | null;
+        }[];
+    } & {
+        id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        requesterName: string;
+        requesterEmail: string;
+        requesterPhone: string;
+        requesterType: string;
+        requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
         partnerEmail: string | null;
@@ -76,21 +104,23 @@ export declare class EventTicketsService {
         startTime: string;
         endTime: string;
         selectedRoom: string;
+        roomNotes: string | null;
         needsBudget: boolean;
         budgetApprovalFileUrl: string | null;
         copa: string[];
-        coffeeBreak: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
         tiEquipment: string[];
         furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
         presentationMaterials: string[];
         presentationDriveLink: string | null;
         needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
     })[]>;
-    findOne(id: string): Promise<{
+    findOneEvent(id: string): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -98,12 +128,14 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
+        requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
         partnerEmail: string | null;
@@ -118,21 +150,63 @@ export declare class EventTicketsService {
         startTime: string;
         endTime: string;
         selectedRoom: string;
+        roomNotes: string | null;
         needsBudget: boolean;
         budgetApprovalFileUrl: string | null;
         copa: string[];
-        coffeeBreak: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
         tiEquipment: string[];
         furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
         presentationMaterials: string[];
         presentationDriveLink: string | null;
         needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+    }>;
+    removeEvent(id: string): Promise<{
+        id: string;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        requesterName: string;
+        requesterEmail: string;
+        requesterPhone: string;
+        requesterType: string;
+        requesterDepartment: string;
+        isPartnerEvent: boolean;
+        partnerName: string | null;
+        partnerEmail: string | null;
+        partnerPhone: string | null;
+        partnerInstitution: string | null;
+        eventTitle: string;
+        eventType: string;
+        eventDescription: string;
+        targetAudience: string[];
+        estimatedPublic: number;
+        eventDate: Date;
+        startTime: string;
+        endTime: string;
+        selectedRoom: string;
+        roomNotes: string | null;
+        needsBudget: boolean;
+        budgetApprovalFileUrl: string | null;
+        copa: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
+        tiEquipment: string[];
+        furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
+        presentationMaterials: string[];
+        presentationDriveLink: string | null;
+        needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
+        artworkDescription: string | null;
     }>;
-    update(id: string, updateEventTicketDto: UpdateEventTicketDto): Promise<{
+    findAllLocations(): Promise<({
         supportTeams: {
             id: string;
             name: string;
@@ -140,74 +214,53 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
-        isPartnerEvent: boolean;
-        partnerName: string | null;
-        partnerEmail: string | null;
-        partnerPhone: string | null;
-        partnerInstitution: string | null;
-        eventTitle: string;
-        eventType: string;
-        eventDescription: string;
-        targetAudience: string[];
-        estimatedPublic: number;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
-        needsBudget: boolean;
-        budgetApprovalFileUrl: string | null;
-        copa: string[];
-        coffeeBreak: string[];
-        tiEquipment: string[];
-        furnitureSupport: string[];
-        presentationMaterials: string[];
-        presentationDriveLink: string | null;
-        needsArtwork: boolean;
-        artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }>;
-    remove(id: string): Promise<{
+        roomNotes: string | null;
+    })[]>;
+    findOneLocation(id: string): Promise<{
+        supportTeams: {
+            id: string;
+            name: string;
+            email: string | null;
+        }[];
+    } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
-        isPartnerEvent: boolean;
-        partnerName: string | null;
-        partnerEmail: string | null;
-        partnerPhone: string | null;
-        partnerInstitution: string | null;
-        eventTitle: string;
-        eventType: string;
-        eventDescription: string;
-        targetAudience: string[];
-        estimatedPublic: number;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
-        needsBudget: boolean;
-        budgetApprovalFileUrl: string | null;
-        copa: string[];
-        coffeeBreak: string[];
-        tiEquipment: string[];
-        furnitureSupport: string[];
-        presentationMaterials: string[];
-        presentationDriveLink: string | null;
-        needsArtwork: boolean;
-        artworkDescription: string | null;
+        roomNotes: string | null;
+    }>;
+    removeLocation(id: string): Promise<{
+        id: string;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        requesterName: string;
+        requesterEmail: string;
+        requesterPhone: string;
+        requesterType: string;
+        eventDate: Date;
+        startTime: string;
+        endTime: string;
+        selectedRoom: string;
+        roomNotes: string | null;
     }>;
 }

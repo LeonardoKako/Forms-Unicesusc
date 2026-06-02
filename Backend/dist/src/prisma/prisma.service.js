@@ -103,8 +103,8 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         for (const team of supportTeams) {
             await this.supportTeam.upsert({
                 where: { id: team.id },
-                update: { name: team.name },
-                create: { id: team.id, name: team.name },
+                update: { name: team.name, email: team.email },
+                create: { id: team.id, name: team.name, email: team.email },
             });
         }
     }

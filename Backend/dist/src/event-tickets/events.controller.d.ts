@@ -1,10 +1,9 @@
 import { EventTicketsService } from './event-tickets.service';
-import { CreateEventTicketDto } from './dto/create-event-ticket.dto';
-import { UpdateEventTicketDto } from './dto/update-event-ticket.dto';
-export declare class EventTicketsController {
+import { CreateInternalEventDto } from './dto/create-internal-event.dto';
+export declare class EventsController {
     private readonly eventTicketsService;
     constructor(eventTicketsService: EventTicketsService);
-    create(createEventTicketDto: CreateEventTicketDto): Promise<{
+    create(createInternalEventDto: CreateInternalEventDto): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -12,12 +11,14 @@ export declare class EventTicketsController {
         }[];
     } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
+        requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
         partnerEmail: string | null;
@@ -32,19 +33,21 @@ export declare class EventTicketsController {
         startTime: string;
         endTime: string;
         selectedRoom: string;
+        roomNotes: string | null;
         needsBudget: boolean;
         budgetApprovalFileUrl: string | null;
         copa: string[];
-        coffeeBreak: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
         tiEquipment: string[];
         furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
         presentationMaterials: string[];
         presentationDriveLink: string | null;
         needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     findAll(): Promise<({
         supportTeams: {
@@ -54,12 +57,14 @@ export declare class EventTicketsController {
         }[];
     } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
+        requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
         partnerEmail: string | null;
@@ -74,19 +79,21 @@ export declare class EventTicketsController {
         startTime: string;
         endTime: string;
         selectedRoom: string;
+        roomNotes: string | null;
         needsBudget: boolean;
         budgetApprovalFileUrl: string | null;
         copa: string[];
-        coffeeBreak: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
         tiEquipment: string[];
         furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
         presentationMaterials: string[];
         presentationDriveLink: string | null;
         needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
     })[]>;
     findOne(id: string): Promise<{
         supportTeams: {
@@ -96,12 +103,14 @@ export declare class EventTicketsController {
         }[];
     } & {
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
+        requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
         partnerEmail: string | null;
@@ -116,70 +125,32 @@ export declare class EventTicketsController {
         startTime: string;
         endTime: string;
         selectedRoom: string;
+        roomNotes: string | null;
         needsBudget: boolean;
         budgetApprovalFileUrl: string | null;
         copa: string[];
-        coffeeBreak: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
         tiEquipment: string[];
         furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
         presentationMaterials: string[];
         presentationDriveLink: string | null;
         needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }>;
-    update(id: string, updateEventTicketDto: UpdateEventTicketDto): Promise<{
-        supportTeams: {
-            id: string;
-            name: string;
-            email: string | null;
-        }[];
-    } & {
-        id: string;
-        requesterName: string;
-        requesterEmail: string;
-        requesterPhone: string;
-        requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
-        isPartnerEvent: boolean;
-        partnerName: string | null;
-        partnerEmail: string | null;
-        partnerPhone: string | null;
-        partnerInstitution: string | null;
-        eventTitle: string;
-        eventType: string;
-        eventDescription: string;
-        targetAudience: string[];
-        estimatedPublic: number;
-        eventDate: Date;
-        startTime: string;
-        endTime: string;
-        selectedRoom: string;
-        needsBudget: boolean;
-        budgetApprovalFileUrl: string | null;
-        copa: string[];
-        coffeeBreak: string[];
-        tiEquipment: string[];
-        furnitureSupport: string[];
-        presentationMaterials: string[];
-        presentationDriveLink: string | null;
-        needsArtwork: boolean;
-        artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
         requesterType: string;
-        requesterDepartment: string | null;
-        adminApprovalFileUrl: string | null;
+        requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
         partnerEmail: string | null;
@@ -194,18 +165,20 @@ export declare class EventTicketsController {
         startTime: string;
         endTime: string;
         selectedRoom: string;
+        roomNotes: string | null;
         needsBudget: boolean;
         budgetApprovalFileUrl: string | null;
         copa: string[];
-        coffeeBreak: string[];
+        otherCopaDescription: string | null;
+        coffeeBreak: string;
+        coffeeNotes: string | null;
         tiEquipment: string[];
         furnitureSupport: string[];
+        otherFurnitureDescription: string | null;
         presentationMaterials: string[];
         presentationDriveLink: string | null;
         needsArtwork: boolean;
+        hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
 }

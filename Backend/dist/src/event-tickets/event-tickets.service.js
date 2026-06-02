@@ -17,145 +17,226 @@ let EventTicketsService = class EventTicketsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async generateUniqueControlCode() {
+    async generateUniqueControlCode(prefix) {
         let code = '';
         let isUnique = false;
         while (!isUnique) {
-            code = `#${Math.floor(100000 + Math.random() * 900000)}`;
-            const existing = await this.prisma.eventTicket.findUnique({
-                where: { controlCode: code },
-            });
-            if (!existing) {
-                isUnique = true;
+            code = `#${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
+            if (prefix === 'INT') {
+                const existing = await this.prisma.event.findUnique({
+                    where: { controlCode: code },
+                });
+                if (!existing)
+                    isUnique = true;
+            }
+            else {
+                const existing = await this.prisma.location.findUnique({
+                    where: { controlCode: code },
+                });
+                if (!existing)
+                    isUnique = true;
             }
         }
         return code;
     }
-    validateAndSanitizeTicketData(dto, isUpdate = false, existingTicket) {
-        const merged = isUpdate && existingTicket ? { ...existingTicket, ...dto } : dto;
-        if (merged.requesterType === 'locacao') {
-            if (!merged.adminApprovalFileUrl) {
-                throw new common_1.BadRequestException('adminApprovalFileUrl é obrigatório quando requesterType é "locacao".');
-            }
-            dto.requesterDepartment = null;
+    validateDateTime(eventDateStr, startTimeStr, endTimeStr) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const [year, month, day] = eventDateStr.split('-').map(Number);
+        const eventDate = new Date(year, month - 1, day);
+        eventDate.setHours(0, 0, 0, 0);
+        const diffTime = eventDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 15) {
+            throw new common_1.BadRequestException('A reserva deve possuir no mínimo 15 dias de antecedência.');
         }
-        else if (merged.requesterType === 'interno') {
-            if (!merged.requesterDepartment) {
-                throw new common_1.BadRequestException('requesterDepartment é obrigatório quando requesterType é "interno".');
-            }
-            dto.adminApprovalFileUrl = null;
+        const dayOfWeek = eventDate.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        if (isWeekend && diffDays <= 15) {
+            throw new common_1.BadRequestException('Finais de semana só podem ser agendados com antecedência superior a 15 dias.');
         }
-        if (merged.isPartnerEvent) {
-            if (!merged.partnerName || !merged.partnerEmail || !merged.partnerPhone || !merged.partnerInstitution) {
-                throw new common_1.BadRequestException('Nome, email, telefone e instituição do parceiro são obrigatórios quando isPartnerEvent é verdadeiro.');
+        const toMinutes = (timeStr) => {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        };
+        const startMinutes = toMinutes(startTimeStr);
+        const endMinutes = toMinutes(endTimeStr);
+        const minAllowed = toMinutes('07:30');
+        const maxAllowed = toMinutes('22:30');
+        if (startMinutes < minAllowed || startMinutes > maxAllowed || endMinutes < minAllowed || endMinutes > maxAllowed) {
+            throw new common_1.BadRequestException('Os horários de agendamento devem estar contidos entre 07:30 e 22:30.');
+        }
+        if (endMinutes <= startMinutes) {
+            throw new common_1.BadRequestException('O horário de término deve ser estritamente posterior ao horário de início.');
+        }
+    }
+    validateInstitutionalEmail(email) {
+        if (!email.endsWith('@unicesusc.edu.br')) {
+            throw new common_1.BadRequestException('O e-mail do solicitante interno deve terminar estritamente com @unicesusc.edu.br.');
+        }
+        const username = email.split('@')[0];
+        const hasThreeSequentialNumbers = /\d{3,}/.test(username);
+        if (hasThreeSequentialNumbers) {
+            throw new common_1.BadRequestException('O e-mail institucional não pode conter 3 ou mais números sequenciais seguidos antes do @ (ex: apoio123).');
+        }
+    }
+    async createInternal(dto) {
+        this.validateDateTime(dto.eventDate, dto.startTime, dto.endTime);
+        this.validateInstitutionalEmail(dto.requesterEmail);
+        if (dto.isPartnerEvent) {
+            if (!dto.partnerName || !dto.partnerEmail || !dto.partnerPhone || !dto.partnerInstitution) {
+                throw new common_1.BadRequestException('Todos os dados do parceiro externo são obrigatórios para eventos parceiros.');
             }
         }
         else {
-            dto.partnerName = null;
-            dto.partnerEmail = null;
-            dto.partnerPhone = null;
-            dto.partnerInstitution = null;
+            dto.partnerName = undefined;
+            dto.partnerEmail = undefined;
+            dto.partnerPhone = undefined;
+            dto.partnerInstitution = undefined;
         }
-        if (merged.needsArtwork) {
-            if (!merged.artworkDescription) {
-                throw new common_1.BadRequestException('artworkDescription é obrigatório quando needsArtwork é verdadeiro.');
+        const hasTiEquipment = dto.tiEquipment && dto.tiEquipment.length > 0 && dto.tiEquipment.some(item => item !== 'nao_se_aplica');
+        let finalSupportTeams = [...(dto.supportTeams || [])];
+        if (hasTiEquipment && !finalSupportTeams.includes('ti')) {
+            finalSupportTeams.push('ti');
+        }
+        if (dto.furnitureSupport.includes('outro')) {
+            if (!dto.otherFurnitureDescription || dto.otherFurnitureDescription.length < 3) {
+                throw new common_1.BadRequestException('otherFurnitureDescription é obrigatório (mínimo 3 caracteres) quando "outro" for selecionado nos móveis.');
             }
         }
         else {
-            dto.artworkDescription = null;
+            dto.otherFurnitureDescription = undefined;
         }
-        const hasGoogleDriveLink = merged.presentationMaterials?.includes('google_drive_link');
-        if (hasGoogleDriveLink) {
-            if (!merged.presentationDriveLink) {
-                throw new common_1.BadRequestException('presentationDriveLink é obrigatório quando "google_drive_link" está selecionado em presentationMaterials.');
+        if (dto.copa.includes('outro')) {
+            if (!dto.otherCopaDescription || dto.otherCopaDescription.length < 3) {
+                throw new common_1.BadRequestException('otherCopaDescription é obrigatório (mínimo 3 caracteres) quando "outro" for selecionado na copa.');
             }
         }
         else {
-            dto.presentationDriveLink = null;
+            dto.otherCopaDescription = undefined;
         }
-        const hasActiveCoffeeBreak = merged.coffeeBreak && merged.coffeeBreak.length > 0 && merged.coffeeBreak.some((item) => item !== 'nao_se_aplica');
-        if (hasActiveCoffeeBreak) {
-            dto.needsBudget = true;
-            merged.needsBudget = true;
+        if (dto.presentationMaterials.includes('google_drive_link')) {
+            if (!dto.presentationDriveLink) {
+                throw new common_1.BadRequestException('presentationDriveLink é obrigatório quando "google_drive_link" está em presentationMaterials.');
+            }
         }
-        if (merged.needsBudget) {
-            if (!merged.budgetApprovalFileUrl) {
+        else {
+            dto.presentationDriveLink = undefined;
+        }
+        const hasActiveCoffeeBreak = dto.coffeeBreak && dto.coffeeBreak !== 'nao_se_aplica';
+        const hasPrintedArtwork = dto.needsArtwork && dto.hasPrintedArtwork;
+        let needsBudget = dto.needsBudget;
+        if (hasActiveCoffeeBreak || hasPrintedArtwork) {
+            needsBudget = true;
+        }
+        if (needsBudget) {
+            if (!dto.budgetApprovalFileUrl) {
                 const reason = hasActiveCoffeeBreak
-                    ? 'budgetApprovalFileUrl é obrigatório quando há itens de coffee break selecionados (diferentes de "nao_se_aplica").'
-                    : 'budgetApprovalFileUrl é obrigatório quando needsBudget é verdadeiro.';
+                    ? 'budgetApprovalFileUrl é obrigatório quando coffeeBreak é contratado (diferente de "nao_se_aplica").'
+                    : hasPrintedArtwork
+                        ? 'budgetApprovalFileUrl é obrigatório quando há peças de arte impressas (hasPrintedArtwork = true).'
+                        : 'budgetApprovalFileUrl é obrigatório quando o evento necessita de orçamento.';
                 throw new common_1.BadRequestException(reason);
             }
         }
         else {
-            if (merged.budgetApprovalFileUrl) {
-                throw new common_1.BadRequestException('Não é permitido enviar budgetApprovalFileUrl quando o evento não necessita de orçamento (needsBudget é falso).');
+            if (dto.budgetApprovalFileUrl) {
+                throw new common_1.BadRequestException('Não é permitido enviar budgetApprovalFileUrl se o evento não necessita de orçamento.');
             }
-            dto.budgetApprovalFileUrl = null;
+            dto.budgetApprovalFileUrl = undefined;
         }
-    }
-    async create(createEventTicketDto) {
-        this.validateAndSanitizeTicketData(createEventTicketDto, false);
-        const controlCode = await this.generateUniqueControlCode();
-        const eventDate = new Date(createEventTicketDto.eventDate);
-        const { supportTeams, ...rest } = createEventTicketDto;
-        return this.prisma.eventTicket.create({
+        const controlCode = await this.generateUniqueControlCode('INT');
+        const { supportTeams, eventDate, ...rest } = dto;
+        return this.prisma.event.create({
             data: {
                 ...rest,
                 controlCode,
-                eventDate,
-                supportTeams: supportTeams && supportTeams.length > 0
-                    ? { connect: supportTeams.map(id => ({ id })) }
-                    : undefined,
+                eventDate: new Date(dto.eventDate),
+                needsBudget,
+                partnerName: dto.partnerName,
+                partnerEmail: dto.partnerEmail,
+                partnerPhone: dto.partnerPhone,
+                partnerInstitution: dto.partnerInstitution,
+                otherFurnitureDescription: dto.otherFurnitureDescription,
+                otherCopaDescription: dto.otherCopaDescription,
+                presentationDriveLink: dto.presentationDriveLink,
+                budgetApprovalFileUrl: dto.budgetApprovalFileUrl,
+                supportTeams: {
+                    connect: finalSupportTeams.map(id => ({ id })),
+                },
             },
             include: {
                 supportTeams: true,
             },
         });
     }
-    async findAll() {
-        return this.prisma.eventTicket.findMany({
+    async createExternal(dto) {
+        this.validateDateTime(dto.eventDate, dto.startTime, dto.endTime);
+        const controlCode = await this.generateUniqueControlCode('LOC');
+        const { supportTeams, eventDate, ...rest } = dto;
+        return this.prisma.location.create({
+            data: {
+                ...rest,
+                controlCode,
+                eventDate: new Date(dto.eventDate),
+                supportTeams: {
+                    connect: supportTeams.map(id => ({ id })),
+                },
+            },
+            include: {
+                supportTeams: true,
+            },
+        });
+    }
+    async findAllEvents() {
+        return this.prisma.event.findMany({
             include: {
                 supportTeams: true,
             },
             orderBy: { createdAt: 'desc' },
         });
     }
-    async findOne(id) {
-        const ticket = await this.prisma.eventTicket.findUnique({
+    async findOneEvent(id) {
+        const event = await this.prisma.event.findUnique({
             where: { id },
             include: {
                 supportTeams: true,
             },
         });
-        if (!ticket) {
-            throw new common_1.NotFoundException(`Ticket com ID "${id}" não encontrado.`);
+        if (!event) {
+            throw new common_1.NotFoundException(`Evento com ID "${id}" não encontrado.`);
         }
-        return ticket;
+        return event;
     }
-    async update(id, updateEventTicketDto) {
-        const existing = await this.findOne(id);
-        this.validateAndSanitizeTicketData(updateEventTicketDto, true, existing);
-        const { supportTeams, ...rest } = updateEventTicketDto;
-        const data = { ...rest };
-        if (updateEventTicketDto.eventDate) {
-            data.eventDate = new Date(updateEventTicketDto.eventDate);
-        }
-        if (supportTeams) {
-            data.supportTeams = {
-                set: supportTeams.map(id => ({ id })),
-            };
-        }
-        return this.prisma.eventTicket.update({
+    async removeEvent(id) {
+        await this.findOneEvent(id);
+        return this.prisma.event.delete({
             where: { id },
-            data,
+        });
+    }
+    async findAllLocations() {
+        return this.prisma.location.findMany({
+            include: {
+                supportTeams: true,
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+    async findOneLocation(id) {
+        const location = await this.prisma.location.findUnique({
+            where: { id },
             include: {
                 supportTeams: true,
             },
         });
+        if (!location) {
+            throw new common_1.NotFoundException(`Locação com ID "${id}" não encontrada.`);
+        }
+        return location;
     }
-    async remove(id) {
-        await this.findOne(id);
-        return this.prisma.eventTicket.delete({
+    async removeLocation(id) {
+        await this.findOneLocation(id);
+        return this.prisma.location.delete({
             where: { id },
         });
     }

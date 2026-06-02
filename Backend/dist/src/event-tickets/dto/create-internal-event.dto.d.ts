@@ -1,14 +1,9 @@
-export declare enum RequesterType {
-    INTERNO = "interno",
-    LOCACAO = "locacao"
-}
-export declare class CreateEventTicketDto {
+export declare class CreateInternalEventDto {
+    requesterType: string;
     requesterName: string;
     requesterEmail: string;
     requesterPhone: string;
-    requesterType: string;
-    requesterDepartment?: string;
-    adminApprovalFileUrl?: string;
+    requesterDepartment: string;
     isPartnerEvent?: boolean;
     partnerName?: string;
     partnerEmail?: string;
@@ -23,15 +18,20 @@ export declare class CreateEventTicketDto {
     startTime: string;
     endTime: string;
     selectedRoom: string;
-    needsBudget?: boolean;
+    roomNotes?: string;
+    needsBudget: boolean;
     budgetApprovalFileUrl?: string;
-    copa?: string[];
-    coffeeBreak?: string[];
-    tiEquipment?: string[];
-    furnitureSupport?: string[];
-    supportTeams?: string[];
-    presentationMaterials?: string[];
+    copa: string[];
+    otherCopaDescription?: string;
+    coffeeBreak: string;
+    coffeeNotes?: string;
+    tiEquipment: string[];
+    furnitureSupport: string[];
+    otherFurnitureDescription?: string;
+    supportTeams: string[];
+    presentationMaterials: string[];
     presentationDriveLink?: string;
-    needsArtwork?: boolean;
+    needsArtwork: boolean;
+    hasPrintedArtwork?: boolean;
     artworkDescription?: string;
 }
