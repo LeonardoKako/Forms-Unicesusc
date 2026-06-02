@@ -152,7 +152,7 @@ let EmailService = class EmailService {
       `,
         });
     }
-    async sendRejectionNotification(event) {
+    async sendRejectionNotification(event, reason) {
         const eventDateFormatted = new Date(event.eventDate).toLocaleDateString('pt-BR');
         await this.resend.emails.send({
             from: this.fromEmail,
@@ -169,6 +169,15 @@ let EmailService = class EmailService {
             <p style="font-size: 16px; color: #374151;">Olá, <strong>${event.requesterName}</strong>.</p>
             <p style="font-size: 14px; color: #6b7280;">Infelizmente, seu evento <strong>não foi aprovado</strong> pelo setor de eventos.</p>
             
+            ${reason
+                ? `
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin: 20px 0; color: #78350f; font-size: 14px;">
+              <strong>Motivo da rejeição:</strong><br/>
+              ${reason}
+            </div>
+            `
+                : ''}
+
             <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin: 20px 0;">
               <table style="width: 100%; font-size: 14px; color: #374151;">
                 <tr><td style="padding: 4px 0;"><strong>Código:</strong></td><td>${event.controlCode}</td></tr>
@@ -177,7 +186,7 @@ let EmailService = class EmailService {
               </table>
             </div>
 
-            <p style="font-size: 14px; color: #374151;">Para mais informações sobre o motivo da rejeição, entre em contato com o setor de eventos pelo email <strong>formulario.eventos@unicesusc.edu.br</strong>.</p>
+            <p style="font-size: 14px; color: #374151;">Para mais informações ou dúvidas, entre em contato com o setor de eventos pelo email <strong>formulario.eventos@unicesusc.edu.br</strong>.</p>
             
             <hr style="border: 1px solid #e5e7eb; margin: 20px 0;" />
             <p style="font-size: 11px; color: #9ca3af;">Email enviado automaticamente pelo sistema de reservas Unicesusc.</p>

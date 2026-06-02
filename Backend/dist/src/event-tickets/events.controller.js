@@ -31,7 +31,7 @@ let EventsController = class EventsController {
         return this.eventTicketsService.getAdminReview(token);
     }
     submitAdminReview(body) {
-        return this.eventTicketsService.submitAdminReview(body.token, body.approved);
+        return this.eventTicketsService.submitAdminReview(body.token, body.approved, body.reason);
     }
     findAll() {
         return this.eventTicketsService.findAllEvents();

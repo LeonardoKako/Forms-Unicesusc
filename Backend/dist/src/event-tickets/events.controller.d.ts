@@ -68,10 +68,12 @@ export declare class EventsController {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
     submitAdminReview(body: {
         token: string;
         approved: boolean;
+        reason?: string;
     }): Promise<{
         message: string;
         event: {
@@ -128,6 +130,7 @@ export declare class EventsController {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     })[]>;
     findOne(id: string): Promise<{
         supportTeams: {
@@ -176,6 +179,7 @@ export declare class EventsController {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -218,5 +222,6 @@ export declare class EventsController {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
 }

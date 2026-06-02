@@ -288,7 +288,7 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
         }
         return event;
     }
-    async submitAdminReview(token, approved) {
+    async submitAdminReview(token, approved, reason) {
         let payload;
         try {
             payload = this.jwtService.verify(token);
@@ -340,10 +340,13 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
         else {
             const updatedEvent = await this.prisma.event.update({
                 where: { id: event.id },
-                data: { adminVerification: 'rejected' },
+                data: {
+                    adminVerification: 'rejected',
+                    adminRejectionReason: reason || null,
+                },
                 include: { supportTeams: true },
             });
-            await this.emailService.sendRejectionNotification(updatedEvent);
+            await this.emailService.sendRejectionNotification(updatedEvent, reason);
             return {
                 message: 'Evento rejeitado. O solicitante foi notificado.',
                 event: {

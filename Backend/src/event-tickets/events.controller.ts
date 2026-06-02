@@ -37,8 +37,14 @@ export class EventsController {
 
   @Post('admin-review')
   @HttpCode(HttpStatus.OK)
-  submitAdminReview(@Body() body: { token: string; approved: boolean }) {
-    return this.eventTicketsService.submitAdminReview(body.token, body.approved);
+  submitAdminReview(
+    @Body() body: { token: string; approved: boolean; reason?: string },
+  ) {
+    return this.eventTicketsService.submitAdminReview(
+      body.token,
+      body.approved,
+      body.reason,
+    );
   }
 
   // --- Endpoints CRUD padrão ---

@@ -77,8 +77,9 @@ export declare class EventTicketsService {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
-    submitAdminReview(token: string, approved: boolean): Promise<{
+    submitAdminReview(token: string, approved: boolean, reason?: string): Promise<{
         message: string;
         event: {
             id: string;
@@ -156,6 +157,7 @@ export declare class EventTicketsService {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     })[]>;
     findOneEvent(id: string): Promise<{
         supportTeams: {
@@ -204,6 +206,7 @@ export declare class EventTicketsService {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
     removeEvent(id: string): Promise<{
         id: string;
@@ -246,6 +249,7 @@ export declare class EventTicketsService {
         updatedAt: Date;
         authorVerification: string;
         adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
     findAllLocations(): Promise<({
         supportTeams: {

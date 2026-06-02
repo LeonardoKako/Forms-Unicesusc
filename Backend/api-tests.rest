@@ -72,18 +72,19 @@ POST {{baseUrl}}/events/admin-review
 Content-Type: application/json
 
 {
-  "token": "COLAR_TOKEN_ADMIN_AQUI",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJldmVudElkIjoiYThhZTc5YTUtYzZkZS00NDI4LWJkZjctNmYxNmNmMzc5OWM0IiwidHlwZSI6ImFkbWluX3JldmlldyIsImlhdCI6MTc4MDQyNjc5NSwiZXhwIjoxNzgxMDMxNTk1fQ.fyxbu66AcCmFVbOlKtTEPhnAEy_AKoopuTmyjFacSXQ",
   "approved": true
 }
 
 ### 2.4 Admin REJEITA o Evento
-# Após revisar, o admin rejeita o evento. O autor é notificado.
+# Após revisar, o admin rejeita o evento. O autor é notificado com a justificativa.
 POST {{baseUrl}}/events/admin-review
 Content-Type: application/json
 
 {
-  "token": "COLAR_TOKEN_ADMIN_AQUI",
-  "approved": false
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJldmVudElkIjoiMDVlMDcwM2UtNDU4YS00YmZlLWI1NGYtOWVhMzg1OWQ1MmM5IiwidHlwZSI6ImFkbWluX3JldmlldyIsImlhdCI6MTc4MDQyNjkwMSwiZXhwIjoxNzgxMDMxNzAxfQ.Kzhp_CY1ASp-K1CdP0KfDg34lCd4q_HfnOFgYLOV7sw",
+  "approved": false,
+  "reason": "Conflito de data com outro evento no auditório principal."
 }
 
 

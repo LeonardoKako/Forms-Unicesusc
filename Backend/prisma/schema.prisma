@@ -16,6 +16,7 @@ model Event {
   updatedAt             DateTime @updatedAt
   authorVerification    String   @default("pending") // pending | approved
   adminVerification     String   @default("pending") // pending | approved | rejected
+  adminRejectionReason  String?  @db.Text
   
   // 👤 Dados do Solicitante
   requesterName         String

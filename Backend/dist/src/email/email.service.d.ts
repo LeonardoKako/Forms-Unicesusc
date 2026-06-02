@@ -24,7 +24,7 @@ export declare class EmailService {
     sendAuthorVerification(event: EventEmailData, token: string): Promise<void>;
     sendAdminApproval(event: EventEmailData, token: string): Promise<void>;
     sendApprovalNotification(event: EventEmailData): Promise<void>;
-    sendRejectionNotification(event: EventEmailData): Promise<void>;
+    sendRejectionNotification(event: EventEmailData, reason?: string): Promise<void>;
     sendSupportTeamNotification(event: EventEmailData, team: SupportTeamData): Promise<void>;
 }
 export {};
