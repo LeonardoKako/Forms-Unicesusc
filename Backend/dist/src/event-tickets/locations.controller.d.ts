@@ -11,18 +11,18 @@ export declare class LocationsController {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findAll(): Promise<({
         supportTeams: {
@@ -32,18 +32,18 @@ export declare class LocationsController {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     findOne(id: string): Promise<{
         supportTeams: {
@@ -53,32 +53,32 @@ export declare class LocationsController {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
 }

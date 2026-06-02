@@ -6,14 +6,15 @@
 # ==========================================
 
 ### 1.1 Criar um Evento Interno (POST)
-# Valida e insere um fluxo completo com e-mail institucional @unicesusc.edu.br
+# Valida, insere com status pending, e envia email de verificação ao autor.
+# ⚠️ RESEND FREE TIER: Use formulario.eventos@unicesusc.edu.br como requesterEmail para receber o email.
 POST {{baseUrl}}/events
 Content-Type: application/json
 
 {
   "requesterType": "interno",
   "requesterName": "Prof. Roberto Mendes",
-  "requesterEmail": "roberto.mendes@unicesusc.edu.br",
+  "requesterEmail": "formulario.eventos@unicesusc.edu.br",
   "requesterPhone": "48988352502",
   "requesterDepartment": "Engenharia de Software",
   "isPartnerEvent": true,
@@ -53,11 +54,45 @@ GET {{baseUrl}}/events
 
 
 # ==========================================
-# 2. FLUXO: LOCAÇÃO EXTERNA (/locations)
+# 2. FLUXO JWT: VERIFICAÇÃO DE EMAIL
 # ==========================================
 
-### 2.1 Criar uma Locação Externa (POST)
-# Valida e insere o fluxo simplificado para parceiros externos
+### 2.1 Verificar Email do Autor (Etapa 1)
+# Cole o token recebido no email de verificação
+# Este link também aparece no email enviado ao requesterEmail
+GET {{baseUrl}}/events/verify-author?token=COLAR_TOKEN_DO_EMAIL_AQUI
+
+### 2.2 Admin Visualiza o Evento (Etapa 2)
+# Cole o token recebido no email de aprovação (enviado a formulario.eventos@unicesusc.edu.br)
+GET {{baseUrl}}/events/admin-review?token=COLAR_TOKEN_ADMIN_AQUI
+
+### 2.3 Admin APROVA o Evento
+# Após revisar, o admin aprova o evento. O autor e equipes de apoio são notificados.
+POST {{baseUrl}}/events/admin-review
+Content-Type: application/json
+
+{
+  "token": "COLAR_TOKEN_ADMIN_AQUI",
+  "approved": true
+}
+
+### 2.4 Admin REJEITA o Evento
+# Após revisar, o admin rejeita o evento. O autor é notificado.
+POST {{baseUrl}}/events/admin-review
+Content-Type: application/json
+
+{
+  "token": "COLAR_TOKEN_ADMIN_AQUI",
+  "approved": false
+}
+
+
+# ==========================================
+# 3. FLUXO: LOCAÇÃO EXTERNA (/locations)
+# ==========================================
+
+### 3.1 Criar uma Locação Externa (POST)
+# Fluxo simplificado para parceiros externos (sem JWT por enquanto)
 POST {{baseUrl}}/locations
 Content-Type: application/json
 
@@ -74,18 +109,23 @@ Content-Type: application/json
   "supportTeams": ["marketing", "administrativo", "nap", "manutencao"]
 }
 
-### 2.2 Listar Todas as Locações Externas (GET)
+### 3.2 Listar Todas as Locações Externas (GET)
 GET {{baseUrl}}/locations
 
 
 # ==========================================
-# 3. ROTAS DE CONSULTA E REMOÇÃO POR ID
+# 4. ROTAS DE CONSULTA E REMOÇÃO POR ID
 # ==========================================
 
-### 3.1 Obter Ticket Individual por ID (GET)
+### 4.1 Obter Evento por ID (GET)
 # Substitua o ID abaixo por um ID real retornado na criação
-GET {{baseUrl}}/events/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
+GET {{baseUrl}}/events/COLAR_ID_AQUI
 
-### 3.2 Excluir Ticket por ID (DELETE)
-# Substitua o ID abaixo por um ID real retornado na criação
-DELETE {{baseUrl}}/events/d8f0a0d9-b903-4c91-9e79-4bc7ee290325
+### 4.2 Excluir Evento por ID (DELETE)
+DELETE {{baseUrl}}/events/COLAR_ID_AQUI
+
+### 4.3 Obter Locação por ID (GET)
+GET {{baseUrl}}/locations/COLAR_ID_AQUI
+
+### 4.4 Excluir Locação por ID (DELETE)
+DELETE {{baseUrl}}/locations/COLAR_ID_AQUI

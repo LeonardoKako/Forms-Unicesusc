@@ -8,14 +8,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var EventTicketsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventTicketsService = void 0;
 const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
+const schedule_1 = require("@nestjs/schedule");
 const prisma_service_1 = require("../prisma/prisma.service");
-let EventTicketsService = class EventTicketsService {
+const email_service_1 = require("../email/email.service");
+let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
     prisma;
-    constructor(prisma) {
+    jwtService;
+    emailService;
+    logger = new common_1.Logger(EventTicketsService_1.name);
+    constructor(prisma, jwtService, emailService) {
         this.prisma = prisma;
+        this.jwtService = jwtService;
+        this.emailService = emailService;
     }
     async generateUniqueControlCode(prefix) {
         let code = '';
@@ -157,12 +166,14 @@ let EventTicketsService = class EventTicketsService {
         }
         const controlCode = await this.generateUniqueControlCode('INT');
         const { supportTeams, eventDate, ...rest } = dto;
-        return this.prisma.event.create({
+        const event = await this.prisma.event.create({
             data: {
                 ...rest,
                 controlCode,
                 eventDate: new Date(dto.eventDate),
                 needsBudget,
+                authorVerification: 'pending',
+                adminVerification: 'pending',
                 partnerName: dto.partnerName,
                 partnerEmail: dto.partnerEmail,
                 partnerPhone: dto.partnerPhone,
@@ -179,6 +190,182 @@ let EventTicketsService = class EventTicketsService {
                 supportTeams: true,
             },
         });
+        const token = this.jwtService.sign({
+            eventId: event.id,
+            email: event.requesterEmail,
+            type: 'author_verification',
+        }, { expiresIn: '30m' });
+        await this.emailService.sendAuthorVerification(event, token);
+        return {
+            message: 'Evento registrado com sucesso! Um email de verificação foi enviado para o solicitante.',
+            event: {
+                id: event.id,
+                controlCode: event.controlCode,
+                authorVerification: event.authorVerification,
+                adminVerification: event.adminVerification,
+            },
+        };
+    }
+    async verifyAuthor(token) {
+        let payload;
+        try {
+            payload = this.jwtService.verify(token);
+        }
+        catch (error) {
+            try {
+                const decoded = this.jwtService.decode(token);
+                if (decoded?.eventId && decoded?.type === 'author_verification') {
+                    await this.prisma.event.deleteMany({
+                        where: {
+                            id: decoded.eventId,
+                            authorVerification: 'pending',
+                        },
+                    });
+                }
+            }
+            catch {
+            }
+            throw new common_1.BadRequestException('Token inválido ou expirado. O evento foi cancelado. Por favor, cadastre novamente.');
+        }
+        if (payload.type !== 'author_verification') {
+            throw new common_1.BadRequestException('Tipo de token inválido.');
+        }
+        const event = await this.prisma.event.findUnique({
+            where: { id: payload.eventId },
+            include: { supportTeams: true },
+        });
+        if (!event) {
+            throw new common_1.NotFoundException('Evento não encontrado. Pode ter sido cancelado.');
+        }
+        if (event.authorVerification === 'approved') {
+            return {
+                message: 'Este evento já foi verificado pelo autor.',
+                event: {
+                    id: event.id,
+                    controlCode: event.controlCode,
+                    authorVerification: event.authorVerification,
+                    adminVerification: event.adminVerification,
+                },
+            };
+        }
+        const updatedEvent = await this.prisma.event.update({
+            where: { id: event.id },
+            data: { authorVerification: 'approved' },
+            include: { supportTeams: true },
+        });
+        const adminToken = this.jwtService.sign({
+            eventId: event.id,
+            type: 'admin_review',
+        }, { expiresIn: '7d' });
+        await this.emailService.sendAdminApproval(updatedEvent, adminToken);
+        return {
+            message: 'Email verificado com sucesso! O evento foi encaminhado para aprovação do setor de eventos.',
+            event: {
+                id: updatedEvent.id,
+                controlCode: updatedEvent.controlCode,
+                authorVerification: updatedEvent.authorVerification,
+                adminVerification: updatedEvent.adminVerification,
+            },
+        };
+    }
+    async getAdminReview(token) {
+        let payload;
+        try {
+            payload = this.jwtService.verify(token);
+        }
+        catch {
+            throw new common_1.BadRequestException('Token de revisão inválido ou expirado.');
+        }
+        if (payload.type !== 'admin_review') {
+            throw new common_1.BadRequestException('Tipo de token inválido.');
+        }
+        const event = await this.prisma.event.findUnique({
+            where: { id: payload.eventId },
+            include: { supportTeams: true },
+        });
+        if (!event) {
+            throw new common_1.NotFoundException('Evento não encontrado.');
+        }
+        return event;
+    }
+    async submitAdminReview(token, approved) {
+        let payload;
+        try {
+            payload = this.jwtService.verify(token);
+        }
+        catch {
+            throw new common_1.BadRequestException('Token de revisão inválido ou expirado.');
+        }
+        if (payload.type !== 'admin_review') {
+            throw new common_1.BadRequestException('Tipo de token inválido.');
+        }
+        const event = await this.prisma.event.findUnique({
+            where: { id: payload.eventId },
+            include: { supportTeams: true },
+        });
+        if (!event) {
+            throw new common_1.NotFoundException('Evento não encontrado.');
+        }
+        if (event.adminVerification !== 'pending') {
+            return {
+                message: `Este evento já foi ${event.adminVerification === 'approved' ? 'aprovado' : 'rejeitado'}.`,
+                event: {
+                    id: event.id,
+                    controlCode: event.controlCode,
+                    authorVerification: event.authorVerification,
+                    adminVerification: event.adminVerification,
+                },
+            };
+        }
+        if (approved) {
+            const updatedEvent = await this.prisma.event.update({
+                where: { id: event.id },
+                data: { adminVerification: 'approved' },
+                include: { supportTeams: true },
+            });
+            await this.emailService.sendApprovalNotification(updatedEvent);
+            for (const team of updatedEvent.supportTeams) {
+                await this.emailService.sendSupportTeamNotification(updatedEvent, team);
+            }
+            return {
+                message: 'Evento aprovado com sucesso! O solicitante e as equipes de apoio foram notificados.',
+                event: {
+                    id: updatedEvent.id,
+                    controlCode: updatedEvent.controlCode,
+                    authorVerification: updatedEvent.authorVerification,
+                    adminVerification: updatedEvent.adminVerification,
+                },
+            };
+        }
+        else {
+            const updatedEvent = await this.prisma.event.update({
+                where: { id: event.id },
+                data: { adminVerification: 'rejected' },
+                include: { supportTeams: true },
+            });
+            await this.emailService.sendRejectionNotification(updatedEvent);
+            return {
+                message: 'Evento rejeitado. O solicitante foi notificado.',
+                event: {
+                    id: updatedEvent.id,
+                    controlCode: updatedEvent.controlCode,
+                    authorVerification: updatedEvent.authorVerification,
+                    adminVerification: updatedEvent.adminVerification,
+                },
+            };
+        }
+    }
+    async cleanupExpiredEvents() {
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+        const result = await this.prisma.event.deleteMany({
+            where: {
+                authorVerification: 'pending',
+                createdAt: { lt: thirtyMinutesAgo },
+            },
+        });
+        if (result.count > 0) {
+            this.logger.log(`🗑️ Limpeza: ${result.count} evento(s) não verificado(s) removido(s).`);
+        }
     }
     async createExternal(dto) {
         this.validateDateTime(dto.eventDate, dto.startTime, dto.endTime);
@@ -252,8 +439,16 @@ let EventTicketsService = class EventTicketsService {
     }
 };
 exports.EventTicketsService = EventTicketsService;
-exports.EventTicketsService = EventTicketsService = __decorate([
+__decorate([
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_HOUR),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], EventTicketsService.prototype, "cleanupExpiredEvents", null);
+exports.EventTicketsService = EventTicketsService = EventTicketsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        jwt_1.JwtService,
+        email_service_1.EmailService])
 ], EventTicketsService);
 //# sourceMappingURL=event-tickets.service.js.map

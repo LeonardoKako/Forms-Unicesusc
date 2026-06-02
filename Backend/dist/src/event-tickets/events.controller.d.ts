@@ -4,6 +4,24 @@ export declare class EventsController {
     private readonly eventTicketsService;
     constructor(eventTicketsService: EventTicketsService);
     create(createInternalEventDto: CreateInternalEventDto): Promise<{
+        message: string;
+        event: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
+    }>;
+    verifyAuthor(token: string): Promise<{
+        message: string;
+        event: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
+    }>;
+    getAdminReview(token: string): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -11,13 +29,10 @@ export declare class EventsController {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -48,6 +63,23 @@ export declare class EventsController {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+    }>;
+    submitAdminReview(body: {
+        token: string;
+        approved: boolean;
+    }): Promise<{
+        message: string;
+        event: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
     }>;
     findAll(): Promise<({
         supportTeams: {
@@ -57,13 +89,10 @@ export declare class EventsController {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -94,6 +123,11 @@ export declare class EventsController {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
     })[]>;
     findOne(id: string): Promise<{
         supportTeams: {
@@ -103,13 +137,10 @@ export declare class EventsController {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -140,16 +171,18 @@ export declare class EventsController {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
     }>;
     remove(id: string): Promise<{
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -180,5 +213,10 @@ export declare class EventsController {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
     }>;
 }

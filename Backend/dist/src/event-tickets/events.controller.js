@@ -24,6 +24,15 @@ let EventsController = class EventsController {
     create(createInternalEventDto) {
         return this.eventTicketsService.createInternal(createInternalEventDto);
     }
+    verifyAuthor(token) {
+        return this.eventTicketsService.verifyAuthor(token);
+    }
+    getAdminReview(token) {
+        return this.eventTicketsService.getAdminReview(token);
+    }
+    submitAdminReview(body) {
+        return this.eventTicketsService.submitAdminReview(body.token, body.approved);
+    }
     findAll() {
         return this.eventTicketsService.findAllEvents();
     }
@@ -43,6 +52,28 @@ __decorate([
     __metadata("design:paramtypes", [create_internal_event_dto_1.CreateInternalEventDto]),
     __metadata("design:returntype", void 0)
 ], EventsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)('verify-author'),
+    __param(0, (0, common_1.Query)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], EventsController.prototype, "verifyAuthor", null);
+__decorate([
+    (0, common_1.Get)('admin-review'),
+    __param(0, (0, common_1.Query)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], EventsController.prototype, "getAdminReview", null);
+__decorate([
+    (0, common_1.Post)('admin-review'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], EventsController.prototype, "submitAdminReview", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),

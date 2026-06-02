@@ -2,14 +2,28 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { CreateInternalEventDto } from './dto/create-internal-event.dto';
 import { CreateExternalLocationDto } from './dto/create-external-location.dto';
 
 @Injectable()
 export class EventTicketsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(EventTicketsService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
+  ) {}
+
+  // =============================================
+  // UTILITÁRIOS
+  // =============================================
 
   private async generateUniqueControlCode(
     prefix: 'INT' | 'LOC',
@@ -17,7 +31,7 @@ export class EventTicketsService {
     let code = '';
     let isUnique = false;
     while (!isUnique) {
-      code = `#${prefix}-${Math.floor(100000 + Math.random() * 900000)}`; // Ex: #INT-482910 ou #LOC-918523
+      code = `#${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
 
       if (prefix === 'INT') {
         const existing = await this.prisma.event.findUnique({
@@ -108,7 +122,10 @@ export class EventTicketsService {
     }
   }
 
-  // --- CRIAÇÃO FLUXO INTERNO (EVENTS) ---
+  // =============================================
+  // CRIAÇÃO FLUXO INTERNO (EVENTS)
+  // =============================================
+
   async createInternal(dto: CreateInternalEventDto) {
     this.validateDateTime(dto.eventDate, dto.startTime, dto.endTime);
     this.validateInstitutionalEmail(dto.requesterEmail);
@@ -210,12 +227,15 @@ export class EventTicketsService {
 
     const { supportTeams, eventDate, ...rest } = dto;
 
-    return this.prisma.event.create({
+    // Salva com status pending (author + admin)
+    const event = await this.prisma.event.create({
       data: {
         ...rest,
         controlCode,
         eventDate: new Date(dto.eventDate),
         needsBudget,
+        authorVerification: 'pending',
+        adminVerification: 'pending',
         partnerName: dto.partnerName,
         partnerEmail: dto.partnerEmail,
         partnerPhone: dto.partnerPhone,
@@ -232,9 +252,259 @@ export class EventTicketsService {
         supportTeams: true,
       },
     });
+
+    // Gera JWT para verificação do autor (30 minutos)
+    const token = this.jwtService.sign(
+      {
+        eventId: event.id,
+        email: event.requesterEmail,
+        type: 'author_verification',
+      },
+      { expiresIn: '30m' },
+    );
+
+    // Envia email de verificação ao autor
+    await this.emailService.sendAuthorVerification(event, token);
+
+    return {
+      message:
+        'Evento registrado com sucesso! Um email de verificação foi enviado para o solicitante.',
+      event: {
+        id: event.id,
+        controlCode: event.controlCode,
+        authorVerification: event.authorVerification,
+        adminVerification: event.adminVerification,
+      },
+    };
   }
 
-  // --- CRIAÇÃO FLUXO EXTERNO (LOCATIONS) ---
+  // =============================================
+  // VERIFICAÇÃO DO AUTOR (Etapa 1)
+  // =============================================
+
+  async verifyAuthor(token: string) {
+    let payload: { eventId: string; email: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token);
+    } catch (error) {
+      // Se o token expirou, tentar decodificar para pegar o eventId e deletar
+      try {
+        const decoded = this.jwtService.decode(token) as {
+          eventId: string;
+          type: string;
+        };
+        if (decoded?.eventId && decoded?.type === 'author_verification') {
+          await this.prisma.event.deleteMany({
+            where: {
+              id: decoded.eventId,
+              authorVerification: 'pending',
+            },
+          });
+        }
+      } catch {
+        // Ignorar se não conseguir decodificar
+      }
+      throw new BadRequestException(
+        'Token inválido ou expirado. O evento foi cancelado. Por favor, cadastre novamente.',
+      );
+    }
+
+    if (payload.type !== 'author_verification') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const event = await this.prisma.event.findUnique({
+      where: { id: payload.eventId },
+      include: { supportTeams: true },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado. Pode ter sido cancelado.');
+    }
+
+    if (event.authorVerification === 'approved') {
+      return {
+        message: 'Este evento já foi verificado pelo autor.',
+        event: {
+          id: event.id,
+          controlCode: event.controlCode,
+          authorVerification: event.authorVerification,
+          adminVerification: event.adminVerification,
+        },
+      };
+    }
+
+    // Atualiza status do autor para aprovado
+    const updatedEvent = await this.prisma.event.update({
+      where: { id: event.id },
+      data: { authorVerification: 'approved' },
+      include: { supportTeams: true },
+    });
+
+    // Gera JWT para o admin (7 dias)
+    const adminToken = this.jwtService.sign(
+      {
+        eventId: event.id,
+        type: 'admin_review',
+      },
+      { expiresIn: '7d' },
+    );
+
+    // Envia email ao admin para aprovação
+    await this.emailService.sendAdminApproval(updatedEvent, adminToken);
+
+    return {
+      message:
+        'Email verificado com sucesso! O evento foi encaminhado para aprovação do setor de eventos.',
+      event: {
+        id: updatedEvent.id,
+        controlCode: updatedEvent.controlCode,
+        authorVerification: updatedEvent.authorVerification,
+        adminVerification: updatedEvent.adminVerification,
+      },
+    };
+  }
+
+  // =============================================
+  // REVISÃO DO ADMIN (Etapa 2)
+  // =============================================
+
+  async getAdminReview(token: string) {
+    let payload: { eventId: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      throw new BadRequestException('Token de revisão inválido ou expirado.');
+    }
+
+    if (payload.type !== 'admin_review') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const event = await this.prisma.event.findUnique({
+      where: { id: payload.eventId },
+      include: { supportTeams: true },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado.');
+    }
+
+    return event;
+  }
+
+  async submitAdminReview(token: string, approved: boolean) {
+    let payload: { eventId: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      throw new BadRequestException('Token de revisão inválido ou expirado.');
+    }
+
+    if (payload.type !== 'admin_review') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const event = await this.prisma.event.findUnique({
+      where: { id: payload.eventId },
+      include: { supportTeams: true },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado.');
+    }
+
+    if (event.adminVerification !== 'pending') {
+      return {
+        message: `Este evento já foi ${event.adminVerification === 'approved' ? 'aprovado' : 'rejeitado'}.`,
+        event: {
+          id: event.id,
+          controlCode: event.controlCode,
+          authorVerification: event.authorVerification,
+          adminVerification: event.adminVerification,
+        },
+      };
+    }
+
+    if (approved) {
+      // Aprovar o evento
+      const updatedEvent = await this.prisma.event.update({
+        where: { id: event.id },
+        data: { adminVerification: 'approved' },
+        include: { supportTeams: true },
+      });
+
+      // Notificar o autor sobre aprovação
+      await this.emailService.sendApprovalNotification(updatedEvent);
+
+      // Notificar cada equipe de apoio
+      for (const team of updatedEvent.supportTeams) {
+        await this.emailService.sendSupportTeamNotification(
+          updatedEvent,
+          team,
+        );
+      }
+
+      return {
+        message: 'Evento aprovado com sucesso! O solicitante e as equipes de apoio foram notificados.',
+        event: {
+          id: updatedEvent.id,
+          controlCode: updatedEvent.controlCode,
+          authorVerification: updatedEvent.authorVerification,
+          adminVerification: updatedEvent.adminVerification,
+        },
+      };
+    } else {
+      // Rejeitar o evento
+      const updatedEvent = await this.prisma.event.update({
+        where: { id: event.id },
+        data: { adminVerification: 'rejected' },
+        include: { supportTeams: true },
+      });
+
+      // Notificar o autor sobre rejeição
+      await this.emailService.sendRejectionNotification(updatedEvent);
+
+      return {
+        message: 'Evento rejeitado. O solicitante foi notificado.',
+        event: {
+          id: updatedEvent.id,
+          controlCode: updatedEvent.controlCode,
+          authorVerification: updatedEvent.authorVerification,
+          adminVerification: updatedEvent.adminVerification,
+        },
+      };
+    }
+  }
+
+  // =============================================
+  // CRON JOB: Limpeza de eventos não verificados
+  // =============================================
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async cleanupExpiredEvents() {
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const result = await this.prisma.event.deleteMany({
+      where: {
+        authorVerification: 'pending',
+        createdAt: { lt: thirtyMinutesAgo },
+      },
+    });
+
+    if (result.count > 0) {
+      this.logger.log(
+        `🗑️ Limpeza: ${result.count} evento(s) não verificado(s) removido(s).`,
+      );
+    }
+  }
+
+  // =============================================
+  // CRIAÇÃO FLUXO EXTERNO (LOCATIONS)
+  // =============================================
+
   async createExternal(dto: CreateExternalLocationDto) {
     this.validateDateTime(dto.eventDate, dto.startTime, dto.endTime);
 
@@ -257,7 +527,10 @@ export class EventTicketsService {
     });
   }
 
-  // --- CONSULTAS EVENTS ---
+  // =============================================
+  // CONSULTAS EVENTS
+  // =============================================
+
   async findAllEvents() {
     return this.prisma.event.findMany({
       include: {
@@ -289,7 +562,10 @@ export class EventTicketsService {
     });
   }
 
-  // --- CONSULTAS LOCATIONS ---
+  // =============================================
+  // CONSULTAS LOCATIONS
+  // =============================================
+
   async findAllLocations() {
     return this.prisma.location.findMany({
       include: {

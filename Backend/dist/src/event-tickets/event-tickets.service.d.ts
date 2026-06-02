@@ -1,13 +1,36 @@
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { CreateInternalEventDto } from './dto/create-internal-event.dto';
 import { CreateExternalLocationDto } from './dto/create-external-location.dto';
 export declare class EventTicketsService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly jwtService;
+    private readonly emailService;
+    private readonly logger;
+    constructor(prisma: PrismaService, jwtService: JwtService, emailService: EmailService);
     private generateUniqueControlCode;
     private validateDateTime;
     private validateInstitutionalEmail;
     createInternal(dto: CreateInternalEventDto): Promise<{
+        message: string;
+        event: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
+    }>;
+    verifyAuthor(token: string): Promise<{
+        message: string;
+        event: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
+    }>;
+    getAdminReview(token: string): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -15,13 +38,10 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -52,7 +72,22 @@ export declare class EventTicketsService {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
     }>;
+    submitAdminReview(token: string, approved: boolean): Promise<{
+        message: string;
+        event: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
+    }>;
+    cleanupExpiredEvents(): Promise<void>;
     createExternal(dto: CreateExternalLocationDto): Promise<{
         supportTeams: {
             id: string;
@@ -61,18 +96,18 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findAllEvents(): Promise<({
         supportTeams: {
@@ -82,13 +117,10 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -119,6 +151,11 @@ export declare class EventTicketsService {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
     })[]>;
     findOneEvent(id: string): Promise<{
         supportTeams: {
@@ -128,13 +165,10 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -165,16 +199,18 @@ export declare class EventTicketsService {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
     }>;
     removeEvent(id: string): Promise<{
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         requesterDepartment: string;
         isPartnerEvent: boolean;
         partnerName: string | null;
@@ -205,6 +241,11 @@ export declare class EventTicketsService {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
     }>;
     findAllLocations(): Promise<({
         supportTeams: {
@@ -214,18 +255,18 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     findOneLocation(id: string): Promise<{
         supportTeams: {
@@ -235,32 +276,32 @@ export declare class EventTicketsService {
         }[];
     } & {
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     removeLocation(id: string): Promise<{
         id: string;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
+        requesterType: string;
         requesterName: string;
         requesterEmail: string;
         requesterPhone: string;
-        requesterType: string;
         eventDate: Date;
         startTime: string;
         endTime: string;
         selectedRoom: string;
         roomNotes: string | null;
+        controlCode: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
 }
