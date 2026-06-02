@@ -72,6 +72,7 @@ export default function EventForm() {
       roomNotes: "",
       targetAudience: [],
       copa: [],
+      otherCopaDescription: "",
       coffeeBreak: "nao_se_aplica",
       coffeeNotes: "",
       tiEquipment: [],
@@ -114,6 +115,7 @@ export default function EventForm() {
       roomNotes: "",
       targetAudience: [],
       copa: [],
+      otherCopaDescription: "",
       coffeeBreak: "nao_se_aplica",
       coffeeNotes: "",
       tiEquipment: [],
@@ -226,6 +228,9 @@ export default function EventForm() {
           needsBudget: data.needsBudget,
           budgetApprovalFileUrl: finalBudgetUrl,
           copa: data.copa,
+          otherCopaDescription: data.copa.includes("outro")
+            ? data.otherCopaDescription
+            : undefined,
           coffeeBreak: data.coffeeBreak,
           coffeeNotes: data.coffeeNotes,
           tiEquipment: data.tiEquipment,

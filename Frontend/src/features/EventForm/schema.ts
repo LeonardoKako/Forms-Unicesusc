@@ -47,6 +47,7 @@ export const eventFormSchema = z
     copa: z
       .array(z.string())
       .min(1, 'Selecione as opções de copa ou marque "Não se aplica"'),
+    otherCopaDescription: z.string().optional(),
 
     // Coffee Break
     coffeeBreak: z
@@ -108,6 +109,17 @@ export const eventFormSchema = z
           code: z.ZodIssueCode.custom,
           message: "Informe os detalhes e quantidades do outro móvel/apoio",
           path: ["otherFurnitureDescription"],
+        });
+      }
+    }
+
+    // Validação de Copa - Campo outro preenchido obrigatório
+    if (data.copa && data.copa.includes("outro")) {
+      if (!data.otherCopaDescription || data.otherCopaDescription.trim().length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Informe os detalhes e quantidades dos outros itens de copa",
+          path: ["otherCopaDescription"],
         });
       }
     }
