@@ -306,7 +306,7 @@ export class EventTicketsService {
         // Ignorar se não conseguir decodificar
       }
       throw new BadRequestException(
-        'Token inválido ou expirado. O evento foi cancelado. Por favor, cadastre novamente.',
+        'Token de verificação inválido ou expirado (tempo limite de 30 minutos excedido). O evento foi cancelado automaticamente.',
       );
     }
 
@@ -325,13 +325,8 @@ export class EventTicketsService {
 
     if (event.authorVerification === 'approved') {
       return {
-        message: 'Este evento já foi verificado pelo autor.',
-        event: {
-          id: event.id,
-          controlCode: event.controlCode,
-          authorVerification: event.authorVerification,
-          adminVerification: event.adminVerification,
-        },
+        success: true,
+        message: 'Solicitação confirmada e enviada para aprovação do administrador.',
       };
     }
 
@@ -355,14 +350,8 @@ export class EventTicketsService {
     await this.emailService.sendAdminApproval(updatedEvent, adminToken);
 
     return {
-      message:
-        'Email verificado com sucesso! O evento foi encaminhado para aprovação do setor de eventos.',
-      event: {
-        id: updatedEvent.id,
-        controlCode: updatedEvent.controlCode,
-        authorVerification: updatedEvent.authorVerification,
-        adminVerification: updatedEvent.adminVerification,
-      },
+      success: true,
+      message: 'Solicitação confirmada e enviada para aprovação do administrador.',
     };
   }
 
@@ -390,6 +379,17 @@ export class EventTicketsService {
 
     if (!event) {
       throw new NotFoundException('Evento não encontrado.');
+    }
+
+    if (event.adminVerification !== 'pending') {
+      if (event.adminVerification === 'approved') {
+        throw new BadRequestException('Este evento já foi APROVADO com sucesso!');
+      } else {
+        const reasonStr = event.adminRejectionReason
+          ? `. Motivo: ${event.adminRejectionReason}`
+          : '';
+        throw new BadRequestException(`Este evento já foi REJEITADO${reasonStr}`);
+      }
     }
 
     return event;
@@ -422,15 +422,14 @@ export class EventTicketsService {
     }
 
     if (event.adminVerification !== 'pending') {
-      return {
-        message: `Este evento já foi ${event.adminVerification === 'approved' ? 'aprovado' : 'rejeitado'}.`,
-        event: {
-          id: event.id,
-          controlCode: event.controlCode,
-          authorVerification: event.authorVerification,
-          adminVerification: event.adminVerification,
-        },
-      };
+      if (event.adminVerification === 'approved') {
+        throw new BadRequestException('Este evento já foi APROVADO com sucesso!');
+      } else {
+        const reasonStr = event.adminRejectionReason
+          ? `. Motivo: ${event.adminRejectionReason}`
+          : '';
+        throw new BadRequestException(`Este evento já foi REJEITADO${reasonStr}`);
+      }
     }
 
     if (approved) {
@@ -453,13 +452,8 @@ export class EventTicketsService {
       }
 
       return {
-        message: 'Evento aprovado com sucesso! O solicitante e as equipes de apoio foram notificados.',
-        event: {
-          id: updatedEvent.id,
-          controlCode: updatedEvent.controlCode,
-          authorVerification: updatedEvent.authorVerification,
-          adminVerification: updatedEvent.adminVerification,
-        },
+        success: true,
+        message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
       };
     } else {
       // Rejeitar o evento
@@ -476,13 +470,8 @@ export class EventTicketsService {
       await this.emailService.sendRejectionNotification(updatedEvent, reason);
 
       return {
-        message: 'Evento rejeitado. O solicitante foi notificado.',
-        event: {
-          id: updatedEvent.id,
-          controlCode: updatedEvent.controlCode,
-          authorVerification: updatedEvent.authorVerification,
-          adminVerification: updatedEvent.adminVerification,
-        },
+        success: true,
+        message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
       };
     }
   }

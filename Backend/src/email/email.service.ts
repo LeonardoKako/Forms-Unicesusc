@@ -39,7 +39,7 @@ export class EmailService {
     event: EventEmailData,
     token: string,
   ): Promise<void> {
-    const verifyUrl = `${this.frontendUrl}/events/verify-author?token=${token}`;
+    const verifyUrl = `${this.frontendUrl}/verificar-evento?token=${token}`;
     const eventDateFormatted = new Date(event.eventDate).toLocaleDateString(
       'pt-BR',
     );
@@ -95,7 +95,7 @@ export class EmailService {
     event: EventEmailData,
     token: string,
   ): Promise<void> {
-    const reviewUrl = `${this.frontendUrl}/events/admin-review?token=${token}`;
+    const reviewUrl = `${this.frontendUrl}/revisar-evento?token=${token}`;
     const eventDateFormatted = new Date(event.eventDate).toLocaleDateString(
       'pt-BR',
     );

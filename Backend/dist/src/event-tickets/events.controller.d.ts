@@ -13,13 +13,8 @@ export declare class EventsController {
         };
     }>;
     verifyAuthor(token: string): Promise<{
+        success: boolean;
         message: string;
-        event: {
-            id: string;
-            controlCode: string;
-            authorVerification: string;
-            adminVerification: string;
-        };
     }>;
     getAdminReview(token: string): Promise<{
         supportTeams: {
@@ -75,13 +70,8 @@ export declare class EventsController {
         approved: boolean;
         reason?: string;
     }): Promise<{
+        success: boolean;
         message: string;
-        event: {
-            id: string;
-            controlCode: string;
-            authorVerification: string;
-            adminVerification: string;
-        };
     }>;
     findAll(): Promise<({
         supportTeams: {

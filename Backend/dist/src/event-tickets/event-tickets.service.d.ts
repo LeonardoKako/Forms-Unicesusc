@@ -22,13 +22,8 @@ export declare class EventTicketsService {
         };
     }>;
     verifyAuthor(token: string): Promise<{
+        success: boolean;
         message: string;
-        event: {
-            id: string;
-            controlCode: string;
-            authorVerification: string;
-            adminVerification: string;
-        };
     }>;
     getAdminReview(token: string): Promise<{
         supportTeams: {
@@ -80,13 +75,8 @@ export declare class EventTicketsService {
         adminRejectionReason: string | null;
     }>;
     submitAdminReview(token: string, approved: boolean, reason?: string): Promise<{
+        success: boolean;
         message: string;
-        event: {
-            id: string;
-            controlCode: string;
-            authorVerification: string;
-            adminVerification: string;
-        };
     }>;
     cleanupExpiredEvents(): Promise<void>;
     createExternal(dto: CreateExternalLocationDto): Promise<{

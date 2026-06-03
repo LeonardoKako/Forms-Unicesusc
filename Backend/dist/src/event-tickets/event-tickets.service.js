@@ -225,7 +225,7 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
             }
             catch {
             }
-            throw new common_1.BadRequestException('Token inválido ou expirado. O evento foi cancelado. Por favor, cadastre novamente.');
+            throw new common_1.BadRequestException('Token de verificação inválido ou expirado (tempo limite de 30 minutos excedido). O evento foi cancelado automaticamente.');
         }
         if (payload.type !== 'author_verification') {
             throw new common_1.BadRequestException('Tipo de token inválido.');
@@ -239,13 +239,8 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
         }
         if (event.authorVerification === 'approved') {
             return {
-                message: 'Este evento já foi verificado pelo autor.',
-                event: {
-                    id: event.id,
-                    controlCode: event.controlCode,
-                    authorVerification: event.authorVerification,
-                    adminVerification: event.adminVerification,
-                },
+                success: true,
+                message: 'Solicitação confirmada e enviada para aprovação do administrador.',
             };
         }
         const updatedEvent = await this.prisma.event.update({
@@ -259,13 +254,8 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
         }, { expiresIn: '7d' });
         await this.emailService.sendAdminApproval(updatedEvent, adminToken);
         return {
-            message: 'Email verificado com sucesso! O evento foi encaminhado para aprovação do setor de eventos.',
-            event: {
-                id: updatedEvent.id,
-                controlCode: updatedEvent.controlCode,
-                authorVerification: updatedEvent.authorVerification,
-                adminVerification: updatedEvent.adminVerification,
-            },
+            success: true,
+            message: 'Solicitação confirmada e enviada para aprovação do administrador.',
         };
     }
     async getAdminReview(token) {
@@ -285,6 +275,17 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
         });
         if (!event) {
             throw new common_1.NotFoundException('Evento não encontrado.');
+        }
+        if (event.adminVerification !== 'pending') {
+            if (event.adminVerification === 'approved') {
+                throw new common_1.BadRequestException('Este evento já foi APROVADO com sucesso!');
+            }
+            else {
+                const reasonStr = event.adminRejectionReason
+                    ? `. Motivo: ${event.adminRejectionReason}`
+                    : '';
+                throw new common_1.BadRequestException(`Este evento já foi REJEITADO${reasonStr}`);
+            }
         }
         return event;
     }
@@ -307,15 +308,15 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
             throw new common_1.NotFoundException('Evento não encontrado.');
         }
         if (event.adminVerification !== 'pending') {
-            return {
-                message: `Este evento já foi ${event.adminVerification === 'approved' ? 'aprovado' : 'rejeitado'}.`,
-                event: {
-                    id: event.id,
-                    controlCode: event.controlCode,
-                    authorVerification: event.authorVerification,
-                    adminVerification: event.adminVerification,
-                },
-            };
+            if (event.adminVerification === 'approved') {
+                throw new common_1.BadRequestException('Este evento já foi APROVADO com sucesso!');
+            }
+            else {
+                const reasonStr = event.adminRejectionReason
+                    ? `. Motivo: ${event.adminRejectionReason}`
+                    : '';
+                throw new common_1.BadRequestException(`Este evento já foi REJEITADO${reasonStr}`);
+            }
         }
         if (approved) {
             const updatedEvent = await this.prisma.event.update({
@@ -328,13 +329,8 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
                 await this.emailService.sendSupportTeamNotification(updatedEvent, team);
             }
             return {
-                message: 'Evento aprovado com sucesso! O solicitante e as equipes de apoio foram notificados.',
-                event: {
-                    id: updatedEvent.id,
-                    controlCode: updatedEvent.controlCode,
-                    authorVerification: updatedEvent.authorVerification,
-                    adminVerification: updatedEvent.adminVerification,
-                },
+                success: true,
+                message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
             };
         }
         else {
@@ -348,13 +344,8 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
             });
             await this.emailService.sendRejectionNotification(updatedEvent, reason);
             return {
-                message: 'Evento rejeitado. O solicitante foi notificado.',
-                event: {
-                    id: updatedEvent.id,
-                    controlCode: updatedEvent.controlCode,
-                    authorVerification: updatedEvent.authorVerification,
-                    adminVerification: updatedEvent.adminVerification,
-                },
+                success: true,
+                message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
             };
         }
     }

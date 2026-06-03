@@ -25,7 +25,7 @@ let EmailService = class EmailService {
             this.configService.get('FRONTEND_URL') || 'http://localhost:3000';
     }
     async sendAuthorVerification(event, token) {
-        const verifyUrl = `${this.frontendUrl}/events/verify-author?token=${token}`;
+        const verifyUrl = `${this.frontendUrl}/verificar-evento?token=${token}`;
         const eventDateFormatted = new Date(event.eventDate).toLocaleDateString('pt-BR');
         await this.resend.emails.send({
             from: this.fromEmail,
@@ -71,7 +71,7 @@ let EmailService = class EmailService {
         });
     }
     async sendAdminApproval(event, token) {
-        const reviewUrl = `${this.frontendUrl}/events/admin-review?token=${token}`;
+        const reviewUrl = `${this.frontendUrl}/revisar-evento?token=${token}`;
         const eventDateFormatted = new Date(event.eventDate).toLocaleDateString('pt-BR');
         await this.resend.emails.send({
             from: this.fromEmail,

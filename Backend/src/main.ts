@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,9 @@ async function bootstrap() {
       transform: true, // Converte tipos automaticamente (ex: string para número se decorado com Type)
     }),
   );
+
+  // Habilita o filtro global de exceções
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   // Habilita CORS para conexão com o Frontend
   app.enableCors();
