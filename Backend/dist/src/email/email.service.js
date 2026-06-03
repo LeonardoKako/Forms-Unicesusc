@@ -268,24 +268,27 @@ let EmailService = class EmailService {
       `,
         });
     }
-    async sendSupportTeamNotification(event, team) {
-        if (!team.email)
+    async sendSupportTeamsNotification(event, teams) {
+        const emails = Array.from(new Set(teams.map((t) => t.email).filter(Boolean)));
+        if (emails.length === 0)
             return;
         const eventDateFormatted = new Date(event.eventDate).toLocaleDateString('pt-BR');
+        const teamNames = teams.map((t) => t.name).join(', ');
+        const formUrl = `${this.frontendUrl}/form/${event.id}`;
         await this.resend.emails.send({
             from: this.fromEmail,
-            to: team.email,
-            subject: `🔔 Evento aprovado requer sua equipe: ${event.eventTitle} — ${event.controlCode}`,
+            to: emails,
+            subject: `🔔 Equipes de Apoio Convocadas: ${event.eventTitle} — ${event.controlCode}`,
             html: `
         <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #faf7f8; padding: 40px 20px; margin: 0; min-height: 100%;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(92, 34, 53, 0.05); border: 1px solid #ebd9df;">
             <div style="background: linear-gradient(135deg, #5c2235, #c22a22); padding: 32px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">🔔 Equipe Acionada</h1>
-              <p style="color: rgba(255, 255, 255, 0.8); margin: 6px 0 0 0; font-size: 13px; font-weight: 500; tracking: 1px;">GRUPO DE APOIO: ${team.name.toUpperCase()}</p>
+              <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">🔔 Apoio Solicitado</h1>
+              <p style="color: rgba(255, 255, 255, 0.8); margin: 6px 0 0 0; font-size: 13px; font-weight: 500; tracking: 1px;">EQUIPES: ${teamNames.toUpperCase()}</p>
             </div>
             
             <div style="padding: 32px; background-color: #ffffff;">
-              <p style="font-size: 15px; color: #4a4a4a; line-height: 1.6; margin-top: 0; margin-bottom: 20px;">Olá! Um novo evento foi aprovado no sistema de reservas e <strong>requer o suporte técnico/operacional</strong> da equipe <strong>${team.name}</strong>.</p>
+              <p style="font-size: 15px; color: #4a4a4a; line-height: 1.6; margin-top: 0; margin-bottom: 20px;">Olá! Um novo evento foi aprovado no sistema de reservas e <strong>requer o suporte técnico/operacional</strong> das seguintes equipes convocadas: <strong>${teamNames}</strong>.</p>
               
               <div style="background: #faf7f8; border-radius: 12px; padding: 20px; border: 1px solid #ebd9df; margin: 24px 0;">
                 <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 12px; color: #c22a22; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Logística e Agendamento</h3>
@@ -315,6 +318,13 @@ let EmailService = class EmailService {
                     <td style="padding: 6px 0; color: #2d2d2d; font-weight: 600;">${event.selectedRoom}</td>
                   </tr>
                 </table>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${formUrl}" 
+                   style="background: linear-gradient(135deg, #5c2235, #c22a22); color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">
+                  📋 Visualizar Detalhes do Formulário
+                </a>
               </div>
               
               <hr style="border: 0; border-top: 1px solid #ebd9df; margin: 24px 0;" />

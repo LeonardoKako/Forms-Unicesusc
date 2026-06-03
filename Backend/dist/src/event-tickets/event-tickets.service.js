@@ -325,9 +325,7 @@ let EventTicketsService = EventTicketsService_1 = class EventTicketsService {
                 include: { supportTeams: true },
             });
             await this.emailService.sendApprovalNotification(updatedEvent);
-            for (const team of updatedEvent.supportTeams) {
-                await this.emailService.sendSupportTeamNotification(updatedEvent, team);
-            }
+            await this.emailService.sendSupportTeamsNotification(updatedEvent, updatedEvent.supportTeams);
             return {
                 success: true,
                 message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',

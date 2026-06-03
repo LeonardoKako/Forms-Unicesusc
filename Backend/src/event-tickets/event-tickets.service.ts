@@ -443,13 +443,11 @@ export class EventTicketsService {
       // Notificar o autor sobre aprovação
       await this.emailService.sendApprovalNotification(updatedEvent);
 
-      // Notificar cada equipe de apoio
-      for (const team of updatedEvent.supportTeams) {
-        await this.emailService.sendSupportTeamNotification(
-          updatedEvent,
-          team,
-        );
-      }
+      // Notificar as equipes de apoio selecionadas de forma unificada
+      await this.emailService.sendSupportTeamsNotification(
+        updatedEvent,
+        updatedEvent.supportTeams,
+      );
 
       return {
         success: true,
