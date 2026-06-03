@@ -4,6 +4,7 @@ import Footer from "./components/Footer";
 import FormsPage from "./pages/FormsPage/FormsPage";
 import VerifyPage from "./pages/VerifyPage/VerifyPage";
 import ReviewPage from "./pages/ReviewPage/ReviewPage";
+import FormDetailsPage from "./pages/FormDetailsPage/FormDetailsPage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,6 +27,9 @@ export default function App() {
 
             {/* ROTA: Revisão do Admin via token JWT */}
             <Route path='/revisar-evento' element={<ReviewPage />} />
+
+            {/* ROTA: Detalhes do Evento para Equipes de Apoio */}
+            <Route path='/forms/:id' element={<FormDetailsPage />} />
 
             {/* ROTA FALLBACK: 404 Not Found */}
             <Route path='*' element={<NotFoundPage />} />

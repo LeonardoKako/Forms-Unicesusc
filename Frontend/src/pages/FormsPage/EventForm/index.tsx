@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, ChevronRight, User, Key } from "lucide-react";
 
 import { eventFormSchema, locationFormSchema } from "./schema";
@@ -20,6 +19,7 @@ import ExtraDocsCard from "./components/ExtraDocsCard";
 
 import { supabase } from "@/lib/supabase";
 import { toast } from "react-toastify";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type FormType = "interno" | "locacao";
 

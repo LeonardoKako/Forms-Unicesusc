@@ -111,10 +111,7 @@ export class EmailService {
   /**
    * Etapa 2: Email para o ADMIN aprovar/rejeitar o evento (JWT 7 dias)
    */
-  async sendAdminApproval(
-    event: EventEmailData,
-    token: string,
-  ): Promise<void> {
+  async sendAdminApproval(event: EventEmailData, token: string): Promise<void> {
     const reviewUrl = `${this.frontendUrl}/revisar-evento?token=${token}`;
     const eventDateFormatted = new Date(event.eventDate).toLocaleDateString(
       'pt-BR',
@@ -332,7 +329,7 @@ export class EmailService {
       'pt-BR',
     );
     const teamNames = teams.map((t) => t.name).join(', ');
-    const formUrl = `${this.frontendUrl}/form/${event.id}`;
+    const formUrl = `${this.frontendUrl}/forms/${event.id}`;
 
     await this.resend.emails.send({
       from: this.fromEmail,

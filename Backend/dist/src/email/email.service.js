@@ -274,7 +274,7 @@ let EmailService = class EmailService {
             return;
         const eventDateFormatted = new Date(event.eventDate).toLocaleDateString('pt-BR');
         const teamNames = teams.map((t) => t.name).join(', ');
-        const formUrl = `${this.frontendUrl}/form/${event.id}`;
+        const formUrl = `${this.frontendUrl}/forms/${event.id}`;
         await this.resend.emails.send({
             from: this.fromEmail,
             to: emails,

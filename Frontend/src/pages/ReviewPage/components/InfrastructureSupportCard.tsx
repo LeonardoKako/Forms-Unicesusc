@@ -1,6 +1,6 @@
 import { Cpu, Link } from "lucide-react";
-import { SUPPORT_TEAMS_OPTIONS } from "../../FormsPage/EventForm/mockData";
 import InfoField from "./InfoField";
+import { SUPPORT_TEAMS_OPTIONS } from "@/pages/FormsPage/EventForm/mockData";
 
 interface InfrastructureSupportCardProps {
   eventData: any;
