@@ -2,7 +2,7 @@ import { FileUp, Link } from "lucide-react";
 import CheckboxGrid from "./CheckboxGrid";
 import { PRESENTATION_MATERIAL_OPTIONS } from "../mockData";
 import { useFormContext } from "react-hook-form";
-import InputField from "../../../components/InputField";
+import InputField from "../../../../components/InputField";
 
 export default function PresentationMaterialCard() {
   const { register, watch, formState: { errors } } = useFormContext();

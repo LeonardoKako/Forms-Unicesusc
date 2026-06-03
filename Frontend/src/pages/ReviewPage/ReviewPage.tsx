@@ -13,11 +13,11 @@ import {
   FileCheck2,
   ArrowLeft,
 } from "lucide-react";
-import { ROOM_OPTIONS, SUPPORT_TEAMS_OPTIONS } from "../mockData";
+import { ROOM_OPTIONS, SUPPORT_TEAMS_OPTIONS } from "../FormsPage/EventForm/mockData";
 import { toast } from "react-toastify";
-import api from "../../../lib/api";
+import api from "../../lib/api";
 
-export default function AdminReview() {
+export default function ReviewPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");

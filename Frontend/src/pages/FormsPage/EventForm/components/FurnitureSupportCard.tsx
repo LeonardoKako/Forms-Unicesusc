@@ -3,7 +3,7 @@ import { Box } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import CheckboxGrid from "./CheckboxGrid";
 import { FURNITURE_SUPPORT_OPTIONS } from "../mockData";
-import InfoModal from "../../../components/InfoModal";
+import InfoModal from "../../../../components/InfoModal";
 import auditorioMontadoImg from "@/assets/images/auditorioMontado.png";
 
 export default function FurnitureSupportCard() {

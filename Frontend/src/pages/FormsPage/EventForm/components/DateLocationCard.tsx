@@ -1,7 +1,7 @@
 import { useFormContext, Controller } from "react-hook-form";
 import { Calendar, MapPin, Clock, DollarSign, Info } from "lucide-react";
-import InputField from "../../../components/InputField";
-import ToggleGroup from "../../../components/ToggleGroup";
+import InputField from "../../../../components/InputField";
+import ToggleGroup from "../../../../components/ToggleGroup";
 import { ROOM_OPTIONS } from "../mockData";
 
 interface DateLocationCardProps {

@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import { Sparkles, User } from "lucide-react";
-import InputField from "../../../components/InputField";
+import InputField from "../../../../components/InputField";
 import CheckboxGrid from "./CheckboxGrid";
 import { TARGET_AUDIENCE_OPTIONS } from "../mockData";
 import { EventFormData } from "../schema";

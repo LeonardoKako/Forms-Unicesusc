@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { CheckCircle2, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
-import api from "../../../lib/api";
+import api from "../../lib/api";
 
-export default function VerifyAuthor() {
+export default function VerifyPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
@@ -70,7 +70,7 @@ export default function VerifyAuthor() {
 
           {/* Body Sucesso */}
           <div className="p-8 sm:p-10 text-center space-y-6">
-            <p className="text-sm sm:text-base text-gray-600 leading-relaxed font-semibold">
+            <p style={{ fontWeight: 600 }} className="text-sm sm:text-base text-gray-600 leading-relaxed">
               Sua solicitação de evento foi confirmada com sucesso e já foi encaminhada para a aprovação do setor de eventos.
             </p>
             <div className="border-t border-gray-100 pt-6">
@@ -103,7 +103,7 @@ export default function VerifyAuthor() {
 
           {/* Body Erro */}
           <div className="p-8 sm:p-10 text-center space-y-6">
-            <div className="bg-red-50/50 border border-red-100 rounded-2xl p-5 text-left">
+            <div className="bg-red-50/55 border border-red-100 rounded-2xl p-5 text-left">
               <span className="text-xs font-bold text-red-800 uppercase tracking-wider block mb-1">
                 Motivo do Impedimento:
               </span>

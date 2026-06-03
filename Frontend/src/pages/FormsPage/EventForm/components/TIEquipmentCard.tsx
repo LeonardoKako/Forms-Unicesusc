@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Cpu } from "lucide-react";
 import CheckboxGrid from "./CheckboxGrid";
 import { TI_EQUIPMENT_OPTIONS } from "../mockData";
-import InfoModal from "../../../components/InfoModal";
+import InfoModal from "../../../../components/InfoModal";
 
 export default function TIEquipmentCard() {
   const [modalData, setModalData] = useState<{ isOpen: boolean; title: string; imageUrl: string } | null>(null);

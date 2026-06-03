@@ -1,7 +1,7 @@
 import { Palette, Info } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import ToggleGroup from "../../../components/ToggleGroup";
-import InputField from "../../../components/InputField";
+import ToggleGroup from "../../../../components/ToggleGroup";
+import InputField from "../../../../components/InputField";
 
 export default function ArtworkCard() {
   const { register, watch, setValue, formState: { errors } } = useFormContext();
