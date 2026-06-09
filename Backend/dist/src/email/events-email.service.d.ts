@@ -17,7 +17,7 @@ interface SupportTeamData {
 }
 export declare class EventsEmailService {
     private configService;
-    private resend;
+    private transporter;
     private fromEmail;
     private adminEmail;
     private frontendUrl;

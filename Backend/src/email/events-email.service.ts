@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
 
 interface EventEmailData {
   id: string;
@@ -22,20 +22,29 @@ interface SupportTeamData {
 
 @Injectable()
 export class EventsEmailService {
-  private resend: Resend;
+  private transporter: nodemailer.Transporter;
   private fromEmail: string;
   private adminEmail: string;
   private frontendUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
     this.fromEmail =
-      this.configService.get<string>('MAIL_FROM') || 'onboarding@resend.dev';
+      this.configService.get<string>('MAIL_FROM') || 'formulario.eventos@unicesusc.edu.br';
     this.adminEmail =
       this.configService.get<string>('EVENTS_ADMIN_EMAIL') ||
       'formulario.eventos@unicesusc.edu.br';
     this.frontendUrl =
       this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+
+    this.transporter = nodemailer.createTransport({
+      host: this.configService.get<string>('SMTP_HOST') || 'smtp.gmail.com',
+      port: this.configService.get<number>('SMTP_PORT') || 587,
+      secure: false,
+      auth: {
+        user: this.configService.get<string>('SMTP_USER'),
+        pass: this.configService.get<string>('SMTP_PASS'),
+      },
+    });
   }
 
   /**
@@ -50,7 +59,7 @@ export class EventsEmailService {
       'pt-BR',
     );
 
-    await this.resend.emails.send({
+    await this.transporter.sendMail({
       from: this.fromEmail,
       to: event.requesterEmail,
       subject: `🔑 Confirme seu evento: ${event.eventTitle} — ${event.controlCode}`,
@@ -106,7 +115,7 @@ export class EventsEmailService {
       'pt-BR',
     );
 
-    await this.resend.emails.send({
+    await this.transporter.sendMail({
       from: this.fromEmail,
       to: this.adminEmail,
       subject: `📝 Novo evento para aprovação: ${event.eventTitle} — ${event.controlCode}`,
@@ -181,7 +190,7 @@ export class EventsEmailService {
       'pt-BR',
     );
 
-    await this.resend.emails.send({
+    await this.transporter.sendMail({
       from: this.fromEmail,
       to: event.requesterEmail,
       subject: `✅ Evento aprovado: ${event.eventTitle} — ${event.controlCode}`,
@@ -245,7 +254,7 @@ export class EventsEmailService {
       'pt-BR',
     );
 
-    await this.resend.emails.send({
+    await this.transporter.sendMail({
       from: this.fromEmail,
       to: event.requesterEmail,
       subject: `❌ Evento não aprovado: ${event.eventTitle} — ${event.controlCode}`,
@@ -320,9 +329,9 @@ export class EventsEmailService {
     const teamNames = teams.map((t) => t.name).join(', ');
     const formUrl = `${this.frontendUrl}/forms/${event.id}`;
 
-    await this.resend.emails.send({
+    await this.transporter.sendMail({
       from: this.fromEmail,
-      to: emails,
+      to: emails.join(', '),
       subject: `🔔 Equipes de Apoio Convocadas: ${event.eventTitle} — ${event.controlCode}`,
       html: `
         <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #faf7f8; padding: 40px 20px; margin: 0; min-height: 100%;">

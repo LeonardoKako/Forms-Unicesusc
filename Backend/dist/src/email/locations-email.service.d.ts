@@ -16,7 +16,7 @@ interface SupportTeamData {
 }
 export declare class LocationsEmailService {
     private configService;
-    private resend;
+    private transporter;
     private fromEmail;
     private locationVerifierEmail;
     private adminEmail;
