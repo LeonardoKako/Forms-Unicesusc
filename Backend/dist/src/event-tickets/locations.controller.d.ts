@@ -4,6 +4,19 @@ export declare class LocationsController {
     private readonly eventTicketsService;
     constructor(eventTicketsService: EventTicketsService);
     create(createExternalLocationDto: CreateExternalLocationDto): Promise<{
+        message: string;
+        location: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
+    }>;
+    verifyAuthor(token: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    getAdminReview(token: string): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -23,6 +36,17 @@ export declare class LocationsController {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
+    }>;
+    submitAdminReview(body: {
+        token: string;
+        approved: boolean;
+        reason?: string;
+    }): Promise<{
+        success: boolean;
+        message: string;
     }>;
     findAll(): Promise<({
         supportTeams: {
@@ -44,6 +68,9 @@ export declare class LocationsController {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
     })[]>;
     findOne(id: string): Promise<{
         supportTeams: {
@@ -65,6 +92,9 @@ export declare class LocationsController {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -80,5 +110,8 @@ export declare class LocationsController {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
 }

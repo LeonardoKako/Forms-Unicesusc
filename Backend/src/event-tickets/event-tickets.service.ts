@@ -481,16 +481,32 @@ export class EventTicketsService {
   @Cron(CronExpression.EVERY_HOUR)
   async cleanupExpiredEvents() {
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-    const result = await this.prisma.event.deleteMany({
+    
+    // Limpeza de Eventos Internos
+    const eventResult = await this.prisma.event.deleteMany({
       where: {
         authorVerification: 'pending',
         createdAt: { lt: thirtyMinutesAgo },
       },
     });
 
-    if (result.count > 0) {
+    if (eventResult.count > 0) {
       this.logger.log(
-        `🗑️ Limpeza: ${result.count} evento(s) não verificado(s) removido(s).`,
+        `🗑️ Limpeza: ${eventResult.count} evento(s) não verificado(s) removido(s).`,
+      );
+    }
+
+    // Limpeza de Locações Externas
+    const locationResult = await this.prisma.location.deleteMany({
+      where: {
+        authorVerification: 'pending',
+        createdAt: { lt: thirtyMinutesAgo },
+      },
+    });
+
+    if (locationResult.count > 0) {
+      this.logger.log(
+        `🗑️ Limpeza: ${locationResult.count} locação(ões) não verificada(s) removida(s).`,
       );
     }
   }
@@ -506,11 +522,13 @@ export class EventTicketsService {
 
     const { supportTeams, eventDate, ...rest } = dto;
 
-    return this.prisma.location.create({
+    const location = await this.prisma.location.create({
       data: {
         ...rest,
         controlCode,
         eventDate: new Date(dto.eventDate),
+        authorVerification: 'pending',
+        adminVerification: 'pending',
         supportTeams: {
           connect: supportTeams.map((id) => ({ id })),
         },
@@ -519,6 +537,219 @@ export class EventTicketsService {
         supportTeams: true,
       },
     });
+
+    // Gera token JWT para a etapa 1 da locação (30 minutos)
+    const token = this.jwtService.sign(
+      {
+        locationId: location.id,
+        type: 'location_author_verification',
+      },
+      { expiresIn: '30m' },
+    );
+
+    // Envia o e-mail para o verificador fixado
+    await this.emailService.sendLocationAuthorVerification(location, token);
+
+    return {
+      message:
+        'Locação registrada com sucesso! Um email de verificação foi enviado para o responsável.',
+      location: {
+        id: location.id,
+        controlCode: location.controlCode,
+        authorVerification: location.authorVerification,
+        adminVerification: location.adminVerification,
+      },
+    };
+  }
+
+  // =============================================
+  // VERIFICAÇÃO DE LOCAÇÃO (Etapa 1)
+  // =============================================
+
+  async verifyLocationAuthor(token: string) {
+    let payload: { locationId: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token);
+    } catch (error) {
+      try {
+        const decoded = this.jwtService.decode(token) as {
+          locationId: string;
+          type: string;
+        };
+        if (decoded?.locationId && decoded?.type === 'location_author_verification') {
+          await this.prisma.location.deleteMany({
+            where: {
+              id: decoded.locationId,
+              authorVerification: 'pending',
+            },
+          });
+        }
+      } catch {}
+      throw new BadRequestException(
+        'Token de verificação inválido ou expirado (tempo limite de 30 minutos excedido). A locação foi cancelada automaticamente.',
+      );
+    }
+
+    if (payload.type !== 'location_author_verification') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const location = await this.prisma.location.findUnique({
+      where: { id: payload.locationId },
+      include: { supportTeams: true },
+    });
+
+    if (!location) {
+      throw new NotFoundException('Locação não encontrada. Pode ter sido cancelada.');
+    }
+
+    if (location.authorVerification === 'approved') {
+      return {
+        success: true,
+        message: 'Solicitação confirmada e enviada para aprovação do administrador.',
+      };
+    }
+
+    const updatedLocation = await this.prisma.location.update({
+      where: { id: location.id },
+      data: { authorVerification: 'approved' },
+      include: { supportTeams: true },
+    });
+
+    // Gera token JWT de aprovação do admin (7 dias)
+    const adminToken = this.jwtService.sign(
+      {
+        locationId: location.id,
+        type: 'location_admin_review',
+      },
+      { expiresIn: '7d' },
+    );
+
+    // Envia o e-mail de aprovação para o admin
+    await this.emailService.sendLocationAdminApproval(updatedLocation, adminToken);
+
+    return {
+      success: true,
+      message: 'Solicitação confirmada e enviada para aprovação do administrador.',
+    };
+  }
+
+  // =============================================
+  // REVISÃO DE LOCAÇÃO PELO ADMIN (Etapa 2)
+  // =============================================
+
+  async getLocationAdminReview(token: string) {
+    let payload: { locationId: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      throw new BadRequestException('Token de revisão inválido ou expirado.');
+    }
+
+    if (payload.type !== 'location_admin_review') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const location = await this.prisma.location.findUnique({
+      where: { id: payload.locationId },
+      include: { supportTeams: true },
+    });
+
+    if (!location) {
+      throw new NotFoundException('Locação não encontrada.');
+    }
+
+    if (location.adminVerification !== 'pending') {
+      if (location.adminVerification === 'approved') {
+        throw new BadRequestException('Esta locação já foi APROVADA com sucesso!');
+      } else {
+        const reasonStr = location.adminRejectionReason
+          ? `. Motivo: ${location.adminRejectionReason}`
+          : '';
+        throw new BadRequestException(`Esta locação já foi REJEITADA${reasonStr}`);
+      }
+    }
+
+    return location;
+  }
+
+  async submitLocationAdminReview(
+    token: string,
+    approved: boolean,
+    reason?: string,
+  ) {
+    let payload: { locationId: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      throw new BadRequestException('Token de revisão inválido ou expirado.');
+    }
+
+    if (payload.type !== 'location_admin_review') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const location = await this.prisma.location.findUnique({
+      where: { id: payload.locationId },
+      include: { supportTeams: true },
+    });
+
+    if (!location) {
+      throw new NotFoundException('Locação não encontrada.');
+    }
+
+    if (location.adminVerification !== 'pending') {
+      if (location.adminVerification === 'approved') {
+        throw new BadRequestException('Esta locação já foi APROVADA com sucesso!');
+      } else {
+        const reasonStr = location.adminRejectionReason
+          ? `. Motivo: ${location.adminRejectionReason}`
+          : '';
+        throw new BadRequestException(`Esta locação já foi REJEITADA${reasonStr}`);
+      }
+    }
+
+    if (approved) {
+      const updatedLocation = await this.prisma.location.update({
+        where: { id: location.id },
+        data: { adminVerification: 'approved' },
+        include: { supportTeams: true },
+      });
+
+      // Notifica o cliente externo da aprovação
+      await this.emailService.sendLocationApprovalNotification(updatedLocation);
+
+      // Notifica as equipes de apoio convocadas de forma unificada
+      await this.emailService.sendLocationSupportTeamsNotification(
+        updatedLocation,
+        updatedLocation.supportTeams,
+      );
+
+      return {
+        success: true,
+        message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
+      };
+    } else {
+      const updatedLocation = await this.prisma.location.update({
+        where: { id: location.id },
+        data: {
+          adminVerification: 'rejected',
+          adminRejectionReason: reason || null,
+        },
+        include: { supportTeams: true },
+      });
+
+      // Notifica o cliente externo da rejeição com motivo
+      await this.emailService.sendLocationRejectionNotification(updatedLocation, reason);
+
+      return {
+        success: true,
+        message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
+      };
+    }
   }
 
   // =============================================

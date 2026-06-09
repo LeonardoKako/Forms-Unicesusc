@@ -80,6 +80,19 @@ export declare class EventTicketsService {
     }>;
     cleanupExpiredEvents(): Promise<void>;
     createExternal(dto: CreateExternalLocationDto): Promise<{
+        message: string;
+        location: {
+            id: string;
+            controlCode: string;
+            authorVerification: string;
+            adminVerification: string;
+        };
+    }>;
+    verifyLocationAuthor(token: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    getLocationAdminReview(token: string): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -99,6 +112,13 @@ export declare class EventTicketsService {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
+    }>;
+    submitLocationAdminReview(token: string, approved: boolean, reason?: string): Promise<{
+        success: boolean;
+        message: string;
     }>;
     findAllEvents(): Promise<({
         supportTeams: {
@@ -261,6 +281,9 @@ export declare class EventTicketsService {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
     })[]>;
     findOneLocation(id: string): Promise<{
         supportTeams: {
@@ -282,6 +305,9 @@ export declare class EventTicketsService {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
     removeLocation(id: string): Promise<{
         id: string;
@@ -297,5 +323,8 @@ export declare class EventTicketsService {
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
+        authorVerification: string;
+        adminVerification: string;
+        adminRejectionReason: string | null;
     }>;
 }

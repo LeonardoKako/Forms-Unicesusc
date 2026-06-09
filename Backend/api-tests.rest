@@ -1,5 +1,7 @@
 ### Variáveis Globais
 @baseUrl = http://localhost:3000
+@tokenLoc = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhdGlvbklkIjoiYTZjYjgzNWYtZDVlMy00ZDE5LWFjMDctMDQ4MDY0NjljMDFhIiwidHlwZSI6ImxvY2F0aW9uX2F1dGhvcl92ZXJpZmljYXRpb24iLCJpYXQiOjE3ODEwMDIzMjksImV4cCI6MTc4MTAwNDEyOX0.TlHCSD1fwKad03BC1kAzhXPbvYqFpuC_KRfzE84HEMo
+
 
 # ==========================================
 # 1. FLUXO: COMUNIDADE INTERNA (/events)
@@ -115,18 +117,51 @@ GET {{baseUrl}}/locations
 
 
 # ==========================================
-# 4. ROTAS DE CONSULTA E REMOÇÃO POR ID
+# 4. FLUXO JWT: VERIFICAÇÃO DE LOCAÇÃO
 # ==========================================
 
-### 4.1 Obter Evento por ID (GET)
+### 4.1 Validar a Locação com Responsável Interno (Etapa 1)
+# O e-mail de validação vai para o LOCATION_VERIFIER_EMAIL definido no .env
+# Cole o token recebido no e-mail abaixo:
+GET {{baseUrl}}/locations/verify-author?token={{tokenLoc}}
+
+### 4.2 Admin Visualiza a Locação para Decisão (Etapa 2)
+# Cole o token recebido no e-mail do admin abaixo:
+GET {{baseUrl}}/locations/admin-review?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhdGlvbklkIjoiYTZjYjgzNWYtZDVlMy00ZDE5LWFjMDctMDQ4MDY0NjljMDFhIiwidHlwZSI6ImxvY2F0aW9uX2FkbWluX3JldmlldyIsImlhdCI6MTc4MTAwMjM5OCwiZXhwIjoxNzgxNjA3MTk4fQ.H0yD0EPoatzWRfoGqQ7xHAXP9n7e62DT2VhuMmIu1Mg
+
+### 4.3 Admin APROVA a Locação
+POST {{baseUrl}}/locations/admin-review
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhdGlvbklkIjoiYTZjYjgzNWYtZDVlMy00ZDE5LWFjMDctMDQ4MDY0NjljMDFhIiwidHlwZSI6ImxvY2F0aW9uX2FkbWluX3JldmlldyIsImlhdCI6MTc4MTAwMjM5OCwiZXhwIjoxNzgxNjA3MTk4fQ.H0yD0EPoatzWRfoGqQ7xHAXP9n7e62DT2VhuMmIu1Mg",
+  "approved": true
+}
+
+### 4.4 Admin REJEITA a Locação com Motivo
+POST {{baseUrl}}/locations/admin-review
+Content-Type: application/json
+
+{
+  "token": "{{tokenLoc}}",
+  "approved": false,
+  "reason": "Indisponibilidade do espaço devido a manutenção emergencial planejada."
+}
+
+
+# ==========================================
+# 5. ROTAS DE CONSULTA E REMOÇÃO POR ID
+# ==========================================
+
+### 5.1 Obter Evento por ID (GET)
 # Substitua o ID abaixo por um ID real retornado na criação
 GET {{baseUrl}}/events/COLAR_ID_AQUI
 
-### 4.2 Excluir Evento por ID (DELETE)
+### 5.2 Excluir Evento por ID (DELETE)
 DELETE {{baseUrl}}/events/COLAR_ID_AQUI
 
-### 4.3 Obter Locação por ID (GET)
+### 5.3 Obter Locação por ID (GET)
 GET {{baseUrl}}/locations/COLAR_ID_AQUI
 
-### 4.4 Excluir Locação por ID (DELETE)
+### 5.4 Excluir Locação por ID (DELETE)
 DELETE {{baseUrl}}/locations/COLAR_ID_AQUI

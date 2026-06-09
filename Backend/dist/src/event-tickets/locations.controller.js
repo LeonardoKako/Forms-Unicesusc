@@ -24,6 +24,15 @@ let LocationsController = class LocationsController {
     create(createExternalLocationDto) {
         return this.eventTicketsService.createExternal(createExternalLocationDto);
     }
+    verifyAuthor(token) {
+        return this.eventTicketsService.verifyLocationAuthor(token);
+    }
+    getAdminReview(token) {
+        return this.eventTicketsService.getLocationAdminReview(token);
+    }
+    submitAdminReview(body) {
+        return this.eventTicketsService.submitLocationAdminReview(body.token, body.approved, body.reason);
+    }
     findAll() {
         return this.eventTicketsService.findAllLocations();
     }
@@ -43,6 +52,28 @@ __decorate([
     __metadata("design:paramtypes", [create_external_location_dto_1.CreateExternalLocationDto]),
     __metadata("design:returntype", void 0)
 ], LocationsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)('verify-author'),
+    __param(0, (0, common_1.Query)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], LocationsController.prototype, "verifyAuthor", null);
+__decorate([
+    (0, common_1.Get)('admin-review'),
+    __param(0, (0, common_1.Query)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], LocationsController.prototype, "getAdminReview", null);
+__decorate([
+    (0, common_1.Post)('admin-review'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], LocationsController.prototype, "submitAdminReview", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
