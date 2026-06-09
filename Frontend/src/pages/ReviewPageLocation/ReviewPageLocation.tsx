@@ -299,12 +299,12 @@ export default function ReviewPageLocation() {
           {/* COLUNA ESQUERDA */}
           <div className='space-y-6'>
             <RequesterDetailsCard eventData={locationData} />
+            <InfrastructureSupportCard eventData={locationData} />
           </div>
 
           {/* COLUNA DIREITA */}
           <div className='space-y-6'>
             <LocationAgendaCard eventData={locationData} roomLabel={roomLabel} />
-            <InfrastructureSupportCard eventData={locationData} />
           </div>
         </div>
 

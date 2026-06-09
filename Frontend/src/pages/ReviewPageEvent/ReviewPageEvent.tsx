@@ -347,13 +347,13 @@ export default function ReviewPage() {
           <div className='space-y-6'>
             <RequesterDetailsCard eventData={eventData} />
             <EventDetailsCard eventData={eventData} />
+            <InfrastructureSupportCard eventData={eventData} />
           </div>
 
           {/* COLUNA DIREITA */}
           <div className='space-y-6'>
             <LocationAgendaCard eventData={eventData} roomLabel={roomLabel} />
             <FoodFinanceCard eventData={eventData} />
-            <InfrastructureSupportCard eventData={eventData} />
           </div>
         </div>
 
