@@ -9,17 +9,17 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { EventTicketsService } from './event-tickets.service';
+import { LocationsService } from './locations.service';
 import { CreateExternalLocationDto } from './dto/create-external-location.dto';
 
 @Controller('locations')
 export class LocationsController {
-  constructor(private readonly eventTicketsService: EventTicketsService) {}
+  constructor(private readonly locationsService: LocationsService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createExternalLocationDto: CreateExternalLocationDto) {
-    return this.eventTicketsService.createExternal(createExternalLocationDto);
+    return this.locationsService.createExternal(createExternalLocationDto);
   }
 
   // --- Endpoints de verificação JWT ---
@@ -27,12 +27,12 @@ export class LocationsController {
 
   @Get('verify-author')
   verifyAuthor(@Query('token') token: string) {
-    return this.eventTicketsService.verifyLocationAuthor(token);
+    return this.locationsService.verifyLocationAuthor(token);
   }
 
   @Get('admin-review')
   getAdminReview(@Query('token') token: string) {
-    return this.eventTicketsService.getLocationAdminReview(token);
+    return this.locationsService.getLocationAdminReview(token);
   }
 
   @Post('admin-review')
@@ -40,7 +40,7 @@ export class LocationsController {
   submitAdminReview(
     @Body() body: { token: string; approved: boolean; reason?: string },
   ) {
-    return this.eventTicketsService.submitLocationAdminReview(
+    return this.locationsService.submitLocationAdminReview(
       body.token,
       body.approved,
       body.reason,
@@ -49,17 +49,17 @@ export class LocationsController {
 
   @Get()
   findAll() {
-    return this.eventTicketsService.findAllLocations();
+    return this.locationsService.findAllLocations();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.eventTicketsService.findOneLocation(id);
+    return this.locationsService.findOneLocation(id);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
-    return this.eventTicketsService.removeLocation(id);
+    return this.locationsService.removeLocation(id);
   }
 }

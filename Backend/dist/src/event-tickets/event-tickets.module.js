@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const events_controller_1 = require("./events.controller");
 const locations_controller_1 = require("./locations.controller");
 const event_tickets_service_1 = require("./event-tickets.service");
+const locations_service_1 = require("./locations.service");
 const email_module_1 = require("../email/email.module");
 let EventTicketsModule = class EventTicketsModule {
 };
@@ -19,7 +20,7 @@ exports.EventTicketsModule = EventTicketsModule = __decorate([
     (0, common_1.Module)({
         imports: [email_module_1.EmailModule],
         controllers: [events_controller_1.EventsController, locations_controller_1.LocationsController],
-        providers: [event_tickets_service_1.EventTicketsService],
+        providers: [event_tickets_service_1.EventTicketsService, locations_service_1.LocationsService],
     })
 ], EventTicketsModule);
 //# sourceMappingURL=event-tickets.module.js.map

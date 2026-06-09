@@ -2,9 +2,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import FormsPage from "./pages/FormsPage/FormsPage";
-import VerifyPage from "./pages/VerifyPage/VerifyPage";
-import ReviewPage from "./pages/ReviewPage/ReviewPage";
+import VerifyPageEvent from "./pages/VerifyPageEvent/VerifyPageEvent";
+import ReviewPageEvent from "./pages/ReviewPageEvent/ReviewPageEvent";
+import VerifyPageLocation from "./pages/VerifyPageLocation/VerifyPageLocation";
+import ReviewPageLocation from "./pages/ReviewPageLocation/ReviewPageLocation";
 import FormDetailsPage from "./pages/FormDetailsPage/FormDetailsPage";
+import LocationDetailsPage from "./pages/LocationDetailsPage/LocationDetailsPage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,14 +25,19 @@ export default function App() {
             {/* ROTA PRINCIPAL: Form de reserva de espaço */}
             <Route path='/' element={<FormsPage />} />
 
-            {/* ROTA: Confirmacao de autor via token JWT */}
-            <Route path='/verificar-evento' element={<VerifyPage />} />
+            {/* Rotas de Eventos Internos */}
+            <Route path='/verificar-evento' element={<VerifyPageEvent />} />
+            <Route path='/revisar-evento' element={<ReviewPageEvent />} />
 
-            {/* ROTA: Revisão do Admin via token JWT */}
-            <Route path='/revisar-evento' element={<ReviewPage />} />
+            {/* Rotas de Locações Externas */}
+            <Route path='/verificar-locacao' element={<VerifyPageLocation />} />
+            <Route path='/revisar-locacao' element={<ReviewPageLocation />} />
 
             {/* ROTA: Detalhes do Evento para Equipes de Apoio */}
             <Route path='/forms/:id' element={<FormDetailsPage />} />
+
+            {/* ROTA: Detalhes da Locação para Equipes de Apoio */}
+            <Route path='/location/:id' element={<LocationDetailsPage />} />
 
             {/* ROTA FALLBACK: 404 Not Found */}
             <Route path='*' element={<NotFoundPage />} />

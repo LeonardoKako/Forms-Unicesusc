@@ -1,9 +1,16 @@
-import { LocationsService } from './locations.service';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../prisma/prisma.service';
+import { LocationsEmailService } from '../email/locations-email.service';
 import { CreateExternalLocationDto } from './dto/create-external-location.dto';
-export declare class LocationsController {
-    private readonly locationsService;
-    constructor(locationsService: LocationsService);
-    create(createExternalLocationDto: CreateExternalLocationDto): Promise<{
+export declare class LocationsService {
+    private readonly prisma;
+    private readonly jwtService;
+    private readonly locationsEmailService;
+    private readonly logger;
+    constructor(prisma: PrismaService, jwtService: JwtService, locationsEmailService: LocationsEmailService);
+    private generateUniqueControlCode;
+    private validateDateTime;
+    createExternal(dto: CreateExternalLocationDto): Promise<{
         message: string;
         location: {
             id: string;
@@ -12,11 +19,11 @@ export declare class LocationsController {
             adminVerification: string;
         };
     }>;
-    verifyAuthor(token: string): Promise<{
+    verifyLocationAuthor(token: string): Promise<{
         success: boolean;
         message: string;
     }>;
-    getAdminReview(token: string): Promise<{
+    getLocationAdminReview(token: string): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -40,15 +47,11 @@ export declare class LocationsController {
         adminVerification: string;
         adminRejectionReason: string | null;
     }>;
-    submitAdminReview(body: {
-        token: string;
-        approved: boolean;
-        reason?: string;
-    }): Promise<{
+    submitLocationAdminReview(token: string, approved: boolean, reason?: string): Promise<{
         success: boolean;
         message: string;
     }>;
-    findAll(): Promise<({
+    findAllLocations(): Promise<({
         supportTeams: {
             id: string;
             name: string;
@@ -72,7 +75,7 @@ export declare class LocationsController {
         adminVerification: string;
         adminRejectionReason: string | null;
     })[]>;
-    findOne(id: string): Promise<{
+    findOneLocation(id: string): Promise<{
         supportTeams: {
             id: string;
             name: string;
@@ -96,7 +99,7 @@ export declare class LocationsController {
         adminVerification: string;
         adminRejectionReason: string | null;
     }>;
-    remove(id: string): Promise<{
+    removeLocation(id: string): Promise<{
         id: string;
         requesterType: string;
         requesterName: string;

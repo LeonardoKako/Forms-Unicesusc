@@ -14,33 +14,33 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocationsController = void 0;
 const common_1 = require("@nestjs/common");
-const event_tickets_service_1 = require("./event-tickets.service");
+const locations_service_1 = require("./locations.service");
 const create_external_location_dto_1 = require("./dto/create-external-location.dto");
 let LocationsController = class LocationsController {
-    eventTicketsService;
-    constructor(eventTicketsService) {
-        this.eventTicketsService = eventTicketsService;
+    locationsService;
+    constructor(locationsService) {
+        this.locationsService = locationsService;
     }
     create(createExternalLocationDto) {
-        return this.eventTicketsService.createExternal(createExternalLocationDto);
+        return this.locationsService.createExternal(createExternalLocationDto);
     }
     verifyAuthor(token) {
-        return this.eventTicketsService.verifyLocationAuthor(token);
+        return this.locationsService.verifyLocationAuthor(token);
     }
     getAdminReview(token) {
-        return this.eventTicketsService.getLocationAdminReview(token);
+        return this.locationsService.getLocationAdminReview(token);
     }
     submitAdminReview(body) {
-        return this.eventTicketsService.submitLocationAdminReview(body.token, body.approved, body.reason);
+        return this.locationsService.submitLocationAdminReview(body.token, body.approved, body.reason);
     }
     findAll() {
-        return this.eventTicketsService.findAllLocations();
+        return this.locationsService.findAllLocations();
     }
     findOne(id) {
-        return this.eventTicketsService.findOneLocation(id);
+        return this.locationsService.findOneLocation(id);
     }
     remove(id) {
-        return this.eventTicketsService.removeLocation(id);
+        return this.locationsService.removeLocation(id);
     }
 };
 exports.LocationsController = LocationsController;
@@ -97,6 +97,6 @@ __decorate([
 ], LocationsController.prototype, "remove", null);
 exports.LocationsController = LocationsController = __decorate([
     (0, common_1.Controller)('locations'),
-    __metadata("design:paramtypes", [event_tickets_service_1.EventTicketsService])
+    __metadata("design:paramtypes", [locations_service_1.LocationsService])
 ], LocationsController);
 //# sourceMappingURL=locations.controller.js.map

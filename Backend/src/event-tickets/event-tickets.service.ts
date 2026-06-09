@@ -7,9 +7,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { EventsEmailService } from '../email/events-email.service';
 import { CreateInternalEventDto } from './dto/create-internal-event.dto';
-import { CreateExternalLocationDto } from './dto/create-external-location.dto';
 
 @Injectable()
 export class EventTicketsService {
@@ -18,32 +17,22 @@ export class EventTicketsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly emailService: EmailService,
+    private readonly eventsEmailService: EventsEmailService,
   ) {}
 
   // =============================================
   // UTILITÁRIOS
   // =============================================
 
-  private async generateUniqueControlCode(
-    prefix: 'INT' | 'LOC',
-  ): Promise<string> {
+  private async generateUniqueControlCode(): Promise<string> {
     let code = '';
     let isUnique = false;
     while (!isUnique) {
-      code = `#${prefix}-${Math.floor(100000 + Math.random() * 900000)}`;
-
-      if (prefix === 'INT') {
-        const existing = await this.prisma.event.findUnique({
-          where: { controlCode: code },
-        });
-        if (!existing) isUnique = true;
-      } else {
-        const existing = await this.prisma.location.findUnique({
-          where: { controlCode: code },
-        });
-        if (!existing) isUnique = true;
-      }
+      code = `#INT-${Math.floor(100000 + Math.random() * 900000)}`;
+      const existing = await this.prisma.event.findUnique({
+        where: { controlCode: code },
+      });
+      if (!existing) isUnique = true;
     }
     return code;
   }
@@ -223,7 +212,7 @@ export class EventTicketsService {
       dto.budgetApprovalFileUrl = undefined;
     }
 
-    const controlCode = await this.generateUniqueControlCode('INT');
+    const controlCode = await this.generateUniqueControlCode();
 
     const { supportTeams, eventDate, ...rest } = dto;
 
@@ -264,7 +253,7 @@ export class EventTicketsService {
     );
 
     // Envia email de verificação ao autor
-    await this.emailService.sendAuthorVerification(event, token);
+    await this.eventsEmailService.sendAuthorVerification(event, token);
 
     return {
       message:
@@ -347,7 +336,7 @@ export class EventTicketsService {
     );
 
     // Envia email ao admin para aprovação
-    await this.emailService.sendAdminApproval(updatedEvent, adminToken);
+    await this.eventsEmailService.sendAdminApproval(updatedEvent, adminToken);
 
     return {
       success: true,
@@ -441,10 +430,10 @@ export class EventTicketsService {
       });
 
       // Notificar o autor sobre aprovação
-      await this.emailService.sendApprovalNotification(updatedEvent);
+      await this.eventsEmailService.sendApprovalNotification(updatedEvent);
 
       // Notificar as equipes de apoio selecionadas de forma unificada
-      await this.emailService.sendSupportTeamsNotification(
+      await this.eventsEmailService.sendSupportTeamsNotification(
         updatedEvent,
         updatedEvent.supportTeams,
       );
@@ -465,7 +454,7 @@ export class EventTicketsService {
       });
 
       // Notificar o autor sobre rejeição
-      await this.emailService.sendRejectionNotification(updatedEvent, reason);
+      await this.eventsEmailService.sendRejectionNotification(updatedEvent, reason);
 
       return {
         success: true,
@@ -494,261 +483,6 @@ export class EventTicketsService {
       this.logger.log(
         `🗑️ Limpeza: ${eventResult.count} evento(s) não verificado(s) removido(s).`,
       );
-    }
-
-    // Limpeza de Locações Externas
-    const locationResult = await this.prisma.location.deleteMany({
-      where: {
-        authorVerification: 'pending',
-        createdAt: { lt: thirtyMinutesAgo },
-      },
-    });
-
-    if (locationResult.count > 0) {
-      this.logger.log(
-        `🗑️ Limpeza: ${locationResult.count} locação(ões) não verificada(s) removida(s).`,
-      );
-    }
-  }
-
-  // =============================================
-  // CRIAÇÃO FLUXO EXTERNO (LOCATIONS)
-  // =============================================
-
-  async createExternal(dto: CreateExternalLocationDto) {
-    this.validateDateTime(dto.eventDate, dto.startTime, dto.endTime);
-
-    const controlCode = await this.generateUniqueControlCode('LOC');
-
-    const { supportTeams, eventDate, ...rest } = dto;
-
-    const location = await this.prisma.location.create({
-      data: {
-        ...rest,
-        controlCode,
-        eventDate: new Date(dto.eventDate),
-        authorVerification: 'pending',
-        adminVerification: 'pending',
-        supportTeams: {
-          connect: supportTeams.map((id) => ({ id })),
-        },
-      },
-      include: {
-        supportTeams: true,
-      },
-    });
-
-    // Gera token JWT para a etapa 1 da locação (30 minutos)
-    const token = this.jwtService.sign(
-      {
-        locationId: location.id,
-        type: 'location_author_verification',
-      },
-      { expiresIn: '30m' },
-    );
-
-    // Envia o e-mail para o verificador fixado
-    await this.emailService.sendLocationAuthorVerification(location, token);
-
-    return {
-      message:
-        'Locação registrada com sucesso! Um email de verificação foi enviado para o responsável.',
-      location: {
-        id: location.id,
-        controlCode: location.controlCode,
-        authorVerification: location.authorVerification,
-        adminVerification: location.adminVerification,
-      },
-    };
-  }
-
-  // =============================================
-  // VERIFICAÇÃO DE LOCAÇÃO (Etapa 1)
-  // =============================================
-
-  async verifyLocationAuthor(token: string) {
-    let payload: { locationId: string; type: string };
-
-    try {
-      payload = this.jwtService.verify(token);
-    } catch (error) {
-      try {
-        const decoded = this.jwtService.decode(token) as {
-          locationId: string;
-          type: string;
-        };
-        if (decoded?.locationId && decoded?.type === 'location_author_verification') {
-          await this.prisma.location.deleteMany({
-            where: {
-              id: decoded.locationId,
-              authorVerification: 'pending',
-            },
-          });
-        }
-      } catch {}
-      throw new BadRequestException(
-        'Token de verificação inválido ou expirado (tempo limite de 30 minutos excedido). A locação foi cancelada automaticamente.',
-      );
-    }
-
-    if (payload.type !== 'location_author_verification') {
-      throw new BadRequestException('Tipo de token inválido.');
-    }
-
-    const location = await this.prisma.location.findUnique({
-      where: { id: payload.locationId },
-      include: { supportTeams: true },
-    });
-
-    if (!location) {
-      throw new NotFoundException('Locação não encontrada. Pode ter sido cancelada.');
-    }
-
-    if (location.authorVerification === 'approved') {
-      return {
-        success: true,
-        message: 'Solicitação confirmada e enviada para aprovação do administrador.',
-      };
-    }
-
-    const updatedLocation = await this.prisma.location.update({
-      where: { id: location.id },
-      data: { authorVerification: 'approved' },
-      include: { supportTeams: true },
-    });
-
-    // Gera token JWT de aprovação do admin (7 dias)
-    const adminToken = this.jwtService.sign(
-      {
-        locationId: location.id,
-        type: 'location_admin_review',
-      },
-      { expiresIn: '7d' },
-    );
-
-    // Envia o e-mail de aprovação para o admin
-    await this.emailService.sendLocationAdminApproval(updatedLocation, adminToken);
-
-    return {
-      success: true,
-      message: 'Solicitação confirmada e enviada para aprovação do administrador.',
-    };
-  }
-
-  // =============================================
-  // REVISÃO DE LOCAÇÃO PELO ADMIN (Etapa 2)
-  // =============================================
-
-  async getLocationAdminReview(token: string) {
-    let payload: { locationId: string; type: string };
-
-    try {
-      payload = this.jwtService.verify(token);
-    } catch {
-      throw new BadRequestException('Token de revisão inválido ou expirado.');
-    }
-
-    if (payload.type !== 'location_admin_review') {
-      throw new BadRequestException('Tipo de token inválido.');
-    }
-
-    const location = await this.prisma.location.findUnique({
-      where: { id: payload.locationId },
-      include: { supportTeams: true },
-    });
-
-    if (!location) {
-      throw new NotFoundException('Locação não encontrada.');
-    }
-
-    if (location.adminVerification !== 'pending') {
-      if (location.adminVerification === 'approved') {
-        throw new BadRequestException('Esta locação já foi APROVADA com sucesso!');
-      } else {
-        const reasonStr = location.adminRejectionReason
-          ? `. Motivo: ${location.adminRejectionReason}`
-          : '';
-        throw new BadRequestException(`Esta locação já foi REJEITADA${reasonStr}`);
-      }
-    }
-
-    return location;
-  }
-
-  async submitLocationAdminReview(
-    token: string,
-    approved: boolean,
-    reason?: string,
-  ) {
-    let payload: { locationId: string; type: string };
-
-    try {
-      payload = this.jwtService.verify(token);
-    } catch {
-      throw new BadRequestException('Token de revisão inválido ou expirado.');
-    }
-
-    if (payload.type !== 'location_admin_review') {
-      throw new BadRequestException('Tipo de token inválido.');
-    }
-
-    const location = await this.prisma.location.findUnique({
-      where: { id: payload.locationId },
-      include: { supportTeams: true },
-    });
-
-    if (!location) {
-      throw new NotFoundException('Locação não encontrada.');
-    }
-
-    if (location.adminVerification !== 'pending') {
-      if (location.adminVerification === 'approved') {
-        throw new BadRequestException('Esta locação já foi APROVADA com sucesso!');
-      } else {
-        const reasonStr = location.adminRejectionReason
-          ? `. Motivo: ${location.adminRejectionReason}`
-          : '';
-        throw new BadRequestException(`Esta locação já foi REJEITADA${reasonStr}`);
-      }
-    }
-
-    if (approved) {
-      const updatedLocation = await this.prisma.location.update({
-        where: { id: location.id },
-        data: { adminVerification: 'approved' },
-        include: { supportTeams: true },
-      });
-
-      // Notifica o cliente externo da aprovação
-      await this.emailService.sendLocationApprovalNotification(updatedLocation);
-
-      // Notifica as equipes de apoio convocadas de forma unificada
-      await this.emailService.sendLocationSupportTeamsNotification(
-        updatedLocation,
-        updatedLocation.supportTeams,
-      );
-
-      return {
-        success: true,
-        message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
-      };
-    } else {
-      const updatedLocation = await this.prisma.location.update({
-        where: { id: location.id },
-        data: {
-          adminVerification: 'rejected',
-          adminRejectionReason: reason || null,
-        },
-        include: { supportTeams: true },
-      });
-
-      // Notifica o cliente externo da rejeição com motivo
-      await this.emailService.sendLocationRejectionNotification(updatedLocation, reason);
-
-      return {
-        success: true,
-        message: 'Decisão registrada com sucesso e solicitante notificado por e-mail.',
-      };
     }
   }
 
@@ -783,41 +517,6 @@ export class EventTicketsService {
   async removeEvent(id: string) {
     await this.findOneEvent(id);
     return this.prisma.event.delete({
-      where: { id },
-    });
-  }
-
-  // =============================================
-  // CONSULTAS LOCATIONS
-  // =============================================
-
-  async findAllLocations() {
-    return this.prisma.location.findMany({
-      include: {
-        supportTeams: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async findOneLocation(id: string) {
-    const location = await this.prisma.location.findUnique({
-      where: { id },
-      include: {
-        supportTeams: true,
-      },
-    });
-
-    if (!location) {
-      throw new NotFoundException(`Locação com ID "${id}" não encontrada.`);
-    }
-
-    return location;
-  }
-
-  async removeLocation(id: string) {
-    await this.findOneLocation(id);
-    return this.prisma.location.delete({
       where: { id },
     });
   }

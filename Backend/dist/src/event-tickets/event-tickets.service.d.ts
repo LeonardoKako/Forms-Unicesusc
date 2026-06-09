@@ -1,14 +1,13 @@
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { EventsEmailService } from '../email/events-email.service';
 import { CreateInternalEventDto } from './dto/create-internal-event.dto';
-import { CreateExternalLocationDto } from './dto/create-external-location.dto';
 export declare class EventTicketsService {
     private readonly prisma;
     private readonly jwtService;
-    private readonly emailService;
+    private readonly eventsEmailService;
     private readonly logger;
-    constructor(prisma: PrismaService, jwtService: JwtService, emailService: EmailService);
+    constructor(prisma: PrismaService, jwtService: JwtService, eventsEmailService: EventsEmailService);
     private generateUniqueControlCode;
     private validateDateTime;
     private validateInstitutionalEmail;
@@ -79,47 +78,6 @@ export declare class EventTicketsService {
         message: string;
     }>;
     cleanupExpiredEvents(): Promise<void>;
-    createExternal(dto: CreateExternalLocationDto): Promise<{
-        message: string;
-        location: {
-            id: string;
-            controlCode: string;
-            authorVerification: string;
-            adminVerification: string;
-        };
-    }>;
-    verifyLocationAuthor(token: string): Promise<{
-        success: boolean;
-        message: string;
-    }>;
-    getLocationAdminReview(token: string): Promise<{
-        supportTeams: {
-            id: string;
-            name: string;
-            email: string | null;
-        }[];
-    } & {
-        id: string;
-        requesterType: string;
-        requesterName: string;
-        requesterEmail: string;
-        requesterPhone: string;
-        eventDate: Date;
-        startTime: string;
-        endTime: string;
-        selectedRoom: string;
-        roomNotes: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
-        authorVerification: string;
-        adminVerification: string;
-        adminRejectionReason: string | null;
-    }>;
-    submitLocationAdminReview(token: string, approved: boolean, reason?: string): Promise<{
-        success: boolean;
-        message: string;
-    }>;
     findAllEvents(): Promise<({
         supportTeams: {
             id: string;
@@ -254,72 +212,6 @@ export declare class EventTicketsService {
         needsArtwork: boolean;
         hasPrintedArtwork: boolean | null;
         artworkDescription: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
-        authorVerification: string;
-        adminVerification: string;
-        adminRejectionReason: string | null;
-    }>;
-    findAllLocations(): Promise<({
-        supportTeams: {
-            id: string;
-            name: string;
-            email: string | null;
-        }[];
-    } & {
-        id: string;
-        requesterType: string;
-        requesterName: string;
-        requesterEmail: string;
-        requesterPhone: string;
-        eventDate: Date;
-        startTime: string;
-        endTime: string;
-        selectedRoom: string;
-        roomNotes: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
-        authorVerification: string;
-        adminVerification: string;
-        adminRejectionReason: string | null;
-    })[]>;
-    findOneLocation(id: string): Promise<{
-        supportTeams: {
-            id: string;
-            name: string;
-            email: string | null;
-        }[];
-    } & {
-        id: string;
-        requesterType: string;
-        requesterName: string;
-        requesterEmail: string;
-        requesterPhone: string;
-        eventDate: Date;
-        startTime: string;
-        endTime: string;
-        selectedRoom: string;
-        roomNotes: string | null;
-        controlCode: string;
-        createdAt: Date;
-        updatedAt: Date;
-        authorVerification: string;
-        adminVerification: string;
-        adminRejectionReason: string | null;
-    }>;
-    removeLocation(id: string): Promise<{
-        id: string;
-        requesterType: string;
-        requesterName: string;
-        requesterEmail: string;
-        requesterPhone: string;
-        eventDate: Date;
-        startTime: string;
-        endTime: string;
-        selectedRoom: string;
-        roomNotes: string | null;
         controlCode: string;
         createdAt: Date;
         updatedAt: Date;
