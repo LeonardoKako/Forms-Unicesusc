@@ -44,21 +44,21 @@ let LocationsEmailService = class LocationsEmailService {
             html: `
         <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #faf7f8; padding: 40px 20px; margin: 0; min-height: 100%;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(92, 34, 53, 0.05); border: 1px solid #ebd9df;">
-            <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); padding: 32px; text-align: center;">
+            <div style="background: linear-gradient(135deg, #5c2235, #c22a22); padding: 32px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">🔑 Validar Locação</h1>
               <p style="color: rgba(255, 255, 255, 0.8); margin: 6px 0 0 0; font-size: 13px; font-weight: 500; tracking: 1px;">UNICESUSC — SISTEMA DE RESERVAS</p>
             </div>
             
             <div style="padding: 32px; background-color: #ffffff;">
-              <p style="font-size: 15px; color: #1e3a8a; font-weight: 700; margin-top: 0;">Olá!</p>
+              <p style="font-size: 15px; color: #5c2235; font-weight: 700; margin-top: 0;">Olá!</p>
               <p style="font-size: 14px; color: #4a4a4a; line-height: 1.6; margin-bottom: 20px;">Uma nova solicitação de <strong>Locação Externa</strong> foi realizada. Como se trata de um parceiro externo, valide a solicitação para que ela possa seguir para a aprovação final do setor de eventos.</p>
               
               <div style="background: #faf7f8; border-radius: 12px; padding: 20px; border: 1px solid #ebd9df; margin: 24px 0;">
-                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 12px; color: #1e3a8a; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Detalhes da Solicitação</h3>
+                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 12px; color: #5c2235; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Detalhes da Solicitação</h3>
                 <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #4a4a4a;">
                   <tr>
                     <td style="padding: 6px 0; color: #888888; font-weight: 500; width: 110px;">Código:</td>
-                    <td style="padding: 6px 0; color: #1e3a8a; font-weight: 700;">${location.controlCode}</td>
+                    <td style="padding: 6px 0; color: #5c2235; font-weight: 700;">${location.controlCode}</td>
                   </tr>
                   <tr>
                     <td style="padding: 6px 0; color: #888888; font-weight: 500;">Solicitante:</td>
@@ -81,7 +81,7 @@ let LocationsEmailService = class LocationsEmailService {
 
               <div style="text-align: center; margin: 32px 0;">
                 <a href="${verifyUrl}" 
-                   style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #ffffff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);">
+                   style="background: linear-gradient(135deg, #5c2235, #c22a22); color: #ffffff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);">
                   ✅ Confirmar e Enviar para Análise
                 </a>
               </div>
@@ -110,21 +110,21 @@ let LocationsEmailService = class LocationsEmailService {
             html: `
         <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #faf7f8; padding: 40px 20px; margin: 0; min-height: 100%;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(92, 34, 53, 0.05); border: 1px solid #ebd9df;">
-            <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); padding: 32px; text-align: center;">
+            <div style="background: linear-gradient(135deg, #5c2235, #c22a22); padding: 32px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">📝 Aprovar Locação</h1>
               <p style="color: rgba(255, 255, 255, 0.8); margin: 6px 0 0 0; font-size: 13px; font-weight: 500; tracking: 1px;">PAINEL DO ADMINISTRADOR</p>
             </div>
             
             <div style="padding: 32px; background-color: #ffffff;">
-              <p style="font-size: 15px; color: #1e3a8a; font-weight: 700; margin-top: 0;">Olá!</p>
+              <p style="font-size: 15px; color: #5c2235; font-weight: 700; margin-top: 0;">Olá!</p>
               <p style="font-size: 14px; color: #4a4a4a; line-height: 1.6; margin-bottom: 20px;">Uma nova solicitação de locação externa foi validada na etapa inicial e está **aguardando sua decisão de aprovação final**.</p>
               
               <div style="background: #faf7f8; border-radius: 12px; padding: 20px; border: 1px solid #ebd9df; margin: 24px 0;">
-                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 12px; color: #1e3a8a; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Dados do Agendamento</h3>
+                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 12px; color: #5c2235; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Dados do Agendamento</h3>
                 <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #4a4a4a;">
                   <tr>
                     <td style="padding: 6px 0; color: #888888; font-weight: 500; width: 110px;">Código:</td>
-                    <td style="padding: 6px 0; color: #1e3a8a; font-weight: 700;">${location.controlCode}</td>
+                    <td style="padding: 6px 0; color: #5c2235; font-weight: 700;">${location.controlCode}</td>
                   </tr>
                   <tr>
                     <td style="padding: 6px 0; color: #888888; font-weight: 500;">Solicitante:</td>
@@ -147,7 +147,7 @@ let LocationsEmailService = class LocationsEmailService {
 
               <div style="text-align: center; margin: 32px 0;">
                 <a href="${reviewUrl}" 
-                   style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #ffffff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);">
+                   style="background: linear-gradient(135deg, #5c2235, #c22a22); color: #ffffff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);">
                   📋 Analisar e Decidir
                 </a>
               </div>
@@ -285,7 +285,7 @@ let LocationsEmailService = class LocationsEmailService {
             html: `
         <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #faf7f8; padding: 40px 20px; margin: 0; min-height: 100%;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(92, 34, 53, 0.05); border: 1px solid #ebd9df;">
-            <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); padding: 32px; text-align: center;">
+            <div style="background: linear-gradient(135deg, #5c2235, #c22a22); padding: 32px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">🔔 Apoio Locação</h1>
               <p style="color: rgba(255, 255, 255, 0.8); margin: 6px 0 0 0; font-size: 13px; font-weight: 500; tracking: 1px;">EQUIPES: ${teamNames.toUpperCase()}</p>
             </div>
@@ -294,11 +294,11 @@ let LocationsEmailService = class LocationsEmailService {
               <p style="font-size: 15px; color: #4a4a4a; line-height: 1.6; margin-top: 0; margin-bottom: 20px;">Olá! Uma nova locação externa foi confirmada e **requer o suporte operacional** das equipes: <strong>${teamNames}</strong>.</p>
               
               <div style="background: #faf7f8; border-radius: 12px; padding: 20px; border: 1px solid #ebd9df; margin: 24px 0;">
-                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 12px; color: #1e3a8a; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Dados de Agendamento</h3>
+                <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 12px; color: #5c2235; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Dados de Agendamento</h3>
                 <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #4a4a4a;">
                   <tr>
                     <td style="padding: 6px 0; color: #888888; font-weight: 500; width: 110px;">Código:</td>
-                    <td style="padding: 6px 0; color: #1e3a8a; font-weight: 700;">${location.controlCode}</td>
+                    <td style="padding: 6px 0; color: #5c2235; font-weight: 700;">${location.controlCode}</td>
                   </tr>
                   <tr>
                     <td style="padding: 6px 0; color: #888888; font-weight: 500;">Solicitante:</td>
@@ -321,7 +321,7 @@ let LocationsEmailService = class LocationsEmailService {
 
               <div style="text-align: center; margin: 30px 0;">
                 <a href="${formUrl}" 
-                   style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">
+                   style="background: linear-gradient(135deg, #5c2235, #c22a22); color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">
                   📋 Visualizar Detalhes do Formulário
                 </a>
               </div>
