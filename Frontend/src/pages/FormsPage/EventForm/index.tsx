@@ -20,6 +20,7 @@ import ExtraDocsCard from "./components/ExtraDocsCard";
 import { supabase } from "@/lib/supabase";
 import { toast } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createEvent, createLocation } from "@/lib/api";
 
 type FormType = "interno" | "locacao";
 
@@ -273,13 +274,32 @@ export default function EventForm() {
         finalPayload,
       );
 
-      setSubmittedData(finalPayload);
+      let apiResponse;
+      if (formType === "interno") {
+        apiResponse = await createEvent(finalPayload);
+        setSubmittedData({
+          ...finalPayload,
+          ...apiResponse?.event,
+        });
+      } else {
+        apiResponse = await createLocation(finalPayload);
+        setSubmittedData({
+          ...finalPayload,
+          ...apiResponse?.location,
+        });
+      }
+
+      console.log(
+        `[Formulário ${formType.toUpperCase()}] Resposta da API:`,
+        apiResponse,
+      );
+
       toast.success("Solicitação enviada com sucesso!");
       setShowSuccessModal(true);
     } catch (err: any) {
       console.error("Erro ao enviar:", err);
       toast.error(
-        `Erro ao enviar: ${err.message || "Problema no upload do arquivo"}`,
+        `Erro ao enviar: ${err.response?.data?.message || err.message || "Problema no upload do arquivo ou conexão com o servidor"}`,
       );
     } finally {
       setIsSubmitting(false);

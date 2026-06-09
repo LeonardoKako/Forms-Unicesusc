@@ -8,4 +8,16 @@ const api = axios.create({
   },
 });
 
+// Envia os dados para a API de criação de Eventos Internos
+export const createEvent = async (payload: any) => {
+  const response = await api.post("/events", payload);
+  return response.data;
+};
+
+// Envia os dados para a API de criação de Locações Externas
+export const createLocation = async (payload: any) => {
+  const response = await api.post("/locations", payload);
+  return response.data;
+};
+
 export default api;
