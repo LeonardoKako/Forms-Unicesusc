@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  # 🗄️ Banco de Dados PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: forms_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: unicesusc_db_password
+      POSTGRES_DB: forms_unicesusc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 💻 Backend NestJS
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: forms_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:unicesusc_db_password@db:5432/forms_unicesusc?schema=public
+      - PORT=3000
+      - JWT_SECRET=unicesusc-forms-jwt-secret-dev-2026
+      - FRONTEND_URL=http://localhost
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=formulario.eventos@unicesusc.edu.br
+      - SMTP_PASS=mcstqbqygglrltpu
+      - MAIL_FROM=formulario.eventos@unicesusc.edu.br
+      - EVENTS_ADMIN_EMAIL=formulario.eventos@unicesusc.edu.br
+      - LOCATIONS_VERIFIER_EMAIL=formulario.eventos@unicesusc.edu.br
+      - LOCATIONS_ADMIN_EMAIL=formulario.eventos@unicesusc.edu.br
+    depends_on:
+      - db
+
+  # 🖥️ Frontend React + Nginx
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=https://kgdmqgzhfgnndbxtcqdq.supabase.co
+        - VITE_SUPABASE_ANON_KEY=sb_publishable_vu482HfYkod2nh8tF629ug_Db64YQ-O
+        - VITE_API_URL=http://localhost:3000
+    container_name: forms_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
