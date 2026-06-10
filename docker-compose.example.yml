@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  # 🗄️ Banco de Dados PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: forms_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-unicesusc_db_password}
+      POSTGRES_DB: ${DB_NAME:-forms_unicesusc}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 💻 Backend NestJS
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: forms_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-unicesusc_db_password}@db:5432/${DB_NAME:-forms_unicesusc}?schema=public
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - MAIL_FROM=${MAIL_FROM}
+      - EVENTS_ADMIN_EMAIL=${EVENTS_ADMIN_EMAIL}
+      - LOCATIONS_VERIFIER_EMAIL=${LOCATIONS_VERIFIER_EMAIL}
+      - LOCATIONS_ADMIN_EMAIL=${LOCATIONS_ADMIN_EMAIL}
+    depends_on:
+      - db
+
+  # 🖥️ Frontend React + Nginx
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+        - VITE_API_URL=${VITE_API_URL}
+    container_name: forms_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
