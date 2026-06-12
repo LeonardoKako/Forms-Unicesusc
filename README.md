@@ -17,7 +17,7 @@ Este projeto é um sistema de formulários para gerenciamento de **Locações** 
 ### Backend
 - **NestJS** (TypeScript)
 - **PostgreSQL**
-- **Prisma ORM**
+- **Prisma ORM** (v7)
 - **JWT** (para validação de segurança via tokens por e-mail)
 - **Nodemailer** (para envio automatizado de e-mails)
 
@@ -42,43 +42,39 @@ Este projeto é um sistema de formulários para gerenciamento de **Locações** 
 ## 🚀 Como Rodar o Projeto
 
 ### Pré-requisitos
-- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados na máquina.
-- Alternativamente, para rodar sem Docker: **Node.js (v20+)** e um banco de dados **PostgreSQL** ativo.
+* [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados na máquina.
+* **Alternativamente (sem Docker):** [Node.js (v20+)](https://nodejs.org/) e um banco de dados **PostgreSQL** ativo no seu sistema.
 
 ---
 
-### Opção 1: Executando com Docker (Recomendado)
+### 🐳 Opção 1: Executando com Docker (Recomendado)
 
-O projeto já possui configurações prontas para Docker no frontend (`Frontend/Dockerfile`), backend (`Backend/Dockerfile`) e um arquivo de exemplo do Docker Compose.
+O projeto já está configurado com Dockerfiles otimizados e arquivos `.dockerignore` para evitar uploads de pacotes pesados desnecessários durante a construção das imagens.
 
-#### Passo 1: Configurar as Variáveis de Ambiente
-1. Na raiz do projeto, crie um arquivo `.env` a partir do arquivo de exemplo:
-   ```bash
-   copy .env.example .env
-   ```
-2. Abra o arquivo `.env` e configure as credenciais necessárias:
-   - **Banco de Dados**: Usuário, senha e nome do banco local do container.
-   - **Segurança**: Ajuste a chave secreta de assinatura do JWT (`JWT_SECRET`).
-   - **SMTP**: Configure as credenciais do servidor SMTP (como Gmail/Google Workspace) para envio de e-mails de validação e feedback.
-   - **Destinatários fixos**: E-mails do administrador e do verificador de locações (por exemplo, `EVENTS_ADMIN_EMAIL` e `LOCATIONS_VERIFIER_EMAIL`).
-   - **Supabase**: URL e chave anônima para upload de anexos (`VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`).
+#### Passo 1: Configurar o arquivo `.env`
+Na raiz do projeto, garanta que você possui um arquivo `.env`. Configure as credenciais necessárias:
+* **Segurança**: Ajuste a chave secreta de assinatura do JWT (`JWT_SECRET`).
+* **SMTP**: Configure as credenciais do servidor SMTP (como Gmail/Google Workspace) para envio de e-mails de validação e feedback.
+* **Destinatários**: Endereços do administrador e do verificador de locações.
+* **Supabase**: URL e chave anônima para upload de anexos (`VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`).
+* **API URL**: Para rodar no docker com a porta ajustada contra conflitos, use `VITE_API_URL=http://localhost:3001`.
 
-#### Passo 2: Criar o arquivo Docker Compose
-1. Copie o arquivo `docker-compose.example.yml` para `docker-compose.yml`:
-   ```bash
-   copy docker-compose.example.yml docker-compose.yml
-   ```
-
-#### Passo 3: Iniciar os Containers
-Execute o comando a seguir na raiz do projeto para construir as imagens e iniciar os serviços:
+#### Passo 2: Iniciar os Containers
+Execute o comando a seguir na raiz do projeto para construir as imagens e iniciar os serviços em segundo plano:
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
-> **Nota:** O container do Backend executa automaticamente as migrações do Prisma (`npx prisma migrate deploy`) no banco de dados na inicialização do serviço.
+
+#### Passo 3: Acompanhar os status
+* Abra o seu **Docker Desktop** para ver visualmente os contêineres ativos.
+* Se preferir ver pelo terminal, utilize:
+  ```bash
+  docker ps
+  ```
 
 ---
 
-### Opção 2: Executando Localmente (Sem Docker)
+### 💻 Opção 2: Executando Localmente (Sem Docker)
 
 Se preferir rodar cada serviço diretamente na sua máquina, siga os passos abaixo:
 
@@ -94,17 +90,19 @@ Certifique-se de ter um servidor PostgreSQL rodando localmente com a database cr
    ```bash
    npm install
    ```
-3. Crie e configure o arquivo `.env` dentro da pasta `Backend` (ou garanta que as variáveis globais estejam acessíveis).
+3. Crie e configure o arquivo `.env` dentro da pasta `Backend` (garantindo que `DATABASE_URL` aponte para o seu PostgreSQL local).
 4. Gere o cliente do Prisma e execute as migrações do banco de dados:
    ```bash
    npx prisma generate
+   ```
+   ```bash
    npx prisma migrate dev
    ```
 5. Inicie o servidor em modo de desenvolvimento:
    ```bash
    npm run start:dev
    ```
-   *O backend estará rodando em `http://localhost:3000`.*
+   *O backend estará rodando em `http://localhost:3000` (ou `3001` conforme configurado).*
 
 #### 3. Frontend
 1. Navegue até a pasta do frontend:
@@ -115,7 +113,7 @@ Certifique-se de ter um servidor PostgreSQL rodando localmente com a database cr
    ```bash
    npm install
    ```
-3. Crie e configure o arquivo `.env` na pasta `Frontend` com as variáveis necessárias (URL da API, chaves do Supabase).
+3. Configure o arquivo `Frontend/.env` com as chaves necessárias.
 4. Inicie o servidor de desenvolvimento do Vite:
    ```bash
    npm run dev
@@ -124,10 +122,40 @@ Certifique-se de ter um servidor PostgreSQL rodando localmente com a database cr
 
 ---
 
-## 🌐 URLs de Acesso
+## 🌐 URLs de Acesso Rápido
 
 | Serviço | URL (Docker Compose) | URL (Local sem Docker) |
 | :--- | :--- | :--- |
-| **Frontend** (React/Vite) | [http://localhost](http://localhost) | [http://localhost:5173](http://localhost:5173) |
-| **Backend** (NestJS) | [http://localhost:3000](http://localhost:3000) | [http://localhost:3000](http://localhost:3000) |
-| **Banco de Dados** (PostgreSQL) | `localhost:5432` | `localhost:5432` (ou porta configurada) |
+| **Frontend** (React/Vite) | [http://localhost](http://localhost) (Porta 80) | [http://localhost:5173](http://localhost:5173) |
+| **Backend** (NestJS) | [http://localhost:3001](http://localhost:3001) | [http://localhost:3000](http://localhost:3000) |
+| **Banco de Dados** (PostgreSQL) | `localhost:5432` | `localhost:5432` |
+
+---
+
+## 🗄️ Visualizando o Banco de Dados (Prisma Studio)
+
+Caso precise inspecionar as tabelas do banco de dados localmente (como listar os eventos enviados ou gerenciar os tokens de validação), você pode usar o **Prisma Studio**:
+
+1. Navegue até a pasta `Backend` no terminal do seu computador:
+   ```bash
+   cd Backend
+   ```
+2. Execute o comando:
+   ```bash
+   npx prisma studio
+   ```
+3. O visualizador abrirá automaticamente no seu navegador em **`http://localhost:5555`** (ou na porta indicada no console).
+
+> ℹ️ **Nota:** Certifique-se de que a variável `DATABASE_URL` no arquivo `Backend/.env` esteja configurada com a mesma senha e porta definidas para o banco de dados que está ativo no Docker.
+
+---
+
+## ⚠️ Solução de Problemas Comuns
+
+### 1. Conflito de porta 3000 (Ex: Grafana / Outros serviços locais)
+Caso você tenha serviços como o Grafana rodando localmente na porta 3000, o backend no Docker poderá falhar ao tentar expor essa porta. 
+* **Solução:** O mapeamento do backend no Docker Compose deste projeto foi configurado para a porta **3001** (`3001:3000`) para evitar conflitos. Garanta que a sua variável `VITE_API_URL` no `.env` da raiz estejam configuradas como `http://localhost:3001`.
+
+### 2. Mudança de esquema do Prisma v7
+Na versão 7 do Prisma ORM, a propriedade `url` não é mais definida diretamente dentro do arquivo `schema.prisma`. 
+* **Importante:** Sempre garanta que o arquivo `prisma.config.js` está na raiz do backend e que o `Dockerfile` está copiando esse arquivo para as etapas de build do Docker.
