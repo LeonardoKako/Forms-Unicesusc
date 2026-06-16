@@ -63,17 +63,13 @@ export default function SuccessModal({
           <h3 className='text-xl sm:text-2xl font-black uppercase tracking-wider'>
             Solicitação Enviada!
           </h3>
-          
+
           <div className="mt-4 flex flex-col items-center gap-2">
             <span className='text-[10px] uppercase font-extrabold tracking-widest opacity-80'>
               {isLocacao ? "Código de Locação Externa (Público)" : "Código de Evento Interno (Institucional)"}
             </span>
             <div className="flex items-center gap-2">
-              <div className={`px-5 py-2.5 font-mono font-black rounded-xl shadow-inner text-base tracking-widest border uppercase flex items-center gap-3 transition-all ${
-                isLocacao 
-                  ? "bg-brand text-white border-brand/30" 
-                  : "bg-primary text-white border-primary/30"
-              }`}>
+              <div className={`px-5 py-2.5 font-mono font-black rounded-xl shadow-inner text-base tracking-widest border uppercase flex items-center gap-3 transition-all bg-brand text-white border-brand/30`}>
                 <span>{data.controlCode}</span>
                 <button
                   type="button"

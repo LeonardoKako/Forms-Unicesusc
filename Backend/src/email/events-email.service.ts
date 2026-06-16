@@ -189,6 +189,7 @@ export class EventsEmailService {
     const eventDateFormatted = new Date(event.eventDate).toLocaleDateString(
       'pt-BR',
     );
+    const formUrl = `${this.frontendUrl}/forms/${event.id}`;
 
     await this.transporter.sendMail({
       from: this.fromEmail,
@@ -231,7 +232,14 @@ export class EventsEmailService {
                   </tr>
                 </table>
               </div>
-
+ 
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${formUrl}" 
+                   style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">
+                  📋 Visualizar Detalhes do Formulário
+                </a>
+              </div>
+ 
               <p style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 0;">As equipes de logística, T.I., marketing e copa vinculadas foram notificadas e estarão devidamente acionadas para dar todo o suporte ao seu evento.</p>
               
               <hr style="border: 0; border-top: 1px solid #ebd9df; margin: 24px 0;" />

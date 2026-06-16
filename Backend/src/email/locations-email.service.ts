@@ -211,6 +211,7 @@ export class LocationsEmailService {
     const eventDateFormatted = new Date(location.eventDate).toLocaleDateString(
       'pt-BR',
     );
+    const formUrl = `${this.frontendUrl}/location/${location.id}`;
 
     await this.transporter.sendMail({
       from: this.fromEmail,
@@ -248,6 +249,13 @@ export class LocationsEmailService {
                     <td style="padding: 6px 0; color: #0f172a; font-weight: 600;">${location.startTime} às ${location.endTime}</td>
                   </tr>
                 </table>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${formUrl}" 
+                   style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">
+                  📋 Visualizar Detalhes do Formulário
+                </a>
               </div>
               
               <p style="font-size: 13px; color: #475569; line-height: 1.6;">As equipes de apoio interno já foram notificadas e estarão preparadas no dia programado.</p>

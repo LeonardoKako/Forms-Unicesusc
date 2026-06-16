@@ -180,7 +180,7 @@ export default function EventForm() {
     setIsSubmitting(true);
     try {
       // Pausa de no mínimo 5 segundos para evitar spam
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       let finalBudgetUrl = "";
 
@@ -353,11 +353,10 @@ export default function EventForm() {
           <button
             type='button'
             onClick={() => setFormType("interno")}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-              formType === "interno"
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${formType === "interno"
                 ? "bg-white text-brand shadow-sm"
                 : "text-gray-500 hover:text-gray-800 hover:bg-white/40"
-            }`}
+              }`}
           >
             <User className='h-4 w-4 text-primary' />
             <span>Comunidade Interna</span>
@@ -365,11 +364,10 @@ export default function EventForm() {
           <button
             type='button'
             onClick={() => setFormType("locacao")}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-              formType === "locacao"
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${formType === "locacao"
                 ? "bg-white text-brand shadow-sm"
                 : "text-gray-500 hover:text-gray-800 hover:bg-white/40"
-            }`}
+              }`}
           >
             <Key className='h-4 w-4 text-primary' />
             <span>Locação Externa</span>
@@ -444,10 +442,9 @@ export default function EventForm() {
                   disabled={isSubmitting}
                   className={`
                     w-full h-13 rounded-xl font-bold text-sm tracking-wide text-white uppercase shadow-md flex items-center justify-center space-x-2 transition-all duration-300 outline-none
-                    ${
-                      isSubmitting
-                        ? "bg-primary/70 cursor-not-allowed"
-                        : "bg-primary hover:bg-primary/95 active:scale-[0.98] hover:shadow-lg focus:ring-4 focus:ring-primary/20"
+                    ${isSubmitting
+                      ? "bg-primary/70 cursor-not-allowed"
+                      : "bg-primary hover:bg-primary/95 active:scale-[0.98] hover:shadow-lg focus:ring-4 focus:ring-primary/20"
                     }
                   `}
                 >
