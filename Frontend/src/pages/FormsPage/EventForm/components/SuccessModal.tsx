@@ -1,6 +1,7 @@
-import { useEffect } from "react";
-import { FileCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { FileCheck, Copy, Check } from "lucide-react";
 import { ROOM_OPTIONS, SUPPORT_TEAMS_OPTIONS } from "../mockData";
+import { toast } from "react-toastify";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ export default function SuccessModal({
   onClose,
   onReset,
 }: SuccessModalProps) {
+  const [copied, setCopied] = useState(false);
+
   // Prevent body scrolling when modal is active
   useEffect(() => {
     if (isOpen) {
@@ -42,6 +45,13 @@ export default function SuccessModal({
 
   const isLocacao = data.requesterType === "locacao";
 
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(data.controlCode);
+    setCopied(true);
+    toast.success("Código copiado para a área de transferência!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className='fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn'>
       <div className='bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-scaleUp max-h-[90vh] flex flex-col'>
@@ -53,16 +63,62 @@ export default function SuccessModal({
           <h3 className='text-xl sm:text-2xl font-black uppercase tracking-wider'>
             Solicitação Enviada!
           </h3>
-          <p className='text-xs text-white/80 mt-1 font-medium'>
-            Guarde o seu código de controle para futuras consultas
-          </p>
-          <div className='inline-block mt-4 px-4 py-2 bg-white text-brand font-black rounded-xl shadow-inner text-sm tracking-widest border border-white/20 uppercase'>
-            {data.controlCode}
+          
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <span className='text-[10px] uppercase font-extrabold tracking-widest opacity-80'>
+              {isLocacao ? "Código de Locação Externa (Público)" : "Código de Evento Interno (Institucional)"}
+            </span>
+            <div className="flex items-center gap-2">
+              <div className={`px-5 py-2.5 font-mono font-black rounded-xl shadow-inner text-base tracking-widest border uppercase flex items-center gap-3 transition-all ${
+                isLocacao 
+                  ? "bg-brand text-white border-brand/30" 
+                  : "bg-primary text-white border-primary/30"
+              }`}>
+                <span>{data.controlCode}</span>
+                <button
+                  type="button"
+                  onClick={handleCopyCode}
+                  className="hover:scale-110 active:scale-95 transition-all p-1.5 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center"
+                  title="Copiar Código"
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 text-emerald-300 animate-scaleUp" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-white" />
+                  )}
+                </button>
+              </div>
+            </div>
+            <p className='text-[10px] text-white/80 max-w-xs text-center leading-normal mt-0.5 font-medium'>
+              O prefixo <strong>{isLocacao ? "LOC (Locação)" : "INT (Interno)"}</strong> indica a categoria da reserva, seguido por 6 números gerados aleatoriamente.
+            </p>
           </div>
         </div>
 
         {/* Modal Body (Scrollable container) */}
         <div className='flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 bg-gray-50/50'>
+          {/* AVISO IMPORTANTE DE VALIDAÇÃO DE E-MAIL */}
+          <div className="p-5 rounded-2xl border flex flex-col gap-2.5 text-sm leading-relaxed shadow-sm bg-amber-50 border-amber-200 text-amber-800">
+            <div className="flex items-center gap-2 font-bold uppercase tracking-wider text-xs">
+              <span className="text-base">✉️</span>
+              <span>Ação Necessária para Validação!</span>
+            </div>
+            {isLocacao ? (
+              <p className="font-medium text-xs sm:text-[13px]">
+                Sua solicitação de locação foi registrada com sucesso. Um e-mail com o link de validação foi enviado para o <strong>verificador responsável</strong>. O processo de reserva continuará somente após a confirmação dele.
+              </p>
+            ) : (
+              <div className="space-y-1.5 font-medium text-xs sm:text-[13px]">
+                <p>
+                  Enviamos um e-mail de validação para <strong>{data.requesterEmail}</strong>.
+                </p>
+                <p className="font-black text-red-700 uppercase bg-red-50/50 p-2 rounded-lg border border-red-200/40">
+                  ⚠️ Atenção: Você deve abrir o seu e-mail e clicar no link de confirmação para validar sua identidade. A equipe administrativa só receberá sua solicitação após essa validação.
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* SEÇÃO 1: DADOS DO SOLICITANTE */}
           <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4'>
             <h4 className='text-xs font-black uppercase tracking-wider text-primary border-b border-gray-100 pb-2'>

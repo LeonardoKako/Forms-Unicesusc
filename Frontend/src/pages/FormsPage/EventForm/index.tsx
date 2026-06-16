@@ -179,6 +179,9 @@ export default function EventForm() {
   const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
+      // Pausa de no mínimo 5 segundos para evitar spam
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       let finalBudgetUrl = "";
 
       // 1. Upload do Arquivo de Orçamento (Apenas no Interno, se aplicável)

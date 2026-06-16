@@ -138,7 +138,7 @@ export default function DateLocationCard({ isLocationForm = false }: DateLocatio
                           <p className='mb-2 text-sm text-gray-500'>
                             <span className='font-semibold'>Clique para anexar o documento</span> ou arraste e solte
                           </p>
-                          <p className='text-xs text-gray-500'>PDF, JPG, PNG (MAX. 10MB)</p>
+                          <p className='text-xs text-gray-500'>PDF, JPG, PNG (MAX. 1MB)</p>
                         </div>
                         <input
                           type='file'

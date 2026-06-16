@@ -132,6 +132,15 @@ export const eventFormSchema = z
           message: "O envio da confirmação da Reitoria é obrigatório",
           path: ["budgetApprovalFileUrl"],
         });
+      } else {
+        const file = data.budgetApprovalFileUrl[0];
+        if (file && file.size > 1 * 1024 * 1024) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "O tamanho do arquivo não pode exceder 1MB",
+            path: ["budgetApprovalFileUrl"],
+          });
+        }
       }
     }
 
