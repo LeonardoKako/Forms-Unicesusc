@@ -3,6 +3,8 @@ import { Cpu } from "lucide-react";
 import CheckboxGrid from "./CheckboxGrid";
 import { TI_EQUIPMENT_OPTIONS } from "../mockData";
 import InfoModal from "../../../../components/InfoModal";
+import telaoPequeno from "../../../../assets/images/telaoPequeno.png";
+import telaoGrande from "../../../../assets/images/telaoGrande.png";
 
 export default function TIEquipmentCard() {
   const [modalData, setModalData] = useState<{ isOpen: boolean; title: string; imageUrl: string } | null>(null);
@@ -12,13 +14,13 @@ export default function TIEquipmentCard() {
       setModalData({
         isOpen: true,
         title: 'Projetor Pequeno',
-        imageUrl: '/images/projetor-pequeno.jpg' // Placeholder, replace with actual
+        imageUrl: telaoPequeno // Placeholder, replace with actual
       });
     } else if (optionId === 'projetor_grande') {
       setModalData({
         isOpen: true,
         title: 'Projetor Grande',
-        imageUrl: '/images/projetor-grande.jpg' // Placeholder, replace with actual
+        imageUrl: telaoGrande // Placeholder, replace with actual
       });
     }
   };
