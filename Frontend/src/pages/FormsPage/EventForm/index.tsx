@@ -311,6 +311,18 @@ export default function EventForm() {
 
   // Callback acionado quando a validação do formulário falha
   const onError = (errors: any) => {
+    // Toasts específicos para erros de orçamento e aprovação
+    if (errors.needsBudget) {
+      toast.error(`⚠️ Orçamento: ${errors.needsBudget.message}`, {
+        toastId: "needs-budget-error",
+      });
+    }
+    if (errors.budgetApprovalFileUrl) {
+      toast.error(`⚠️ Documento da Reitoria: ${errors.budgetApprovalFileUrl.message}`, {
+        toastId: "budget-file-error",
+      });
+    }
+
     toast.error(
       "Por favor, preencha todos os campos obrigatórios corretamente.",
     );

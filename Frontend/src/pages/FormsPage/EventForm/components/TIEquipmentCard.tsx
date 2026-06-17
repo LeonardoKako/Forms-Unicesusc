@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Cpu } from "lucide-react";
+import { Cpu, Info } from "lucide-react";
 import CheckboxGrid from "./CheckboxGrid";
 import { TI_EQUIPMENT_OPTIONS } from "../mockData";
 import InfoModal from "../../../../components/InfoModal";
@@ -48,9 +48,12 @@ export default function TIEquipmentCard() {
         withCardWrapper={false}
         onInfoClick={handleInfoClick}
       >
-        <p className="text-xs text-gray-500 mt-2 font-medium">
-          A equipe de T.I. oferece suporte apenas para os equipamentos fornecidos ao solicitar o evento.
-        </p>
+        <div className='flex items-start space-x-2 text-sm text-amber-600 font-semibold bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/50 mt-4'>
+          <Info className='h-4 w-4 shrink-0 text-amber-500 mt-0.5' />
+          <span className="leading-relaxed">
+            A equipe de T.I. oferece suporte apenas para os equipamentos fornecidos ao solicitar o evento.
+          </span>
+        </div>
       </CheckboxGrid>
 
       {modalData && (

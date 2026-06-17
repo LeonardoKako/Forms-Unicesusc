@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { Users, Info } from "lucide-react";
 import CheckboxGrid from "./CheckboxGrid";
 import { SUPPORT_TEAMS_OPTIONS } from "../mockData";
 
@@ -27,8 +27,11 @@ export default function SupportTeamsCard() {
         withCardWrapper={false}
         disabledOptions={["marketing", "administrativo"]}
       >
-        <div className="p-3 bg-brand/5 border border-brand/10 rounded-xl text-sm text-brand font-medium">
-          O administrativo e o marketing sempre estarão cientes do evento.
+        <div className='flex items-start space-x-2 text-sm text-amber-600 font-semibold bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/50 mt-4'>
+          <Info className='h-4 w-4 shrink-0 text-amber-500 mt-0.5' />
+          <span className="leading-relaxed">
+            O administrativo e o marketing sempre estarão cientes do evento.
+          </span>
         </div>
       </CheckboxGrid>
     </div>
