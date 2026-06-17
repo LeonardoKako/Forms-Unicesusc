@@ -24,7 +24,7 @@ export default function FormsPage() {
         {/* Quick Informative Badge */}
         <div className='flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-brand bg-brand/5 px-3 py-1.5 rounded-lg border border-brand/10'>
           <ShieldAlert className='h-3.5 w-3.5 text-primary' />
-          <span>Resposta em até 48 horas úteis</span>
+          <span>Resposta em até 7 dias corridos</span>
         </div>
       </div>
 

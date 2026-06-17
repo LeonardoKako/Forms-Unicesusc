@@ -38,18 +38,25 @@ export default function Footer() {
               <HeartHandshake className='h-4 w-4 text-primary' />
               <span>Ajuda e Suporte</span>
             </h4>
-            <p className='text-xs text-white/70 leading-relaxed'>
-              Dúvidas técnicas no agendamento ou suporte a áudio/vídeo? Entre em
-              contato com a equipe de Tecnologia da Informação.
-            </p>
-            <div className='text-xs font-semibold text-white mt-2'>
-              <span>E-mail: </span>
-              <a
-                href='mailto:suporte.ti@unicesusc.edu.br'
-                className='text-primary hover:underline'
-              >
-                suporte.ti@unicesusc.edu.br
-              </a>
+            <div className='text-xs text-white/70 space-y-3 leading-relaxed pl-[22px]'>
+              <div>
+                <span className='block text-white/70 font-medium'>Problemas técnicos no sistema:</span>
+                <a
+                  href='mailto:suporte.ti@unicesusc.edu.br'
+                  className='text-primary hover:underline font-semibold'
+                >
+                  suporte.ti@unicesusc.edu.br
+                </a>
+              </div>
+              <div>
+                <span className='block text-white/70 font-medium'>Dúvidas sobre reservas e eventos:</span>
+                <a
+                  href='mailto:apoio.eventos@unicesusc.edu.br'
+                  className='text-primary hover:underline font-semibold'
+                >
+                  apoio.eventos@unicesusc.edu.br
+                </a>
+              </div>
             </div>
           </div>
         </div>
