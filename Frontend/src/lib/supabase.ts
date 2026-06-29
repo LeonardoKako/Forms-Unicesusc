@@ -4,7 +4,10 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Supabase URL or Anon Key is missing. Check your .env file!");
+  console.warn("Supabase URL or Anon Key is missing. Using fallback for Vercel demo.");
 }
 
-export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "");
+const safeUrl = supabaseUrl && supabaseUrl.startsWith("http") ? supabaseUrl : "https://placeholder-supabase.co";
+const safeKey = supabaseAnonKey || "placeholder-key";
+
+export const supabase = createClient(safeUrl, safeKey);

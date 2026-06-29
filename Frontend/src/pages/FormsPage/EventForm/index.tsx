@@ -17,7 +17,6 @@ import SuccessModal from "./components/SuccessModal";
 import InfoModal from "@/components/InfoModal";
 import ExtraDocsCard from "./components/ExtraDocsCard";
 
-import { supabase } from "@/lib/supabase";
 import { toast } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createEvent, createLocation } from "@/lib/api";
@@ -31,24 +30,13 @@ export default function EventForm() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [submittedData, setSubmittedData] = useState<any | null>(null);
 
-  // Helper para fazer upload de arquivos no Supabase
+  // Helper para fazer upload de arquivos simulado (evitando Supabase no frontend)
   const uploadFile = async (file: File, folder: string): Promise<string> => {
+    // Simula um delay de upload de 1 segundo
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     const fileExt = file.name.split(".").pop();
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-    const filePath = `${folder}/${fileName}`;
-
-    const { error } = await supabase.storage
-      .from("comprovantes")
-      .upload(filePath, file);
-
-    if (error) {
-      throw error;
-    }
-
-    const { data } = supabase.storage
-      .from("comprovantes")
-      .getPublicUrl(filePath);
-    return data.publicUrl;
+    return `https://supabase-mock-storage.local/${folder}/${fileName}`;
   };
 
   // Instanciamos os métodos do formulário com base na aba ativa (interno vs locacao)
